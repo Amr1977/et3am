@@ -152,6 +152,27 @@ async function registerServer(): Promise<void> {
   console.log(`[${SERVER_ID}] Registering server with URL: ${SERVER_URL}`);
   console.log(`[${SERVER_ID}] My position: ${getMyPosition()} of ${getTotalServers()}`);
 
+  if (db && firebaseInitialized) {
+    try {
+      const existingDoc = await db.collection(FIRESTORE_COLLECTION).doc(SERVER_ID).get();
+      if (existingDoc.exists) {
+        console.log(`[${SERVER_ID}] Server already registered, updating...`);
+        const serverDoc: ServerDoc = {
+          serverId: SERVER_ID,
+          url: SERVER_URL,
+          isHealthy: true,
+          lastHealthCheck: Date.now(),
+          registeredAt: existingDoc.data()?.registeredAt || Date.now(),
+        };
+        registeredServers.set(SERVER_ID, serverDoc);
+        await updateServerInFirestore(serverDoc);
+        return;
+      }
+    } catch (err) {
+      console.warn('[${SERVER_ID}] Failed to check existing server:', err);
+    }
+  }
+
   const serverDoc: ServerDoc = {
     serverId: SERVER_ID,
     url: SERVER_URL,
