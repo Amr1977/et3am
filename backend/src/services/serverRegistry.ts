@@ -7,6 +7,10 @@ import { initDb, warmupDatabase } from '../database';
 const SERVER_ID = process.env.SERVER_ID || `et3am-${uuidv4().slice(0, 8)}`;
 const SERVER_URL = process.env.SERVER_URL || `http://localhost:${process.env.PORT || 3001}`;
 
+if (!process.env.SERVER_URL && process.env.NODE_ENV === 'production') {
+  throw new Error('SERVER_URL environment variable is required in production');
+}
+
 const HEALTH_CHECK_INTERVAL = 60000;
 const HEALTH_CHECK_TIMEOUT = 10000;
 
