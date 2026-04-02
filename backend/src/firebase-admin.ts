@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const credPath = path.join(__dirname, '../../et3am26-firebase-adminsdk-fbsvc-23c302e167.json');
+const credPath = path.join(__dirname, '../et3am26-firebase-adminsdk-fbsvc-23c302e167.json');
 
 let fileCreds: any = null;
 if (fs.existsSync(credPath)) {
