@@ -1,6 +1,6 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useSearchParams, useNavigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { useRTL } from './hooks/useRTL';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -9,6 +9,21 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Donations from './pages/Donations';
+
+function OAuthCallbackHandler() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { loginWithToken } = useAuth();
+
+  useEffect(() => {
+    const token = searchParams.get('token');
+    if (token) {
+      loginWithToken(token).then(() => navigate('/dashboard'));
+    }
+  }, [searchParams]);
+
+  return <div className="loading-page">Signing in...</div>;
+}
 
 function AppContent() {
   useRTL();
@@ -26,6 +41,7 @@ function AppContent() {
         </Routes>
       </main>
       <Footer />
+      <OAuthCallbackHandler />
     </div>
   );
 }

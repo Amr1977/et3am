@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { initializeAuth, getAuth, signInWithPopup, GoogleAuthProvider, signOut as firebaseSignOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { initializeApp } from 'firebase/app';
+import firebaseConfig from '../firebase';
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
 interface User {
   id: string;
@@ -9,13 +15,16 @@ interface User {
   phone?: string;
   address?: string;
   preferred_language: string;
+  avatar_url?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
+  loginWithToken: (token: string) => Promise<void>;
   logout: () => void;
   updateLanguage: (lang: string) => Promise<void>;
   isAuthenticated: boolean;
@@ -80,6 +89,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
   };
 
+  const loginWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const idToken = await result.user.getIdToken();
+    
+    const res = await fetch(`${API_BASE}/auth/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Google login failed');
+    localStorage.setItem('token', data.token);
+    setToken(data.token);
+    setUser(data.user);
+  };
+
+  const loginWithToken = async (newToken: string) => {
+    localStorage.setItem('token', newToken);
+    setToken(newToken);
+  };
+
   const register = async (regData: RegisterData) => {
     const lang = i18n.language;
     const res = await fetch(`${API_BASE}/auth/register`, {
@@ -98,6 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+    firebaseSignOut(auth).catch(console.error);
   };
 
   const updateLanguage = async (lang: string) => {
@@ -118,7 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, updateLanguage, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ user, token, login, loginWithGoogle, register, loginWithToken, logout, updateLanguage, isAuthenticated: !!token }}>
       {children}
     </AuthContext.Provider>
   );

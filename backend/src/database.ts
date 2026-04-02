@@ -1,22 +1,31 @@
-import fs from 'fs';
-import path from 'path';
+import { Pool, QueryResult } from 'pg';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 
-interface User {
+const DEV_URL = 'postgresql://neondb_owner:npg_XveTDxw5HRJ7@ep-flat-mountain-an8hva6r-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+const PROD_URL = 'postgresql://neondb_owner:npg_XveTDxw5HRJ7@ep-nameless-scene-anwafvan-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+
+const isProduction = process.env.NODE_ENV === 'production';
+const connectionString = process.env.DATABASE_URL || (isProduction ? PROD_URL : DEV_URL);
+
+const pool = new Pool({ connectionString });
+
+export interface User {
   id: string;
   name: string;
   email: string;
-  password: string;
+  password: string | null;
   role: 'donor' | 'recipient' | 'admin';
   phone: string | null;
   address: string | null;
   preferred_language: 'en' | 'ar';
+  google_id: string | null;
+  avatar_url: string | null;
   created_at: string;
   updated_at: string;
 }
 
-interface Donation {
+export interface Donation {
   id: string;
   donor_id: string;
   title: string;
@@ -35,131 +44,173 @@ interface Donation {
   updated_at: string;
 }
 
-interface DbSchema {
-  users: User[];
-  donations: Donation[];
-}
+export async function initDb(): Promise<void> {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      password TEXT,
+      role TEXT NOT NULL DEFAULT 'donor' CHECK(role IN ('donor', 'recipient', 'admin')),
+      phone TEXT,
+      address TEXT,
+      preferred_language TEXT NOT NULL DEFAULT 'en' CHECK(preferred_language IN ('en', 'ar')),
+      google_id TEXT UNIQUE,
+      avatar_url TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
 
-const DATA_DIR = path.join(__dirname, '..', 'data');
-const DB_FILE = path.join(DATA_DIR, 'db.json');
+    CREATE TABLE IF NOT EXISTS donations (
+      id TEXT PRIMARY KEY,
+      donor_id TEXT NOT NULL REFERENCES users(id),
+      title TEXT NOT NULL,
+      description TEXT,
+      food_type TEXT NOT NULL,
+      quantity INTEGER NOT NULL DEFAULT 1,
+      unit TEXT NOT NULL DEFAULT 'portion',
+      expiry_date TIMESTAMPTZ,
+      pickup_address TEXT NOT NULL,
+      latitude DOUBLE PRECISION,
+      longitude DOUBLE PRECISION,
+      pickup_date TIMESTAMPTZ,
+      status TEXT NOT NULL DEFAULT 'available' CHECK(status IN ('available', 'reserved', 'completed', 'expired')),
+      reserved_by TEXT REFERENCES users(id),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
 
-let data: DbSchema;
-
-function ensureDir(): void {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-}
-
-function load(): DbSchema {
-  if (!data) {
-    ensureDir();
-    if (fs.existsSync(DB_FILE)) {
-      data = JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
-    } else {
-      data = { users: [], donations: [] };
-      save();
-    }
-  }
-  return data;
-}
-
-function save(): void {
-  ensureDir();
-  fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
-}
-
-export function initDb(): void {
-  const db = load();
-  const existingAdmin = db.users.find(u => u.email === 'admin@et3am.com');
-  if (!existingAdmin) {
+  const { rows } = await pool.query('SELECT id FROM users WHERE email = $1', ['admin@et3am.com']);
+  if (rows.length === 0) {
     const hashedPassword = bcrypt.hashSync('admin123', 10);
-    db.users.push({
-      id: uuidv4(),
-      name: 'Admin',
-      email: 'admin@et3am.com',
-      password: hashedPassword,
-      role: 'admin',
-      phone: null,
-      address: null,
-      preferred_language: 'en',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    });
-    save();
+    await pool.query(
+      `INSERT INTO users (id, name, email, password, role, preferred_language) VALUES ($1, $2, $3, $4, $5, $6)`,
+      [uuidv4(), 'Admin', 'admin@et3am.com', hashedPassword, 'admin', 'en']
+    );
   }
 }
 
 export const dbOps = {
   users: {
-    findByEmail(email: string): User | undefined {
-      return load().users.find(u => u.email === email);
+    async findByEmail(email: string): Promise<User | null> {
+      const { rows } = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+      return rows[0] || null;
     },
-    findById(id: string): User | undefined {
-      return load().users.find(u => u.id === id);
+    async findById(id: string): Promise<User | null> {
+      const { rows } = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
+      return rows[0] || null;
     },
-    create(user: User): User {
-      load().users.push(user);
-      save();
-      return user;
+    async findByGoogleId(googleId: string): Promise<User | null> {
+      const { rows } = await pool.query('SELECT * FROM users WHERE google_id = $1', [googleId]);
+      return rows[0] || null;
     },
-    update(id: string, updates: Partial<User>): User | undefined {
-      const db = load();
-      const idx = db.users.findIndex(u => u.id === id);
-      if (idx === -1) return undefined;
-      db.users[idx] = { ...db.users[idx], ...updates, updated_at: new Date().toISOString() };
-      save();
-      return db.users[idx];
+    async create(user: Omit<User, 'created_at' | 'updated_at'>): Promise<User> {
+      const { rows } = await pool.query(
+        `INSERT INTO users (id, name, email, password, role, phone, address, preferred_language, google_id, avatar_url)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
+        [user.id, user.name, user.email, user.password, user.role, user.phone, user.address, user.preferred_language, user.google_id, user.avatar_url]
+      );
+      return rows[0];
+    },
+    async update(id: string, updates: Partial<User>): Promise<User | null> {
+      const fields: string[] = [];
+      const values: any[] = [];
+      let idx = 1;
+      for (const [key, value] of Object.entries(updates)) {
+        if (key === 'id' || key === 'created_at') continue;
+        fields.push(`${key} = $${idx}`);
+        values.push(value);
+        idx++;
+      }
+      fields.push(`updated_at = NOW()`);
+      values.push(id);
+      const { rows } = await pool.query(
+        `UPDATE users SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`,
+        values
+      );
+      return rows[0] || null;
     },
   },
   donations: {
-    findAll(filters?: { status?: string; food_type?: string }, page = 1, limit = 10): { donations: Donation[]; total: number } {
-      let items = [...load().donations];
-      if (filters?.status) items = items.filter(d => d.status === filters.status);
-      if (filters?.food_type) items = items.filter(d => d.food_type === filters.food_type);
-      items.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      const total = items.length;
-      const offset = (page - 1) * limit;
-      return { donations: items.slice(offset, offset + limit), total };
+    async findAll(filters?: { status?: string; food_type?: string }, page = 1, limit = 10): Promise<{ donations: Donation[]; total: number }> {
+      let where = 'WHERE 1=1';
+      const params: any[] = [];
+      let idx = 1;
+
+      if (filters?.status) {
+        where += ` AND status = $${idx++}`;
+        params.push(filters.status);
+      }
+      if (filters?.food_type) {
+        where += ` AND food_type = $${idx++}`;
+        params.push(filters.food_type);
+      }
+
+      const countResult = await pool.query(`SELECT COUNT(*) as total FROM donations ${where}`, params);
+      const total = parseInt(countResult.rows[0].total);
+
+      params.push(limit);
+      params.push((page - 1) * limit);
+      const { rows } = await pool.query(
+        `SELECT * FROM donations ${where} ORDER BY created_at DESC LIMIT $${idx++} OFFSET $${idx}`,
+        params
+      );
+      return { donations: rows, total };
     },
-    findById(id: string): Donation | undefined {
-      return load().donations.find(d => d.id === id);
+    async findById(id: string): Promise<Donation | null> {
+      const { rows } = await pool.query('SELECT * FROM donations WHERE id = $1', [id]);
+      return rows[0] || null;
     },
-    create(donation: Donation): Donation {
-      load().donations.push(donation);
-      save();
-      return donation;
+    async create(d: Omit<Donation, 'created_at' | 'updated_at'>): Promise<Donation> {
+      const { rows } = await pool.query(
+        `INSERT INTO donations (id, donor_id, title, description, food_type, quantity, unit, expiry_date, pickup_address, latitude, longitude, pickup_date, status, reserved_by)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
+        [d.id, d.donor_id, d.title, d.description, d.food_type, d.quantity, d.unit, d.expiry_date, d.pickup_address, d.latitude, d.longitude, d.pickup_date, d.status, d.reserved_by]
+      );
+      return rows[0];
     },
-    update(id: string, updates: Partial<Donation>): Donation | undefined {
-      const db = load();
-      const idx = db.donations.findIndex(d => d.id === id);
-      if (idx === -1) return undefined;
-      db.donations[idx] = { ...db.donations[idx], ...updates, updated_at: new Date().toISOString() };
-      save();
-      return db.donations[idx];
+    async update(id: string, updates: Partial<Donation>): Promise<Donation | null> {
+      const fields: string[] = [];
+      const values: any[] = [];
+      let idx = 1;
+      for (const [key, value] of Object.entries(updates)) {
+        if (key === 'id' || key === 'created_at') continue;
+        fields.push(`${key} = $${idx}`);
+        values.push(value);
+        idx++;
+      }
+      fields.push(`updated_at = NOW()`);
+      values.push(id);
+      const { rows } = await pool.query(
+        `UPDATE donations SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`,
+        values
+      );
+      return rows[0] || null;
     },
-    delete(id: string): boolean {
-      const db = load();
-      const idx = db.donations.findIndex(d => d.id === id);
-      if (idx === -1) return false;
-      db.donations.splice(idx, 1);
-      save();
-      return true;
+    async delete(id: string): Promise<boolean> {
+      const result = await pool.query('DELETE FROM donations WHERE id = $1', [id]);
+      return (result.rowCount ?? 0) > 0;
     },
-    countByStatus(status: string): number {
-      return load().donations.filter(d => d.status === status).length;
+    async countByStatus(status: string): Promise<number> {
+      const { rows } = await pool.query('SELECT COUNT(*) as count FROM donations WHERE status = $1', [status]);
+      return parseInt(rows[0].count);
     },
-    countByDonor(donorId: string): number {
-      return load().donations.filter(d => d.donor_id === donorId).length;
+    async countByDonor(donorId: string): Promise<number> {
+      const { rows } = await pool.query('SELECT COUNT(*) as count FROM donations WHERE donor_id = $1', [donorId]);
+      return parseInt(rows[0].count);
     },
-    countByReserved(userId: string): number {
-      return load().donations.filter(d => d.reserved_by === userId).length;
+    async countByReserved(userId: string): Promise<number> {
+      const { rows } = await pool.query('SELECT COUNT(*) as count FROM donations WHERE reserved_by = $1', [userId]);
+      return parseInt(rows[0].count);
     },
-    totalCount(): number {
-      return load().donations.length;
+    async totalCount(): Promise<number> {
+      const { rows } = await pool.query('SELECT COUNT(*) as count FROM donations');
+      return parseInt(rows[0].count);
     },
   },
-  userCount(): number {
-    return load().users.length;
+  async userCount(): Promise<number> {
+    const { rows } = await pool.query('SELECT COUNT(*) as count FROM users');
+    return parseInt(rows[0].count);
   },
 };
