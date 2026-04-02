@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { initializeAuth, getAuth, signInWithPopup, GoogleAuthProvider, signOut as firebaseSignOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { initializeAuth, getAuth, signInWithPopup, GoogleAuthProvider, signOut as firebaseSignOut } from 'firebase/auth';
 import { initializeApp } from 'firebase/app';
 import firebaseConfig from '../firebase';
+import { fetchWithFailover, clearServerCache } from '../services/api';
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -41,7 +42,11 @@ interface RegisterData {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE = '/api';
+const API_ENDPOINT = '/api';
+
+function useApi() {
+  return { fetchWithFailover };
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -62,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchProfile = async () => {
     try {
-      const res = await fetch(`${API_BASE}/auth/me`, {
+      const res = await fetchWithFailover(`${API_ENDPOINT}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -77,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (email: string, password: string) => {
-    const res = await fetch(`${API_BASE}/auth/login`, {
+    const res = await fetchWithFailover(`${API_ENDPOINT}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -94,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const result = await signInWithPopup(auth, provider);
     const idToken = await result.user.getIdToken();
     
-    const res = await fetch(`${API_BASE}/auth/google`, {
+    const res = await fetchWithFailover(`${API_ENDPOINT}/auth/google`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ idToken }),
@@ -113,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (regData: RegisterData) => {
     const lang = i18n.language;
-    const res = await fetch(`${API_BASE}/auth/register`, {
+    const res = await fetchWithFailover(`${API_ENDPOINT}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...regData, preferred_language: lang }),
@@ -129,13 +134,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+    clearServerCache();
     firebaseSignOut(auth).catch(console.error);
   };
 
   const updateLanguage = async (lang: string) => {
     i18n.changeLanguage(lang);
     if (token) {
-      await fetch(`${API_BASE}/auth/language`, {
+      await fetchWithFailover(`${API_ENDPOINT}/auth/language`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
