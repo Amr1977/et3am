@@ -1,15 +1,7 @@
-const API_SERVERS = [
-  { id: 'et3am-gcp', url: 'https://et3am-api.mywire.org' },
-  { id: 'et3am-aws', url: 'https://et3am-api.matrix-delivery.com' },
-];
+import { fetchServerListFromFirestore, getActiveServers, ServerInfo } from './serverRegistry';
 
 const HEALTH_CHECK_TIMEOUT = 5000;
 const SERVER_LIST_CACHE_TIME = 60000;
-
-interface ServerInfo {
-  id: string;
-  url: string;
-}
 
 let serverCache: { servers: ServerInfo[]; timestamp: number } | null = null;
 let currentServer: ServerInfo | null = null;
@@ -37,8 +29,22 @@ async function getHealthyServers(): Promise<ServerInfo[]> {
     return serverCache.servers;
   }
 
+  let servers: ServerInfo[];
+  try {
+    servers = await getActiveServers();
+  } catch (error) {
+    console.warn('Failed to fetch from Firestore, using cached data:', error);
+    if (serverCache) return serverCache.servers;
+    servers = [];
+  }
+
+  if (servers.length === 0) {
+    console.warn('No servers in Firestore, falling back to empty list');
+    return [];
+  }
+
   const healthChecks = await Promise.all(
-    API_SERVERS.map(async (server) => ({
+    servers.map(async (server) => ({
       ...server,
       isHealthy: await checkServerHealth(server.url),
     }))
@@ -115,4 +121,9 @@ export function getCurrentServer(): ServerInfo | null {
 export function clearServerCache(): void {
   serverCache = null;
   currentServer = null;
+}
+
+export async function refreshServerList(): Promise<void> {
+  serverCache = null;
+  await getHealthyServers();
 }

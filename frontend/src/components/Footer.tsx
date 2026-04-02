@@ -8,7 +8,7 @@ export default function Footer() {
     <footer className="footer">
       <div className="footer-container">
         <div className="footer-brand">
-          <span className="brand-icon">🍽️</span>
+          <span className="brand-icon">🤲</span>
           <span>{t('app.name')}</span>
           <p className="footer-tagline">{t('app.description')}</p>
         </div>
