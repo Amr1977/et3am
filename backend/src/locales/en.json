@@ -1,0 +1,40 @@
+{
+  "auth": {
+    "login_success": "Login successful",
+    "register_success": "Registration successful",
+    "invalid_credentials": "Invalid email or password",
+    "email_exists": "Email already exists",
+    "unauthorized": "Unauthorized access",
+    "token_expired": "Token has expired",
+    "token_invalid": "Invalid token"
+  },
+  "donation": {
+    "created": "Donation created successfully",
+    "updated": "Donation updated successfully",
+    "deleted": "Donation deleted successfully",
+    "not_found": "Donation not found",
+    "not_available": "Donation is not available for reservation",
+    "not_reserved": "Donation is not currently reserved",
+    "reserved": "Donation reserved successfully",
+    "reservation_cancelled": "Reservation cancelled successfully",
+    "completed": "Donation completed successfully",
+    "expired": "Donation has expired",
+    "list_retrieved": "Donations retrieved successfully"
+  },
+  "user": {
+    "profile_updated": "Profile updated successfully",
+    "not_found": "User not found",
+    "language_updated": "Language preference updated"
+  },
+  "validation": {
+    "required_field": "This field is required",
+    "invalid_email": "Invalid email format",
+    "password_too_short": "Password must be at least 6 characters",
+    "invalid_language": "Invalid language selection"
+  },
+  "general": {
+    "server_error": "Internal server error",
+    "not_found": "Resource not found",
+    "success": "Operation successful"
+  }
+}

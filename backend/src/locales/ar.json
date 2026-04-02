@@ -1,0 +1,40 @@
+{
+  "auth": {
+    "login_success": "تم تسجيل الدخول بنجاح",
+    "register_success": "تم التسجيل بنجاح",
+    "invalid_credentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "email_exists": "البريد الإلكتروني مسجل بالفعل",
+    "unauthorized": "غير مصرح بالوصول",
+    "token_expired": "انتهت صلاحية الرمز",
+    "token_invalid": "رمز غير صالح"
+  },
+  "donation": {
+    "created": "تم إنشاء التبرع بنجاح",
+    "updated": "تم تحديث التبرع بنجاح",
+    "deleted": "تم حذف التبرع بنجاح",
+    "not_found": "التبرع غير موجود",
+    "not_available": "التبرع غير متاح للحجز",
+    "not_reserved": "التبرع غير محجوز حالياً",
+    "reserved": "تم حجز التبرع بنجاح",
+    "reservation_cancelled": "تم إلغاء الحجز بنجاح",
+    "completed": "تم إكمال التبرع بنجاح",
+    "expired": "انتهت صلاحية التبرع",
+    "list_retrieved": "تم جلب التبرعات بنجاح"
+  },
+  "user": {
+    "profile_updated": "تم تحديث الملف الشخصي بنجاح",
+    "not_found": "المستخدم غير موجود",
+    "language_updated": "تم تحديث تفضيل اللغة"
+  },
+  "validation": {
+    "required_field": "هذا الحقل مطلوب",
+    "invalid_email": "صيغة البريد الإلكتروني غير صالحة",
+    "password_too_short": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+    "invalid_language": "اختيار اللغة غير صالح"
+  },
+  "general": {
+    "server_error": "خطأ في الخادم الداخلي",
+    "not_found": "المورد غير موجود",
+    "success": "تمت العملية بنجاح"
+  }
+}
