@@ -130,7 +130,7 @@ app.get('/api/health/detailed', async (_req, res) => {
 
 initDb().then(async () => {
   await warmupDatabase();
-  startServerRegistry();
+  await startServerRegistry();
   
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
