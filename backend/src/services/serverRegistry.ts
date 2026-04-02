@@ -69,13 +69,7 @@ function getTotalServers(): number {
 }
 
 function shouldRunHealthCheck(): boolean {
-  const totalServers = getTotalServers();
-  if (totalServers === 0) return true;
-  
-  const myPosition = getMyPosition();
-  const currentMinute = Math.floor(Date.now() / 60000);
-  const checkPosition = (currentMinute % totalServers) + 1;
-  return myPosition === checkPosition;
+  return true;
 }
 
 async function checkServerHealth(server: { id: string; url: string }): Promise<boolean> {
@@ -132,23 +126,32 @@ async function healthCheckAndClean(): Promise<void> {
   console.log(`[${SERVER_ID}] Running health check...`);
 
   const servers = await fetchServersFromFirestore();
+  const now = Date.now();
+  const staleThreshold = 5 * 60 * 1000;
 
   for (const server of servers) {
+    // Skip self
+    if (server.serverId === SERVER_ID) continue;
+
     const isHealthy = await checkServerHealth({ id: server.serverId, url: server.url });
     
+    const isStale = !server.lastHealthCheck || (now - server.lastHealthCheck > staleThreshold);
+    
+    if (!isHealthy || isStale) {
+      console.log(`[${SERVER_ID}] Removing ${server.serverId} (healthy=${isHealthy}, stale=${isStale})`);
+      await removeServerFromFirestore(server.serverId);
+      registeredServers.delete(server.serverId);
+      continue;
+    }
+
     const updatedServer: ServerDoc = {
       ...server,
-      isHealthy,
-      lastHealthCheck: Date.now(),
+      isHealthy: true,
+      lastHealthCheck: now,
     };
 
     registeredServers.set(server.serverId, updatedServer);
     await updateServerInFirestore(updatedServer);
-
-    if (!isHealthy) {
-      console.log(`[${SERVER_ID}] Server ${server.serverId} is DOWN`);
-      await removeServerFromFirestore(server.serverId);
-    }
   }
 }
 
