@@ -2,11 +2,10 @@ import { Pool, QueryResult } from 'pg';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 
-const DEV_URL = 'postgresql://neondb_owner:npg_XveTDxw5HRJ7@ep-flat-mountain-an8hva6r-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
-const PROD_URL = 'postgresql://neondb_owner:npg_XveTDxw5HRJ7@ep-nameless-scene-anwafvan-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
-
-const isProduction = process.env.NODE_ENV === 'production';
-const connectionString = process.env.DATABASE_URL || (isProduction ? PROD_URL : DEV_URL);
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error('DATABASE_URL environment variable is required');
+}
 
 const pool = new Pool({ connectionString });
 
