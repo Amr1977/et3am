@@ -7,10 +7,13 @@
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
+    "dev:win": "powershell -ExecutionPolicy Bypass -File dev.ps1",
+    "dev:unix": "bash dev.sh",
     "install:all": "cd backend && npm install && cd ../frontend && npm install",
     "build": "cd frontend && npm run build && cd ../backend && npm run build"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "firebase-tools": "^15.12.0"
   }
 }

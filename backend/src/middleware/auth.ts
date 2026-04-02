@@ -23,12 +23,12 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
     req.userId = decoded.userId;
     req.userRole = decoded.role;
 
-    const user = dbOps.users.findById(decoded.userId);
-    if (user) {
-      req.userLang = user.preferred_language;
-    }
-
-    next();
+    dbOps.users.findById(decoded.userId).then(user => {
+      if (user) {
+        req.userLang = user.preferred_language;
+      }
+      next();
+    }).catch(() => next());
   } catch (error) {
     res.status(401).json({ message: 'Invalid token', messageKey: 'auth.token_invalid' });
   }
