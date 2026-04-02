@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
 import DonationCard from '../components/DonationCard';
 import DonationMap from '../components/DonationMap';
+import LocationPicker from '../components/LocationPicker';
 
 interface Donation {
   id: string;
@@ -33,7 +34,6 @@ export default function Donations() {
   const [showCreateForm, setShowCreateForm] = useState(searchParams.get('create') === 'true');
   const [filter, setFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
-  const [locationLoading, setLocationLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -115,26 +115,8 @@ export default function Donations() {
     }
   };
 
-  const handleUseCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser');
-      return;
-    }
-    setLocationLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setFormData(prev => ({
-          ...prev,
-          latitude: position.coords.latitude.toString(),
-          longitude: position.coords.longitude.toString(),
-        }));
-        setLocationLoading(false);
-      },
-      () => {
-        alert('Unable to retrieve your location');
-        setLocationLoading(false);
-      }
-    );
+  const handleLocationChange = (lat: string, lng: string) => {
+    setFormData(prev => ({ ...prev, latitude: lat, longitude: lng }));
   };
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -238,20 +220,15 @@ export default function Donations() {
               <label>{t('donations.pickup_address')}</label>
               <input name="pickup_address" value={formData.pickup_address} onChange={handleChange} required className="form-input" />
             </div>
+
+            <LocationPicker
+              latitude={formData.latitude}
+              longitude={formData.longitude}
+              onLocationChange={handleLocationChange}
+              t={t}
+            />
+
             <div className="form-row">
-              <div className="form-group">
-                <label>{t('donations.latitude')}</label>
-                <input name="latitude" type="number" step="any" value={formData.latitude} onChange={handleChange} className="form-input" placeholder="30.0444" />
-              </div>
-              <div className="form-group">
-                <label>{t('donations.longitude')}</label>
-                <input name="longitude" type="number" step="any" value={formData.longitude} onChange={handleChange} className="form-input" placeholder="31.2357" />
-              </div>
-            </div>
-            <button type="button" onClick={handleUseCurrentLocation} className="btn btn-outline btn-sm" disabled={locationLoading}>
-              📍 {locationLoading ? t('common.loading') : t('donations.use_current_location')}
-            </button>
-            <div className="form-row" style={{ marginTop: '0.5rem' }}>
               <div className="form-group">
                 <label>{t('donations.pickup_date')}</label>
                 <input name="pickup_date" type="datetime-local" value={formData.pickup_date} onChange={handleChange} className="form-input" />

@@ -718,6 +718,45 @@ html[dir="rtl"] .step-number {
   border: none;
 }
 
+/* Location Picker */
+.location-picker {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.location-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0.85rem;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.location-picker-label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text);
+}
+
+.location-picker-hint {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: var(--bg);
+}
+
+.location-picker-map {
+  height: 300px;
+  cursor: crosshair;
+}
+
+.location-picker-map .leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
 .empty-state {
   grid-column: 1 / -1;
   text-align: center;

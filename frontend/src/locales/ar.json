@@ -82,9 +82,8 @@
     "portions": "حصص",
     "kg": "كجم",
     "items": "عناصر",
-    "use_current_location": "استخدام موقعي الحالي",
-    "latitude": "خط العرض",
-    "longitude": "خط الطول",
+    "use_current_location": "استخدام موقعي",
+    "click_map_to_set": "انقر على الخريطة لتحديد موقع الاستلام",
     "view_map": "عرض الخريطة",
     "view_grid": "عرض الشبكة",
     "map": "الخريطة"
