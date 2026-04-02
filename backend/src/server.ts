@@ -4,10 +4,11 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import { v4 as uuidv4 } from 'uuid';
 import admin from 'firebase-admin';
-import { initDb, dbOps } from './database';
+import { initDb, dbOps, warmupDatabase, pool } from './database';
 import { i18nMiddleware } from './middleware/i18n';
 import { generateToken } from './middleware/auth';
 import { serviceAccount } from './firebase-admin';
+import { SERVER_ID, startServerRegistry, getHealthyServers } from './services/serverRegistry';
 import authRoutes from './routes/auth';
 import donationRoutes from './routes/donations';
 import userRoutes from './routes/users';
@@ -95,12 +96,45 @@ app.use('/api/donations', donationRoutes);
 app.use('/api/users', userRoutes);
 
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  const healthyServers = getHealthyServers();
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    serverId: SERVER_ID,
+    healthyServers,
+  });
 });
 
-initDb().then(() => {
+app.get('/api/health/detailed', async (_req, res) => {
+  try {
+    const poolStats = {
+      totalConnections: pool.totalCount,
+      idleConnections: pool.idleCount,
+      waitingClients: pool.waitingCount,
+    };
+    const dbResult = await pool.query('SELECT COUNT(*) as user_count FROM users');
+    const healthyServers = getHealthyServers();
+    
+    res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      serverId: SERVER_ID,
+      poolStats,
+      userCount: parseInt(dbResult.rows[0].user_count),
+      healthyServers,
+    });
+  } catch (error) {
+    res.status(500).json({ status: 'error', message: String(error) });
+  }
+});
+
+initDb().then(async () => {
+  await warmupDatabase();
+  startServerRegistry();
+  
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`Server ID: ${SERVER_ID}`);
   });
 }).catch(err => {
   console.error('Failed to initialize database:', err);

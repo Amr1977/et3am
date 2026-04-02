@@ -5,6 +5,7 @@ import { useSearchParams } from 'react-router-dom';
 import DonationCard from '../components/DonationCard';
 import DonationMap from '../components/DonationMap';
 import LocationPicker from '../components/LocationPicker';
+import { fetchWithFailover } from '../services/api';
 
 interface Donation {
   id: string;
@@ -51,7 +52,7 @@ export default function Donations() {
     try {
       const params = new URLSearchParams();
       if (filter !== 'all') params.set('status', filter);
-      const res = await fetch(`/api/donations?${params}`);
+      const res = await fetchWithFailover(`/api/donations?${params}`);
       if (res.ok) {
         const data = await res.json();
         setDonations(data.donations);
@@ -69,7 +70,7 @@ export default function Donations() {
 
   const handleReserve = async (id: string) => {
     try {
-      const res = await fetch(`/api/donations/${id}/reserve`, {
+      const res = await fetchWithFailover(`/api/donations/${id}/reserve`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -81,7 +82,7 @@ export default function Donations() {
 
   const handleCancelReservation = async (id: string) => {
     try {
-      const res = await fetch(`/api/donations/${id}/cancel-reservation`, {
+      const res = await fetchWithFailover(`/api/donations/${id}/cancel-reservation`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -93,7 +94,7 @@ export default function Donations() {
 
   const handleComplete = async (id: string) => {
     try {
-      const res = await fetch(`/api/donations/${id}/complete`, {
+      const res = await fetchWithFailover(`/api/donations/${id}/complete`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -105,7 +106,7 @@ export default function Donations() {
 
   const handleDelete = async (id: string) => {
     try {
-      const res = await fetch(`/api/donations/${id}`, {
+      const res = await fetchWithFailover(`/api/donations/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -122,7 +123,7 @@ export default function Donations() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/donations', {
+      const res = await fetchWithFailover('/api/donations', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -90,6 +90,18 @@ export async function initDb(): Promise<void> {
   }
 }
 
+export async function warmupDatabase(): Promise<void> {
+  try {
+    await pool.query('SELECT 1');
+    const result = await pool.query('SELECT COUNT(*) as count FROM users');
+    console.log(`Database warmup: ${result.rows[0].count} users`);
+  } catch (err) {
+    console.warn('Database warmup failed:', err);
+  }
+}
+
+export { pool };
+
 export const dbOps = {
   users: {
     async findByEmail(email: string): Promise<User | null> {

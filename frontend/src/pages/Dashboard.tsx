@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import { fetchWithFailover } from '../services/api';
 
 interface Stats {
   totalDonations: number;
@@ -25,7 +26,7 @@ export default function Dashboard() {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch('/api/users/stats', {
+      const res = await fetchWithFailover('/api/users/stats', {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
