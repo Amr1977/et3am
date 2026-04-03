@@ -184,6 +184,12 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
       return;
     }
 
+    const user = await dbOps.users.findById(req.userId!);
+    if (!user || !user.can_donate) {
+      res.status(403).json({ messageKey: 'auth.cannot_donate' });
+      return;
+    }
+
     const donation = await dbOps.donations.create({
       id: uuidv4(),
       donor_id: req.userId!,
@@ -246,6 +252,17 @@ router.post('/:id/reserve', authenticate, async (req: AuthRequest, res: Response
 
     if (donation.status !== 'available') {
       res.status(400).json({ messageKey: 'donation.not_available' });
+      return;
+    }
+
+    if (donation.donor_id === req.userId) {
+      res.status(400).json({ messageKey: 'donation.cannot_reserve_own' });
+      return;
+    }
+
+    const user = await dbOps.users.findById(req.userId!);
+    if (!user || !user.can_receive) {
+      res.status(403).json({ messageKey: 'auth.cannot_receive' });
       return;
     }
 

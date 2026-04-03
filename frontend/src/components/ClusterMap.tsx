@@ -1,9 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { useMap, MapContainer, TileLayer } from 'react-leaflet';
 import L from 'leaflet';
-import 'leaflet.markercluster';
-
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
@@ -23,12 +22,15 @@ interface Donation {
   status: string;
   food_type: string;
   quantity: number;
+  unit: string;
 }
 
 interface ClusterMapProps {
   donations: Donation[];
   userLocation?: { lat: number; lng: number } | null;
   t: (key: string) => string;
+  onReserve?: (id: string) => void;
+  isAuthenticated?: boolean;
 }
 
 const statusColors: Record<string, string> = {
@@ -37,22 +39,60 @@ const statusColors: Record<string, string> = {
   completed: '#3b82f6',
 };
 
-function createColoredIcon(color: string) {
+const foodIcons: Record<string, string> = {
+  'meat': '🥩',
+  'chicken': '🍗',
+  'fish': '🐟',
+  'vegetables': '🥬',
+  'fruits': '🍎',
+  'bread': '🍞',
+  'rice': '🍚',
+  'pasta': '🍝',
+  'soup': '🥣',
+  'dessert': '🍰',
+  'other': '🍽️',
+};
+
+function getFoodIcon(type: string): string {
+  const key = type.toLowerCase();
+  for (const [k, v] of Object.entries(foodIcons)) {
+    if (key.includes(k)) return v;
+  }
+  return foodIcons['other'];
+}
+
+function createMarkerIcon(color: string, foodType: string) {
+  const icon = getFoodIcon(foodType);
   return L.divIcon({
-    className: 'custom-marker',
-    html: `<div style="background:${color};width:24px;height:24px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>`,
-    iconSize: [24, 24],
-    iconAnchor: [12, 12],
+    className: 'custom-marker-container',
+    html: `
+      <div style="
+        background: ${color};
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 3px solid white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      ">${icon}</div>
+    `,
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
   });
 }
 
-function MapEvents({ userLocation, donations, t }: { 
+function MapEvents({ userLocation, donations, t, onReserve, isAuthenticated }: { 
   userLocation?: { lat: number; lng: number } | null; 
   donations: Donation[];
   t: (key: string) => string;
+  onReserve?: (id: string) => void;
+  isAuthenticated?: boolean;
 }) {
   const map = useMap();
-  const clusterRef = useRef<any>(null);
+  const clusterRef = useRef<L.MarkerClusterGroup | null>(null);
   const initialized = useRef(false);
   
   useEffect(() => {
@@ -71,16 +111,17 @@ function MapEvents({ userLocation, donations, t }: {
     if (initialized.current) return;
     initialized.current = true;
     
-    const MarkerClusterGroup = (L as any).markerClusterGroup;
-    if (!MarkerClusterGroup) return;
+    if (typeof (L as any).markerClusterGroup !== 'function') {
+      console.warn('MarkerCluster plugin not loaded, using simple markers');
+    }
     
-    clusterRef.current = MarkerClusterGroup({
+    const clusterGroup = (L as any).markerClusterGroup ? (L as any).markerClusterGroup({
       chunkedLoading: true,
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
       zoomToBoundsOnClick: true,
       maxClusterRadius: 50,
-      disableClusteringAtZoom: 15,
+      disableClusteringAtZoom: 16,
       iconCreateFunction: (cluster: any) => {
         const count = cluster.getChildCount();
         let size = 'small';
@@ -93,33 +134,80 @@ function MapEvents({ userLocation, donations, t }: {
           iconSize: L.point(40, 40),
         });
       },
-    });
+    }) : L.layerGroup();
+    
+    clusterRef.current = clusterGroup;
     
     donations.forEach(d => {
       if (!d.latitude || !d.longitude) return;
+      
       const color = statusColors[d.status] || '#6b7280';
       const marker = L.marker([d.latitude, d.longitude], {
-        icon: createColoredIcon(color),
+        icon: createMarkerIcon(color, d.food_type),
       });
       
-      marker.bindPopup(`
-        <strong>${d.title}</strong><br/>
-        ${d.food_type} - ${d.quantity}<br/>
-        <span style="color: ${color}; font-weight: 600;">${t(`donations.${d.status}`)}</span><br/>
-        📍 ${d.pickup_address || 'N/A'}
-      `);
+      const foodIcon = getFoodIcon(d.food_type);
+      const canReserve = d.status === 'available' && isAuthenticated;
       
-      clusterRef.current.addLayer(marker);
+      const popupContent = `
+        <div style="min-width: 180px; padding: 8px;">
+          <div style="font-size: 24px; margin-bottom: 8px;">${foodIcon}</div>
+          <div style="font-weight: 700; font-size: 16px; margin-bottom: 4px;">${d.title}</div>
+          <div style="color: #666; margin-bottom: 8px;">${d.food_type} - ${d.quantity} ${d.unit}</div>
+          <div style="color: ${color}; font-weight: 600; margin-bottom: 8px;">${t(`donations.${d.status}`)}</div>
+          <div style="font-size: 12px; color: #888; margin-bottom: 8px;">📍 ${d.pickup_address || 'No address'}</div>
+          ${canReserve ? `
+            <button 
+              onclick="window.reserveDonation('${d.id}')"
+              style="
+                background: #22c55e;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 6px;
+                cursor: pointer;
+                width: 100%;
+                font-weight: 600;
+              "
+            >${t('donations.reserve')}</button>
+          ` : ''}
+          <a 
+            href="/donations#${d.id}" 
+            style="
+              display: block;
+              text-align: center;
+              margin-top: 8px;
+              color: #3b82f6;
+              text-decoration: none;
+              font-size: 13px;
+            "
+          >${t('donations.view_card') || 'View Details'} →</a>
+        </div>
+      `;
+      
+      marker.bindPopup(popupContent, {
+        maxWidth: 250,
+        className: 'donation-popup'
+      });
+      
+      clusterGroup.addLayer(marker);
     });
     
-    map.addLayer(clusterRef.current);
+    map.addLayer(clusterGroup);
+    
+    window.reserveDonation = (id: string) => {
+      if (onReserve) {
+        onReserve(id);
+      }
+    };
     
     return () => {
+      window.reserveDonation = () => {};
       if (clusterRef.current) {
         map.removeLayer(clusterRef.current);
       }
     };
-  }, [map, donations, t]);
+  }, [map, donations, t, onReserve, isAuthenticated]);
   
   useEffect(() => {
     if (!userLocation || !map) return;
@@ -143,8 +231,15 @@ function MapEvents({ userLocation, donations, t }: {
   return null;
 }
 
-export default function ClusterMap({ donations, userLocation, t }: ClusterMapProps) {
+declare global {
+  interface Window {
+    reserveDonation?: (id: string) => void;
+  }
+}
+
+export default function ClusterMap({ donations, userLocation, t, onReserve, isAuthenticated }: ClusterMapProps) {
   const geoDonations = donations.filter(d => d.latitude && d.longitude);
+  console.log('ClusterMap: geoDonations:', geoDonations.length, 'total:', donations.length);
   
   const defaultCenter: [number, number] = userLocation 
     ? [userLocation.lat, userLocation.lng]
@@ -163,7 +258,13 @@ export default function ClusterMap({ donations, userLocation, t }: ClusterMapPro
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <MapEvents userLocation={userLocation} donations={geoDonations} t={t} />
+        <MapEvents 
+          userLocation={userLocation} 
+          donations={geoDonations} 
+          t={t}
+          onReserve={onReserve}
+          isAuthenticated={isAuthenticated}
+        />
       </MapContainer>
     </div>
   );

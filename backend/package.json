@@ -8,7 +8,9 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "migrate": "ts-node src/migrate.ts",
+    "migrate:run": "ts-node src/migrate.ts"
   },
   "dependencies": {
     "@types/passport": "^1.0.17",

@@ -2,20 +2,24 @@ import 'dotenv/config';
 import { Pool, QueryResult } from 'pg';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
+import { readdirSync, readFileSync } from 'fs';
+import { join } from 'path';
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
   throw new Error('DATABASE_URL environment variable is required');
 }
 
-const pool = new Pool({ connectionString });
+const pool = new Pool({ connectionString: connectionString });
 
 export interface User {
   id: string;
   name: string;
   email: string;
   password: string | null;
-  role: 'donor' | 'recipient' | 'admin';
+  role: 'user' | 'donor' | 'recipient' | 'admin';
+  can_donate: boolean;
+  can_receive: boolean;
   phone: string | null;
   address: string | null;
   latitude: number | null;
@@ -50,43 +54,7 @@ export interface Donation {
 }
 
 export async function initDb(): Promise<void> {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS donations (
-      id TEXT PRIMARY KEY,
-      donor_id TEXT NOT NULL REFERENCES users(id),
-      title TEXT NOT NULL,
-      description TEXT,
-      food_type TEXT NOT NULL,
-      quantity INTEGER NOT NULL DEFAULT 1,
-      unit TEXT NOT NULL DEFAULT 'portion',
-      expiry_date TIMESTAMPTZ,
-      pickup_address TEXT NOT NULL,
-      latitude DOUBLE PRECISION,
-      longitude DOUBLE PRECISION,
-      pickup_date TIMESTAMPTZ,
-      status TEXT NOT NULL DEFAULT 'available' CHECK(status IN ('available', 'reserved', 'completed', 'expired')),
-      reserved_by TEXT REFERENCES users(id),
-      hash_code TEXT,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
-  `);
-
-  await pool.query(`
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION;
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION;
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS location_city TEXT;
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS location_area TEXT;
-  `);
-
-  const { rows } = await pool.query('SELECT id FROM users WHERE email = $1', ['admin@et3am.com']);
-  if (rows.length === 0) {
-    const hashedPassword = bcrypt.hashSync('admin123', 10);
-    await pool.query(
-      `INSERT INTO users (id, name, email, password, role, preferred_language) VALUES ($1, $2, $3, $4, $5, $6)`,
-      [uuidv4(), 'Admin', 'admin@et3am.com', hashedPassword, 'admin', 'en']
-    );
-  }
+  console.log('Database initialized via migrations');
 }
 
 export async function warmupDatabase(): Promise<void> {
@@ -232,3 +200,48 @@ export const dbOps = {
     return parseInt(rows[0].count);
   },
 };
+
+export async function runMigrations(): Promise<void> {
+  const migrationsDir = join(__dirname, '..', 'migrations');
+  
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS migrations (
+        id SERIAL PRIMARY KEY,
+        migration_name VARCHAR(255) NOT NULL UNIQUE,
+        applied_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    const result = await pool.query("SELECT migration_name FROM migrations ORDER BY applied_at ASC");
+    const applied = result.rows.map((row: { migration_name: string }) => row.migration_name);
+
+    const files = readdirSync(migrationsDir)
+      .filter(f => f.endsWith('.sql'))
+      .sort();
+
+    for (const file of files) {
+      const name = file.replace('.sql', '');
+      if (!applied.includes(name)) {
+        console.log(`Running migration: ${name}`);
+        const sql = readFileSync(join(migrationsDir, file), 'utf8');
+        const client = await pool.connect();
+        try {
+          await client.query('BEGIN');
+          await client.query(sql);
+          await client.query('INSERT INTO migrations (migration_name, applied_at) VALUES ($1, NOW())', [name]);
+          await client.query('COMMIT');
+          console.log(`✓ Applied: ${name}`);
+        } catch (err) {
+          await client.query('ROLLBACK');
+          throw err;
+        } finally {
+          client.release();
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Migration error:', err);
+    throw err;
+  }
+}

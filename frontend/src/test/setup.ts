@@ -31,5 +31,5 @@ vi.mock('firebase/firestore', () => ({
   doc: vi.fn(),
 }));
 
-HTMLCanvasElement.prototype.getContext = vi.fn();
+HTMLCanvasElement.prototype.getContext = vi.fn(() => null);
 HTMLCanvasElement.prototype.toDataURL = vi.fn();

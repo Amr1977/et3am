@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://et3am.com/sitemap.xml

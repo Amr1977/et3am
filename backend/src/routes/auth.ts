@@ -8,7 +8,7 @@ const router = Router();
 
 router.post('/register', async (req: AuthRequest, res: Response) => {
   try {
-    const { name, email, password, role, phone, address, preferred_language } = req.body;
+    const { name, email, password, preferred_language } = req.body;
 
     if (!name || !email || !password) {
       res.status(400).json({ messageKey: 'validation.required_field' });
@@ -30,9 +30,11 @@ router.post('/register', async (req: AuthRequest, res: Response) => {
       name,
       email,
       password: hashedPassword,
-      role: role || 'donor',
-      phone: phone || null,
-      address: address || null,
+      role: 'user',
+      can_donate: true,
+      can_receive: true,
+      phone: null,
+      address: null,
       latitude: null,
       longitude: null,
       location_city: null,
@@ -47,7 +49,7 @@ router.post('/register', async (req: AuthRequest, res: Response) => {
     res.status(201).json({
       messageKey: 'auth.register_success',
       token,
-      user: { id, name, email, role: user.role, preferred_language: lang }
+      user: { id, name, email, role: user.role, can_donate: user.can_donate, can_receive: user.can_receive, preferred_language: lang }
     });
   } catch (err) {
     console.error('Register error:', err);
@@ -80,6 +82,8 @@ router.post('/login', async (req: AuthRequest, res: Response) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        can_donate: user.can_donate,
+        can_receive: user.can_receive,
         phone: user.phone,
         address: user.address,
         preferred_language: user.preferred_language,
@@ -106,6 +110,8 @@ router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        can_donate: user.can_donate,
+        can_receive: user.can_receive,
         phone: user.phone,
         address: user.address,
         preferred_language: user.preferred_language,
@@ -236,6 +242,8 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
         email: email!,
         password: null,
         role: 'donor',
+        can_donate: true,
+        can_receive: true,
         phone: null,
         address: null,
         latitude: null,
@@ -258,6 +266,8 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        can_donate: user.can_donate,
+        can_receive: user.can_receive,
         phone: user.phone,
         address: user.address,
         preferred_language: user.preferred_language,

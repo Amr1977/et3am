@@ -13,6 +13,8 @@ interface User {
   name: string;
   email: string;
   role: string;
+  can_donate: boolean;
+  can_receive: boolean;
   phone?: string;
   address?: string;
   latitude?: number | null;
@@ -40,9 +42,6 @@ interface RegisterData {
   name: string;
   email: string;
   password: string;
-  role: string;
-  phone?: string;
-  address?: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

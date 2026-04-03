@@ -11,8 +11,8 @@ router.get('/public-stats', async (_req, res: Response) => {
       dbOps.donations.totalCount(),
       dbOps.donations.countByStatus('completed'),
       dbOps.userCount(),
-      pool.query("SELECT COUNT(*) as count FROM users WHERE role = 'donor'"),
-      pool.query("SELECT COUNT(*) as count FROM users WHERE role = 'recipient'"),
+      pool.query("SELECT COUNT(*) as count FROM users WHERE can_donate = true"),
+      pool.query("SELECT COUNT(*) as count FROM users WHERE can_receive = true"),
     ]);
 
     res.json({
