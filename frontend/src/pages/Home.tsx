@@ -104,7 +104,7 @@ export default function Home() {
           <span className="section-tag">{t('home.how_it_works')}</span>
           <h2 className="section-title">{t('home.how_it_works')}</h2>
           <p className="section-desc">
-            A simple three-step process to feed the hungry and save food
+            {t('home.step_1_desc').split('.')[0]}.
           </p>
         </div>
 
@@ -162,7 +162,7 @@ export default function Home() {
       <section className="donate-section">
         <div className="donate-card">
           <div className="donate-content">
-            <span className="donate-tag">Support Our Mission</span>
+            <span className="donate-tag">🤲 {t('home.support_title')}</span>
             <h2 className="donate-title">{t('home.support_title')}</h2>
             <p className="donate-desc">
               {t('home.support_desc')}
@@ -190,16 +190,16 @@ export default function Home() {
       <section className="cta-section">
         <div className="cta-card">
           <div className="cta-content">
-            <h2 className="cta-title">Ready to Make a Difference?</h2>
+            <h2 className="cta-title">{t('home.hero_title')}</h2>
             <p className="cta-desc">
-              Join our community of donors and recipients. Every meal shared is a blessing.
+              {t('home.hero_subtitle').split(' - ')[0]}
             </p>
             <div className="cta-buttons">
               <Link to="/register" className="btn btn-primary btn-lg">
-                Get Started
+                {t('home.get_started')}
               </Link>
               <Link to="/donations" className="btn btn-outline btn-lg">
-                Browse Donations
+                {t('home.learn_more')}
               </Link>
             </div>
           </div>

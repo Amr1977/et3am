@@ -40,27 +40,13 @@ export interface Donation {
   pickup_date: string | null;
   status: 'available' | 'reserved' | 'completed' | 'expired';
   reserved_by: string | null;
+  hash_code: string | null;
   created_at: string;
   updated_at: string;
 }
 
 export async function initDb(): Promise<void> {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS users (
-      id TEXT PRIMARY KEY,
-      name TEXT NOT NULL,
-      email TEXT UNIQUE NOT NULL,
-      password TEXT,
-      role TEXT NOT NULL DEFAULT 'donor' CHECK(role IN ('donor', 'recipient', 'admin')),
-      phone TEXT,
-      address TEXT,
-      preferred_language TEXT NOT NULL DEFAULT 'en' CHECK(preferred_language IN ('en', 'ar')),
-      google_id TEXT UNIQUE,
-      avatar_url TEXT,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
-
+await pool.query(`
     CREATE TABLE IF NOT EXISTS donations (
       id TEXT PRIMARY KEY,
       donor_id TEXT NOT NULL REFERENCES users(id),
@@ -76,6 +62,7 @@ export async function initDb(): Promise<void> {
       pickup_date TIMESTAMPTZ,
       status TEXT NOT NULL DEFAULT 'available' CHECK(status IN ('available', 'reserved', 'completed', 'expired')),
       reserved_by TEXT REFERENCES users(id),
+      hash_code TEXT,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
@@ -176,11 +163,19 @@ export const dbOps = {
     },
     async create(d: Omit<Donation, 'created_at' | 'updated_at'>): Promise<Donation> {
       const { rows } = await pool.query(
-        `INSERT INTO donations (id, donor_id, title, description, food_type, quantity, unit, expiry_date, pickup_address, latitude, longitude, pickup_date, status, reserved_by)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
-        [d.id, d.donor_id, d.title, d.description, d.food_type, d.quantity, d.unit, d.expiry_date, d.pickup_address, d.latitude, d.longitude, d.pickup_date, d.status, d.reserved_by]
+        `INSERT INTO donations (id, donor_id, title, description, food_type, quantity, unit, expiry_date, pickup_address, latitude, longitude, pickup_date, status, reserved_by, hash_code)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING *`,
+        [d.id, d.donor_id, d.title, d.description, d.food_type, d.quantity, d.unit, d.expiry_date, d.pickup_address, d.latitude, d.longitude, d.pickup_date, d.status, d.reserved_by, d.hash_code]
       );
       return rows[0];
+    },
+    async findByDonor(donorId: string): Promise<Donation[]> {
+      const { rows } = await pool.query('SELECT * FROM donations WHERE donor_id = $1 ORDER BY created_at DESC', [donorId]);
+      return rows;
+    },
+    async findByReserved(userId: string): Promise<Donation[]> {
+      const { rows } = await pool.query('SELECT * FROM donations WHERE reserved_by = $1 ORDER BY created_at DESC', [userId]);
+      return rows;
     },
     async update(id: string, updates: Partial<Donation>): Promise<Donation | null> {
       const fields: string[] = [];
