@@ -90,17 +90,7 @@ async function registerServer(): Promise<void> {
 }
 
 function getHealthyServers(): { id: string; url: string }[] {
-  return SERVERS_CONFIG
-    .map(s => {
-      const registered = registeredServers.get(s.id);
-      return {
-        id: s.id,
-        url: s.url,
-        isHealthy: registered?.isHealthy ?? true,
-      };
-    })
-    .filter(s => s.isHealthy || s.id === SERVER_ID)
-    .map(s => ({ id: s.id, url: s.url }));
+  return SERVERS_CONFIG.map(s => ({ id: s.id, url: s.url }));
 }
 
 async function startServerRegistry(): Promise<void> {
