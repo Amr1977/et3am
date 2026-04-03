@@ -256,7 +256,7 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          url={`${import.meta.env.VITE_API_URL || ''}/api/maps/tiles/{z}/{x}/{y}.png`}
         />
         <MapEvents 
           userLocation={userLocation} 

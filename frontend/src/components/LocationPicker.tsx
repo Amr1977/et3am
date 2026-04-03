@@ -73,7 +73,7 @@ export default function LocationPicker({ latitude, longitude, onLocationChange, 
         <MapContainer center={center} zoom={position ? 15 : 6} style={{ height: '100%', width: '100%' }}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            url={`${import.meta.env.VITE_API_URL || ''}/api/maps/tiles/{z}/{x}/{y}.png`}
           />
           <MapClickHandler onLocationChange={handleMapClick} />
           {position && <Marker position={position} />}
