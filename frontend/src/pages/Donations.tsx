@@ -82,7 +82,7 @@ export default function Donations() {
       console.log('Response status:', res.status);
       if (res.ok) {
         const data = await res.json();
-        console.log('API response:', data);
+        console.log('API response:', JSON.stringify(data, null, 2));
         setDonations(data.donations);
       } else {
         console.error('API error:', res.status);
@@ -475,8 +475,8 @@ export default function Donations() {
                   <div className="donation-address">
                     <span className="address-icon">📍</span>
                     <span className="address-text">
-                      {donation.pickup_address && (isAuthenticated && (donation.donor_id === user?.id || donation.reserved_by === user?.id)) 
-                        ? donation.pickup_address 
+                      {isAuthenticated && (donation.donor_id === user?.id || donation.reserved_by === user?.id)
+                        ? donation.pickup_address || 'No address'
                         : (isAuthenticated ? 'Address hidden' : 'Login to see address')}
                     </span>
                   </div>
