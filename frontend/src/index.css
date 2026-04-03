@@ -1482,6 +1482,26 @@ body {
   text-align: center;
 }
 
+.hash-code-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.hash-code-display .hash-label {
+  font-weight: 600;
+}
+
+.hash-code-display .hash-value {
+  font-family: monospace;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--primary);
+}
+
 .hash-code {
   font-family: var(--font-sans);
   font-size: 2rem;
