@@ -17,10 +17,19 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/users/public-stats')
-      .then(res => res.json())
-      .then(data => setStats(data))
-      .catch(() => setStats(null))
+    fetchWithFailover('/api/users/public-stats')
+      .then(res => {
+        if (!res.ok) throw new Error('Failed');
+        return res.json();
+      })
+      .then(data => {
+        console.log('Stats loaded:', data);
+        setStats(data);
+      })
+      .catch(err => {
+        console.error('Stats fetch error:', err);
+        setStats(null);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -81,7 +90,7 @@ export default function Home() {
               <div className="floating-card-icon heart">❤️</div>
               <div>
                 <div className="floating-card-text">{t('home.step_3_title')}</div>
-                <div className="floating-card-sub">Sadaqah Jariyah</div>
+                <div className="floating-card-sub">{t('home.sadaqah_jariyah')}</div>
               </div>
             </div>
 
@@ -152,38 +161,6 @@ export default function Home() {
               <div className="stat-number">{formatNumber(stats?.totalReceivers || 0)}</div>
             )}
             <div className="stat-label">{t('home.total_receivers')}</div>
-          </div>
-        </div>
-      </section>
-
-      <section className="donate-section">
-        <div className="donate-card">
-          <div className="donate-content">
-            <span className="donate-tag">🤲 {t('home.support_title')}</span>
-            <h2 className="donate-title">{t('home.support_title')}</h2>
-            <p className="donate-desc">
-              {t('home.support_desc')}
-            </p>
-            
-            <div className="instapay-options">
-              <div className="instapay-option">
-                <div className="instapay-label">
-                  <span className="instapay-icon">💳</span>
-                  {t('home.support_dev')}
-                </div>
-                <div className="instapay-number">01094450141</div>
-              </div>
-              <div className="instapay-divider"></div>
-              <div className="instapay-option">
-                <div className="instapay-label">
-                  <span className="instapay-icon">💳</span>
-                  {t('home.support_donations')}
-                </div>
-                <div className="instapay-number">01206410261</div>
-              </div>
-            </div>
-            
-            <p className="donate-thanks">📱 Instapay {t('home.support_thanks')}</p>
           </div>
         </div>
       </section>

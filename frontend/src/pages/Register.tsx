@@ -12,9 +12,6 @@ export default function Register() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'donor',
-    phone: '',
-    address: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,9 +35,6 @@ export default function Register() {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        role: formData.role,
-        phone: formData.phone || undefined,
-        address: formData.address || undefined,
       });
       navigate('/dashboard');
     } catch (err: any) {
@@ -145,57 +139,6 @@ export default function Register() {
                   minLength={6}
                   className="form-input-modern" 
                   placeholder="••••••••"
-                />
-              </div>
-            </div>
-
-            <div className="form-group-modern">
-              <label htmlFor="role">{t('auth.role')}</label>
-              <div className="role-selector-modern">
-                <button
-                  type="button"
-                  className={`role-option-modern ${formData.role === 'donor' ? 'active' : ''}`}
-                  onClick={() => setFormData({ ...formData, role: 'donor' })}
-                >
-                  <span className="role-icon">🤝</span>
-                  <span className="role-label">{t('auth.donor')}</span>
-                  <span className="role-desc">Share surplus food</span>
-                </button>
-                <button
-                  type="button"
-                  className={`role-option-modern ${formData.role === 'recipient' ? 'active' : ''}`}
-                  onClick={() => setFormData({ ...formData, role: 'recipient' })}
-                >
-                  <span className="role-icon">🍽️</span>
-                  <span className="role-label">{t('auth.recipient')}</span>
-                  <span className="role-desc">Receive food donations</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="form-row-modern">
-              <div className="form-group-modern">
-                <label htmlFor="phone">{t('auth.phone')}</label>
-                <input 
-                  id="phone" 
-                  name="phone" 
-                  type="tel" 
-                  value={formData.phone} 
-                  onChange={handleChange} 
-                  className="form-input-modern" 
-                  placeholder="+20..."
-                />
-              </div>
-              <div className="form-group-modern">
-                <label htmlFor="address">{t('auth.address')}</label>
-                <input 
-                  id="address" 
-                  name="address" 
-                  type="text" 
-                  value={formData.address} 
-                  onChange={handleChange} 
-                  className="form-input-modern" 
-                  placeholder="Your area"
                 />
               </div>
             </div>

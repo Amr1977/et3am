@@ -6,7 +6,9 @@
     "email_exists": "Email already exists",
     "unauthorized": "Unauthorized access",
     "token_expired": "Token has expired",
-    "token_invalid": "Invalid token"
+    "token_invalid": "Invalid token",
+    "cannot_donate": "You are not allowed to donate food",
+    "cannot_receive": "You are not allowed to receive food"
   },
   "donation": {
     "created": "Donation created successfully",
@@ -19,7 +21,8 @@
     "reservation_cancelled": "Reservation cancelled successfully",
     "completed": "Donation completed successfully",
     "expired": "Donation has expired",
-    "list_retrieved": "Donations retrieved successfully"
+    "list_retrieved": "Donations retrieved successfully",
+    "cannot_reserve_own": "You cannot reserve your own donation"
   },
   "user": {
     "profile_updated": "Profile updated successfully",

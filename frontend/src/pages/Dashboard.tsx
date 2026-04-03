@@ -56,11 +56,6 @@ export default function Dashboard() {
           <h1>🖐️ {t('dashboard.welcome')}, {user?.name}!</h1>
           <p>Here's your impact summary</p>
         </div>
-        <div className="dashboard-badges">
-          <span className={`role-badge ${user?.role}`}>
-            {user?.role === 'donor' ? '🤝 Donor' : '🍽️ Recipient'}
-          </span>
-        </div>
       </div>
 
       <div className="stats-grid-modern">
@@ -95,7 +90,7 @@ export default function Dashboard() {
       </div>
 
       <div className="dashboard-actions-modern">
-        {user?.role === 'donor' && (
+        {user?.can_donate && (
           <Link to="/donations?create=true" className="btn btn-primary-modern">
             + {t('donations.create_title')}
           </Link>
@@ -109,15 +104,13 @@ export default function Dashboard() {
         <h2>📈 {t('dashboard.recent_activity')}</h2>
         <div className="activity-card-modern">
           <div className="activity-stat">
-            <span className="activity-icon">
-              {user?.role === 'donor' ? '🎁' : '📦'}
-            </span>
+            <span className="activity-icon">🎁</span>
             <div className="activity-info">
               <div className="activity-number">
-                {user?.role === 'donor' ? stats?.myDonations : stats?.myReservations || 0}
+                {stats?.myDonations || 0}
               </div>
               <div className="activity-label">
-                {user?.role === 'donor' ? t('dashboard.my_donations') : t('dashboard.my_reservations')}
+                {user?.can_donate ? t('dashboard.my_donations') : t('dashboard.my_reservations')}
               </div>
             </div>
           </div>

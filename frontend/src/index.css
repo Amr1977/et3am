@@ -1204,6 +1204,73 @@ body {
   font-size: 16px;
 }
 
+/* Custom Marker Styles */
+.custom-marker-container {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Leaflet Popup Styles */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.leaflet-popup-content {
+  margin: 12px;
+  font-family: inherit;
+}
+
+/* User Location Marker */
+.user-location-marker {
+  width: 20px;
+  height: 20px;
+  background: #3b82f6;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.5);
+}
+
+/* Location Picker */
+.location-picker {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  background: var(--bg-secondary);
+}
+
+.location-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.location-picker-label {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.location-picker-hint {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.location-picker-map {
+  height: 250px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.location-picker-map .leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
 /* User Location Marker */
 .user-location-marker {
   width: 16px;

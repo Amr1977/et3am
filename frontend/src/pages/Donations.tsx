@@ -75,15 +75,20 @@ export default function Donations() {
 
   const fetchDonations = useCallback(async () => {
     try {
+      console.log('Fetching donations, filter:', filter);
       const params = new URLSearchParams();
       if (filter !== 'all') params.set('status', filter);
       const res = await fetchWithFailover(`/api/donations?${params}`);
+      console.log('Response status:', res.status);
       if (res.ok) {
         const data = await res.json();
+        console.log('API response:', data);
         setDonations(data.donations);
+      } else {
+        console.error('API error:', res.status);
       }
     } catch (err) {
-      console.error('Failed to fetch donations');
+      console.error('Failed to fetch donations:', err);
     } finally {
       setLoading(false);
     }
@@ -179,7 +184,8 @@ export default function Donations() {
         fetchDonations();
       } else {
         const errorData = await res.json().catch(() => ({}));
-        setCreateError(errorData.error || `Failed to create donation (${res.status})`);
+        console.error('Create donation error:', res.status, errorData);
+        setCreateError(errorData.error || errorData.messageKey || `Failed to create donation (${res.status})`);
       }
     } catch (err) {
       setCreateError('Unable to connect to server. Please try again.');
@@ -226,7 +232,7 @@ export default function Donations() {
           >
             {viewMode === 'grid' ? '🗺️' : '📋'} {viewMode === 'grid' ? t('donations.view_map') : t('donations.view_grid')}
           </button>
-          {isAuthenticated && user?.role === 'donor' && (
+          {isAuthenticated && user?.can_donate && (
             <button
               onClick={() => setShowCreateForm(!showCreateForm)}
               className="btn btn-primary btn-sm"
@@ -398,11 +404,15 @@ export default function Donations() {
 
       {viewMode === 'map' ? (
         donations.some(d => d.latitude && d.longitude) || user?.latitude ? (
-          <ClusterMap 
-            donations={donations} 
-            userLocation={user?.latitude && user?.longitude ? { lat: user.latitude, lng: user.longitude } : null}
-            t={t} 
-          />
+          <div style={{ height: '500px' }}>
+            <ClusterMap 
+              donations={donations} 
+              userLocation={user?.latitude && user?.longitude ? { lat: user.latitude, lng: user.longitude } : null}
+              t={t}
+              onReserve={handleReserve}
+              isAuthenticated={isAuthenticated}
+            />
+          </div>
         ) : (
           <div className="donations-map-placeholder">
             <div className="map-placeholder-content">
@@ -418,7 +428,7 @@ export default function Donations() {
               <div className="empty-state-icon">🍽️</div>
               <h3>{t('donations.no_donations')}</h3>
               <p>Be the first to share food with those in need</p>
-              {isAuthenticated && user?.role === 'donor' && (
+              {isAuthenticated && user?.can_receive && (
                 <button onClick={() => setShowCreateForm(true)} className="btn btn-primary">
                   {t('donations.create_title')}
                 </button>
@@ -430,6 +440,7 @@ export default function Donations() {
                 <div 
                   key={donation.id} 
                   className={`donation-card-new ${donation.status}`}
+                  id={donation.id}
                   onClick={() => setSelectedDonation(donation)}
                 >
                   <div className="donation-card-header">
@@ -467,7 +478,7 @@ export default function Donations() {
                   </div>
                   
                   <div className="donation-card-footer">
-                    {donation.status === 'available' && isAuthenticated && user?.role === 'recipient' ? (
+                    {donation.status === 'available' && isAuthenticated && user?.can_receive ? (
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleReserve(donation.id); }}
                         className="btn btn-primary btn-sm"
@@ -563,7 +574,7 @@ export default function Donations() {
             )}
             
             <div className="modal-actions">
-              {selectedDonation.status === 'available' && isAuthenticated && user?.role === 'recipient' ? (
+              {selectedDonation.status === 'available' && isAuthenticated && user?.can_receive ? (
                 <button onClick={() => { handleReserve(selectedDonation.id); setSelectedDonation(null); }} className="btn btn-primary">
                   {t('donations.reserve')}
                 </button>

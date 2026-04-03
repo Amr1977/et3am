@@ -6,7 +6,9 @@
     "email_exists": "البريد الإلكتروني مسجل بالفعل",
     "unauthorized": "غير مصرح بالوصول",
     "token_expired": "انتهت صلاحية الرمز",
-    "token_invalid": "رمز غير صالح"
+    "token_invalid": "رمز غير صالح",
+    "cannot_donate": "ليس مسموحاً لك بالتبرع بالطعام",
+    "cannot_receive": "ليس مسموحاً لك بتلقي الطعام"
   },
   "donation": {
     "created": "تم إنشاء التبرع بنجاح",
@@ -19,7 +21,8 @@
     "reservation_cancelled": "تم إلغاء الحجز بنجاح",
     "completed": "تم إكمال التبرع بنجاح",
     "expired": "انتهت صلاحية التبرع",
-    "list_retrieved": "تم جلب التبرعات بنجاح"
+    "list_retrieved": "تم جلب التبرعات بنجاح",
+    "cannot_reserve_own": "لا يمكنك حجز تبرعك الخاص"
   },
   "user": {
     "profile_updated": "تم تحديث الملف الشخصي بنجاح",

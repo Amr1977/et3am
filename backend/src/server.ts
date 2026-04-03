@@ -4,7 +4,7 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import { v4 as uuidv4 } from 'uuid';
 import admin from 'firebase-admin';
-import { initDb, dbOps, warmupDatabase, pool } from './database';
+import { initDb, dbOps, warmupDatabase, pool, runMigrations } from './database';
 import { i18nMiddleware } from './middleware/i18n';
 import { generateToken } from './middleware/auth';
 import { serviceAccount } from './firebase-admin';
@@ -64,6 +64,8 @@ passport.use(new GoogleStrategy(
             email: email || `google_${profile.id}@et3am.com`,
             password: null,
             role: 'donor',
+            can_donate: true,
+            can_receive: true,
             phone: null,
             address: null,
             latitude: null,
@@ -133,6 +135,7 @@ app.get('/api/health/detailed', async (_req, res) => {
 });
 
 initDb().then(async () => {
+  await runMigrations();
   await warmupDatabase();
   await startServerRegistry();
   
