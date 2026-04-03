@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>إطعام — أطعم جائعاً، أنقذ طعاماً</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
+<style>
+  /* ── TOKENS ─────────────────────────────────────────── */
+  :root {
+    --sand:   #F5EDD6;
+    --cream:  #FBF6EA;
+    --gold:   #C8922A;
+    --gold2:  #E8B44A;
+    --deep:   #1A2B1F;
+    --green:  #2D5A3D;
+    --green2: #3E7A54;
+    --terracotta: #B85C38;
+    --text:   #1A2B1F;
+    --muted:  #6B7C6B;
+    --r: 16px;
+  }
+
+  /* ── RESET ───────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ── GEOMETRIC PATTERN OVERLAY ───────────────────────── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(200,146,42,.06) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(45,90,61,.06) 0%, transparent 50%);
+  }
+
+  /* ── NAV ─────────────────────────────────────────────── */
+  nav {
+    position: fixed; top: 0; right: 0; left: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px;
+    background: rgba(251,246,234,.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(200,146,42,.2);
+  }
+  .nav-logo {
+    font-family: 'Amiri', serif;
+    font-size: 2rem; font-weight: 700;
+    color: var(--green);
+    letter-spacing: 1px;
+  }
+  .nav-logo span { color: var(--gold); }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a {
+    font-size: .95rem; font-weight: 600;
+    color: var(--deep); text-decoration: none;
+    opacity: .75; transition: opacity .2s, color .2s;
+  }
+  .nav-links a:hover { opacity: 1; color: var(--green); }
+  .nav-cta {
+    background: var(--green);
+    color: #fff !important; opacity: 1 !important;
+    padding: 10px 24px; border-radius: 50px;
+    transition: background .2s !important;
+  }
+  .nav-cta:hover { background: var(--green2) !important; }
+
+  /* ── HERO ────────────────────────────────────────────── */
+  .hero {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: grid; place-items: center;
+    padding: 120px 24px 80px;
+    overflow: hidden;
+  }
+
+  /* Islamic geometric background pattern */
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0; z-index: -1;
+    background-color: var(--deep);
+    background-image:
+      repeating-linear-gradient(0deg,   transparent, transparent 59px, rgba(200,146,42,.08) 60px),
+      repeating-linear-gradient(90deg,  transparent, transparent 59px, rgba(200,146,42,.08) 60px),
+      repeating-linear-gradient(45deg,  transparent, transparent 29px, rgba(200,146,42,.04) 30px),
+      repeating-linear-gradient(-45deg, transparent, transparent 29px, rgba(200,146,42,.04) 30px);
+  }
+  .hero::after {
+    content: '';
+    position: absolute; inset: 0; z-index: -1;
+    background: radial-gradient(ellipse at 50% 40%, rgba(45,90,61,.65) 0%, var(--deep) 75%);
+  }
+
+  /* decorative arc */
+  .hero-arc {
+    position: absolute; bottom: -2px; left: 0; right: 0; z-index: 2;
+    height: 90px; overflow: hidden;
+  }
+  .hero-arc svg { width: 100%; height: 100%; }
+
+  .hero-inner {
+    position: relative; z-index: 3;
+    text-align: center; max-width: 860px;
+    animation: fadeUp .9s ease both;
+  }
+
+  .basmala {
+    font-family: 'Amiri', serif;
+    font-size: clamp(1.3rem, 3vw, 1.9rem);
+    color: var(--gold2);
+    letter-spacing: 2px;
+    margin-bottom: 28px;
+    opacity: .9;
+  }
+
+  .hero h1 {
+    font-family: 'Amiri', serif;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .hero h1 span { color: var(--gold2); }
+
+  .hero-sub {
+    font-size: clamp(1rem, 2.5vw, 1.35rem);
+    color: rgba(255,255,255,.75);
+    font-weight: 300;
+    margin-bottom: 48px;
+    line-height: 1.7;
+  }
+
+  .hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 15px 36px; border-radius: 50px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 1rem; font-weight: 700;
+    text-decoration: none; cursor: pointer; border: none;
+    transition: transform .2s, box-shadow .2s, background .2s;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-primary {
+    background: var(--gold);
+    color: var(--deep);
+    box-shadow: 0 6px 24px rgba(200,146,42,.4);
+  }
+  .btn-primary:hover { background: var(--gold2); box-shadow: 0 10px 32px rgba(200,146,42,.5); }
+  .btn-outline {
+    background: transparent;
+    color: #fff;
+    border: 2px solid rgba(255,255,255,.5);
+  }
+  .btn-outline:hover { border-color: #fff; background: rgba(255,255,255,.08); }
+
+  /* ── STATS STRIP ─────────────────────────────────────── */
+  .stats {
+    position: relative; z-index: 5;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    background: var(--green);
+    margin-top: -1px;
+  }
+  .stat {
+    padding: 36px 24px;
+    text-align: center;
+    border-left: 1px solid rgba(255,255,255,.1);
+  }
+  .stat:last-child { border-left: none; }
+  .stat-num {
+    font-family: 'Amiri', serif;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    color: var(--gold2);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: .9rem; color: rgba(255,255,255,.8);
+    margin-top: 6px; font-weight: 400;
+  }
+
+  /* ── SECTION SHARED ──────────────────────────────────── */
+  section { position: relative; z-index: 1; }
+  .section-inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  .section-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: .8rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .section-tag::before, .section-tag::after {
+    content: ''; display: block; width: 28px; height: 1px; background: var(--gold);
+  }
+  h2.section-title {
+    font-family: 'Amiri', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    line-height: 1.25;
+    color: var(--deep);
+    margin-bottom: 16px;
+  }
+  .section-lead {
+    font-size: 1.05rem; color: var(--muted);
+    line-height: 1.8; max-width: 600px;
+  }
+
+  /* ── VERSE SECTION ───────────────────────────────────── */
+  .verses-section {
+    padding: 100px 0;
+    background: var(--cream);
+  }
+  .verses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 28px;
+    margin-top: 56px;
+  }
+  .verse-card {
+    background: #fff;
+    border-radius: var(--r);
+    padding: 36px 32px;
+    border: 1px solid rgba(200,146,42,.15);
+    box-shadow: 0 2px 20px rgba(0,0,0,.04);
+    transition: transform .3s, box-shadow .3s;
+    position: relative; overflow: hidden;
+  }
+  .verse-card::before {
+    content: '❝';
+    position: absolute; top: 12px; left: 20px;
+    font-size: 4rem; color: var(--gold2);
+    opacity: .12; font-family: serif; line-height: 1;
+  }
+  .verse-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,.08); }
+
+  .verse-source {
+    display: inline-block;
+    font-size: .75rem; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--gold);
+    background: rgba(200,146,42,.1);
+    padding: 4px 12px; border-radius: 20px;
+    margin-bottom: 18px;
+  }
+  .verse-text {
+    font-family: 'Amiri', serif;
+    font-size: 1.25rem;
+    line-height: 2;
+    color: var(--deep);
+    margin-bottom: 14px;
+  }
+  .verse-ref {
+    font-size: .82rem; color: var(--muted); font-weight: 600;
+  }
+
+  /* hadith style */
+  .verse-card.hadith { border-right: 4px solid var(--green); }
+  .verse-card.quran  { border-right: 4px solid var(--gold);  }
+
+  /* ── HOW IT WORKS ─────────────────────────────────────── */
+  .how-section {
+    padding: 100px 0;
+    background: var(--sand);
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 32px;
+    margin-top: 56px;
+  }
+  .step {
+    text-align: center;
+    padding: 40px 28px;
+    background: #fff;
+    border-radius: var(--r);
+    box-shadow: 0 2px 16px rgba(0,0,0,.04);
+    position: relative;
+  }
+  .step-num {
+    width: 52px; height: 52px;
+    margin: 0 auto 20px;
+    background: var(--green);
+    color: #fff;
+    font-family: 'Amiri', serif;
+    font-size: 1.5rem; font-weight: 700;
+    border-radius: 50%;
+    display: grid; place-items: center;
+  }
+  .step-icon { font-size: 2.4rem; margin-bottom: 14px; }
+  .step h3 { font-size: 1.05rem; font-weight: 700; color: var(--deep); margin-bottom: 10px; }
+  .step p  { font-size: .9rem; color: var(--muted); line-height: 1.7; }
+
+  /* connector line between steps on desktop */
+  @media (min-width: 768px) {
+    .step:not(:last-child)::after {
+      content: '←';
+      position: absolute; left: -22px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.4rem; color: var(--gold2); opacity: .5;
+    }
+  }
+
+  /* ── IMPACT / CATEGORIES ─────────────────────────────── */
+  .categories-section {
+    padding: 100px 0;
+    background: var(--cream);
+  }
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 56px;
+  }
+  .cat-card {
+    background: var(--deep);
+    border-radius: var(--r);
+    padding: 36px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform .3s, background .3s;
+    text-decoration: none;
+  }
+  .cat-card:hover { transform: translateY(-4px); background: var(--green); }
+  .cat-icon { font-size: 2.5rem; margin-bottom: 14px; display: block; }
+  .cat-name { font-size: 1rem; font-weight: 700; color: #fff; }
+  .cat-count { font-size: .82rem; color: rgba(255,255,255,.55); margin-top: 6px; }
+
+  /* ── CTA BANNER ──────────────────────────────────────── */
+  .cta-section {
+    padding: 100px 24px;
+    background: var(--green);
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, rgba(200,146,42,.18) 0%, transparent 70%);
+  }
+  .cta-section h2 {
+    font-family: 'Amiri', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    color: #fff; margin-bottom: 16px; position: relative;
+  }
+  .cta-section p {
+    color: rgba(255,255,255,.75);
+    font-size: 1.1rem; max-width: 520px;
+    margin: 0 auto 40px; line-height: 1.8; position: relative;
+  }
+  .cta-section .btn-primary { position: relative; }
+
+  /* ── FOOTER ──────────────────────────────────────────── */
+  footer {
+    background: var(--deep);
+    color: rgba(255,255,255,.6);
+    padding: 40px 48px;
+    display: flex; align-items: center;
+    justify-content: space-between; flex-wrap: wrap; gap: 16px;
+  }
+  footer .nav-logo { font-size: 1.5rem; }
+  footer p { font-size: .85rem; }
+
+  /* ── ANIMATIONS ──────────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(32px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .verse-card, .step, .cat-card, .stat {
+    animation: fadeUp .6s ease both;
+  }
+  .verse-card:nth-child(2) { animation-delay: .1s; }
+  .verse-card:nth-child(3) { animation-delay: .2s; }
+  .verse-card:nth-child(4) { animation-delay: .3s; }
+  .step:nth-child(2) { animation-delay: .1s; }
+  .step:nth-child(3) { animation-delay: .2s; }
+  .step:nth-child(4) { animation-delay: .3s; }
+
+  /* ── RESPONSIVE ──────────────────────────────────────── */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    .stats { grid-template-columns: 1fr; }
+    .stat { border-left: none; border-top: 1px solid rgba(255,255,255,.1); }
+    footer { flex-direction: column; text-align: center; padding: 32px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ══════════════════════════════════════════════ -->
+<nav>
+  <div class="nav-logo">إط<span>عام</span></div>
+  <ul class="nav-links">
+    <li><a href="#verses">آيات وأحاديث</a></li>
+    <li><a href="#how">كيف تعمل</a></li>
+    <li><a href="#categories">التصنيفات</a></li>
+    <li><a href="#donate" class="nav-cta">تبرّع الآن</a></li>
+  </ul>
+</nav>
+
+<!-- ═══ HERO ══════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-inner">
+    <p class="basmala">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p>
+    <h1>أطعِم جائعاً<br/><span>أنقذ طعاماً</span></h1>
+    <p class="hero-sub">
+      منصة إطعام تربط المانحين بالمحتاجين، وتُقلّل الهدر في الطعام،<br/>
+      لأن إطعام الجائع من أعظم القُربات إلى الله.
+    </p>
+    <div class="hero-btns">
+      <a href="#donate" class="btn btn-primary">🤲 ابدأ التبرع</a>
+      <a href="#how" class="btn btn-outline">تعرف على المنصة</a>
+    </div>
+  </div>
+  <div class="hero-arc">
+    <svg viewBox="0 0 1440 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,90 C360,0 1080,0 1440,90 L1440,90 L0,90 Z" fill="#1A2B1F"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ═══ STATS ══════════════════════════════════════════════ -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-num">+٥٠٠٠</div>
+    <div class="stat-label">وجبة مُقدَّمة للمحتاجين</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">+١٢٠</div>
+    <div class="stat-label">متبرع نشط</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">+٢٠</div>
+    <div class="stat-label">منطقة خدمية</div>
+  </div>
+</div>
+
+<!-- ═══ VERSES & HADITHS ════════════════════════════════════ -->
+<section class="verses-section" id="verses">
+  <div class="section-inner">
+    <div style="text-align:center;">
+      <div class="section-tag">قرآن وسنة</div>
+      <h2 class="section-title">فضل إطعام الطعام</h2>
+      <p class="section-lead" style="margin:0 auto 8px;">ما أُمرنا به ونُدبنا إليه من إطعام الجائع والمسكين وابن السبيل.</p>
+    </div>
+
+    <div class="verses-grid">
+
+      <!-- ── Quran 1 ── -->
+      <div class="verse-card quran">
+        <span class="verse-source">القرآن الكريم</span>
+        <p class="verse-text">
+          ﴿وَيُطْعِمُونَ الطَّعَامَ عَلَى حُبِّهِ مِسْكِينًا وَيَتِيمًا وَأَسِيرًا ۝ إِنَّمَا نُطْعِمُكُمْ لِوَجْهِ اللَّهِ لَا نُرِيدُ مِنكُمْ جَزَاءً وَلَا شُكُورًا﴾
+        </p>
+        <p class="verse-ref">سورة الإنسان — الآيتان ٨–٩</p>
+      </div>
+
+      <!-- ── Quran 2 ── -->
+      <div class="verse-card quran">
+        <span class="verse-source">القرآن الكريم</span>
+        <p class="verse-text">
+          ﴿أَوْ إِطْعَامٌ فِي يَوْمٍ ذِي مَسْغَبَةٍ ۝ يَتِيمًا ذَا مَقْرَبَةٍ ۝ أَوْ مِسْكِينًا ذَا مَتْرَبَةٍ﴾
+        </p>
+        <p class="verse-ref">سورة البلد — الآيات ١٤–١٦</p>
+      </div>
+
+      <!-- ── Quran 3 ── -->
+      <div class="verse-card quran">
+        <span class="verse-source">القرآن الكريم</span>
+        <p class="verse-text">
+          ﴿وَفِي أَمْوَالِهِمْ حَقٌّ لِّلسَّائِلِ وَالْمَحْرُومِ﴾
+        </p>
+        <p class="verse-ref">سورة الذاريات — الآية ١٩</p>
+      </div>
+
+      <!-- ── Hadith 1 ── -->
+      <div class="verse-card hadith">
+        <span class="verse-source" style="color:var(--green);background:rgba(45,90,61,.1);">حديث شريف</span>
+        <p class="verse-text">
+          «مَن أطعَمَ مؤمنًا حتى يُشبِعَه من جوعٍ، أدخَلَه اللهُ بابًا من أبواب الجنة لا يدخُلُه إلا مَن كان مِثلَه»
+        </p>
+        <p class="verse-ref">رواه الطبراني في الكبير — صحّحه الألباني</p>
+      </div>
+
+      <!-- ── Hadith 2 ── -->
+      <div class="verse-card hadith">
+        <span class="verse-source" style="color:var(--green);background:rgba(45,90,61,.1);">حديث شريف</span>
+        <p class="verse-text">
+          «وَاللهِ لَا يُؤمِنُ، وَاللهِ لَا يُؤمِنُ، وَاللهِ لَا يُؤمِنُ» قيل: مَن يا رسول الله؟ قال: «الذي يَشبَعُ وَجارُه جائعٌ إلى جَنبِه»
+        </p>
+        <p class="verse-ref">رواه البخاري في الأدب المفرد — وصحّحه الألباني</p>
+      </div>
+
+      <!-- ── Hadith 3 ── -->
+      <div class="verse-card hadith">
+        <span class="verse-source" style="color:var(--green);background:rgba(45,90,61,.1);">حديث شريف</span>
+        <p class="verse-text">
+          «أيُّها الناس، أفشُوا السلامَ، وأطعِموا الطعامَ، وصِلوا الأرحامَ، وصلُّوا بالليل والناسُ نيامٌ، تدخُلوا الجنة بسلام»
+        </p>
+        <p class="verse-ref">رواه الترمذي وابن ماجه — صحيح</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ════════════════════════════════════════ -->
+<section class="how-section" id="how">
+  <div class="section-inner">
+    <div style="text-align:center;">
+      <div class="section-tag">خطوات بسيطة</div>
+      <h2 class="section-title">كيف تعمل إطعام؟</h2>
+      <p class="section-lead" style="margin:0 auto;">أربع خطوات تجعل صدقتك تصل في دقائق إلى من يحتاجها.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">١</div>
+        <div class="step-icon">📝</div>
+        <h3>سجّل حسابك</h3>
+        <p>أنشئ حسابًا مجانيًا كمتبرع أو جمعية أو مستفيد في ثوانٍ.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">٢</div>
+        <div class="step-icon">🍱</div>
+        <h3>أضف التبرع</h3>
+        <p>سجّل الطعام المتاح — نوعه وكميته ومكانه ووقت التسليم.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">٣</div>
+        <div class="step-icon">🔔</div>
+        <h3>نُطابق الطلب</h3>
+        <p>تُنبّه المنصة أقرب جمعية أو فرد محتاج تلقائيًا.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">٤</div>
+        <div class="step-icon">🤝</div>
+        <h3>الاستلام والأثر</h3>
+        <p>يصل الطعام لمن يحتاجه وتتلقّى إشعارًا بالأثر الذي صنعته.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CATEGORIES ══════════════════════════════════════════ -->
+<section class="categories-section" id="categories">
+  <div class="section-inner">
+    <div style="text-align:center;">
+      <div class="section-tag">أصناف التبرع</div>
+      <h2 class="section-title">ما الذي يمكنك تقديمه؟</h2>
+      <p class="section-lead" style="margin:0 auto;">كل أنواع الطعام مقبولة — من الوجبات الجاهزة إلى المنتجات الطازجة.</p>
+    </div>
+    <div class="categories-grid" style="margin-top:56px;">
+      <a class="cat-card" href="#">
+        <span class="cat-icon">🍛</span>
+        <div class="cat-name">وجبات جاهزة</div>
+        <div class="cat-count">الأسرع توصيلًا</div>
+      </a>
+      <a class="cat-card" href="#">
+        <span class="cat-icon">🥖</span>
+        <div class="cat-name">مخبوزات</div>
+        <div class="cat-count">خبز، فطائر، كعك</div>
+      </a>
+      <a class="cat-card" href="#">
+        <span class="cat-icon">🥦</span>
+        <div class="cat-name">خضروات وفواكه</div>
+        <div class="cat-count">طازجة أو محفوظة</div>
+      </a>
+      <a class="cat-card" href="#">
+        <span class="cat-icon">🥛</span>
+        <div class="cat-name">ألبان وبروتين</div>
+        <div class="cat-count">بيض، جبن، لبن</div>
+      </a>
+      <a class="cat-card" href="#">
+        <span class="cat-icon">🛒</span>
+        <div class="cat-name">مواد غذائية</div>
+        <div class="cat-count">أرز، زيت، سكر…</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ════════════════════════════════════════════════ -->
+<section class="cta-section" id="donate">
+  <h2>ابدأ رحلة الخير اليوم</h2>
+  <p>
+    «مَن دلَّ على خيرٍ فله مثلُ أجر فاعله» — رواه مسلم.
+    شارك المنصة وكن سببًا في إطعام جائع.
+  </p>
+  <a href="#" class="btn btn-primary" style="font-size:1.1rem;padding:18px 48px;">
+    🤲 تبرّع أو سجّل الآن
+  </a>
+</section>
+
+<!-- ═══ FOOTER ════════════════════════════════════════════ -->
+<footer>
+  <div class="nav-logo" style="color:#fff;">إط<span>عام</span></div>
+  <p>أطعِم جائعاً · أنقذ طعاماً · اصنع أثراً</p>
+  <p style="font-size:.8rem;">© ٢٠٢٥ إطعام — جميع الحقوق محفوظة</p>
+</footer>
+
+</body>
+</html>
