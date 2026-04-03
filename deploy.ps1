@@ -60,7 +60,7 @@ function Deploy-Backend {
     
     # Sync files to server
     Write-Host "Syncing files to server..."
-    $backendFiles = @("src", "package.json", "package-lock.json", "tsconfig.json", "ecosystem.config.js", "vitest.config.ts")
+    $backendFiles = @("src", "dist", "package.json", "package-lock.json", "tsconfig.json", "ecosystem.config.js", "vitest.config.ts")
     
     foreach ($file in $backendFiles) {
         if (Test-Path "$BackendDir\$file") {
