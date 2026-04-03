@@ -441,7 +441,9 @@ export default function Donations() {
                   
                   <div className="donation-address">
                     <span className="address-icon">📍</span>
-                    <span className="address-text">{donation.pickup_address}</span>
+                    <span className="address-text">
+                      {donation.pickup_address || (isAuthenticated ? 'Address hidden' : 'Login to see address')}
+                    </span>
                   </div>
                   
                   <div className="donation-card-footer">

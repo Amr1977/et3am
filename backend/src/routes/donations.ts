@@ -23,6 +23,9 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const isReceiver = isAuthenticated && donations.some(d => d.reserved_by === req.userId);
 
     const enriched = donations.map(d => {
+      const isOwner = req.userId && d.donor_id === req.userId;
+      const isReserver = req.userId && d.reserved_by === req.userId;
+      
       const base = {
         id: d.id,
         title: d.title,
@@ -31,7 +34,6 @@ router.get('/', async (req: AuthRequest, res: Response) => {
         quantity: d.quantity,
         unit: d.unit,
         expiry_date: d.expiry_date,
-        pickup_address: d.pickup_address,
         latitude: d.latitude,
         longitude: d.longitude,
         pickup_date: d.pickup_date,
@@ -39,28 +41,38 @@ router.get('/', async (req: AuthRequest, res: Response) => {
         created_at: d.created_at,
       };
 
-      if (!isAuthenticated) {
-        return { ...base, donor_name: 'Anonymous' };
+      if (!req.userId) {
+        return { 
+          ...base, 
+          donor_name: 'Anonymous',
+          pickup_address: null,
+        };
       }
 
-      if (d.donor_id === req.userId) {
+      if (isOwner) {
         return {
           ...base,
           donor_name: 'You',
+          pickup_address: d.pickup_address,
           hash_code: d.hash_code,
           reserved_by_name: d.reserved_by ? 'Someone' : null,
         };
       }
 
-      if (d.reserved_by === req.userId) {
+      if (isReserver) {
         return {
           ...base,
           donor_name: 'Anonymous',
+          pickup_address: d.pickup_address,
           hash_code: d.hash_code,
         };
       }
 
-      return { ...base, donor_name: 'Anonymous' };
+      return { 
+        ...base, 
+        donor_name: 'Anonymous',
+        pickup_address: null,
+      };
     });
 
     res.json({
@@ -131,7 +143,6 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       quantity: donation.quantity,
       unit: donation.unit,
       expiry_date: donation.expiry_date,
-      pickup_address: donation.pickup_address,
       latitude: donation.latitude,
       longitude: donation.longitude,
       pickup_date: donation.pickup_date,
@@ -141,14 +152,18 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 
     if (!req.userId) {
       responseData.donor_name = 'Anonymous';
+      responseData.pickup_address = null;
     } else if (isOwner) {
       responseData.donor_name = 'You';
+      responseData.pickup_address = donation.pickup_address;
       responseData.hash_code = donation.hash_code;
     } else if (isReceiver) {
       responseData.donor_name = 'Anonymous';
+      responseData.pickup_address = donation.pickup_address;
       responseData.hash_code = donation.hash_code;
     } else {
       responseData.donor_name = 'Anonymous';
+      responseData.pickup_address = null;
     }
 
     res.json({ donation: responseData });
