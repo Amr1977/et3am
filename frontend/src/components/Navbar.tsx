@@ -60,7 +60,7 @@ export default function Navbar() {
 
           <button onClick={handleLanguageSwitch} className="lang-switch-btn" title={t('language.switch')}>
             <span className="lang-icon">🌐</span>
-            <span>{isRTL ? 'EN' : 'عر'}</span>
+            <span>{isRTL ? 'EN' : 'ع'}</span>
           </button>
 
           {isAuthenticated ? (

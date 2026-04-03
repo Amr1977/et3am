@@ -10,7 +10,11 @@
     "dev:win": "powershell -ExecutionPolicy Bypass -File dev.ps1",
     "dev:unix": "bash dev.sh",
     "install:all": "cd backend && npm install && cd ../frontend && npm install",
-    "build": "cd frontend && npm run build && cd ../backend && npm run build"
+    "build": "cd frontend && npm run build && cd ../backend && npm run build",
+    "test": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "cd frontend && npm run test:run",
+    "test:backend": "cd backend && npm run test:run",
+    "test:watch": "npm run test:frontend -- --watch & npm run test:backend -- --watch"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
