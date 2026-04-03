@@ -4,6 +4,25 @@ import { authenticate, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
+router.get('/public-stats', async (_req, res: Response) => {
+  try {
+    const [totalDonations, completedDonations, totalUsers] = await Promise.all([
+      dbOps.donations.totalCount(),
+      dbOps.donations.countByStatus('completed'),
+      dbOps.userCount(),
+    ]);
+
+    res.json({
+      totalDonations,
+      completedDonations,
+      totalUsers,
+    });
+  } catch (err) {
+    console.error('Public stats error:', err);
+    res.status(500).json({ messageKey: 'general.server_error' });
+  }
+});
+
 router.get('/stats', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const [totalDonations, availableDonations, reservedDonations, completedDonations, totalUsers] = await Promise.all([

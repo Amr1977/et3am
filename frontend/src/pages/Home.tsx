@@ -1,15 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { fetchWithFailover } from '../services/api';
+
+interface Stats {
+  totalDonations: number;
+  completedDonations: number;
+  totalUsers: number;
+}
 
 export default function Home() {
   const { t } = useTranslation();
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const stats = [
-    { number: '12,500+', label: t('home.meals_donated') },
-    { number: '850+', label: t('home.active_donors') },
-    { number: '9,800+', label: t('home.meals_reserved') },
-  ];
+  useEffect(() => {
+    fetch('/api/users/public-stats')
+      .then(res => res.json())
+      .then(data => setStats(data))
+      .catch(() => setStats(null))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const formatNumber = (num: number) => {
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}k+`;
+    return `${num}+`;
+  };
 
   return (
     <div className="home-page">
@@ -116,12 +132,59 @@ export default function Home() {
 
       <section className="stats-section">
         <div className="stats-grid">
-          {stats.map((stat, index) => (
-            <div className="stat-card" key={index}>
-              <div className="stat-number">{stat.number}</div>
-              <div className="stat-label">{stat.label}</div>
+          <div className="stat-card">
+            {loading ? (
+              <div className="stat-number">...</div>
+            ) : (
+              <div className="stat-number">{formatNumber(stats?.completedDonations || 0)}</div>
+            )}
+            <div className="stat-label">{t('home.meals_donated')}</div>
+          </div>
+          <div className="stat-card">
+            {loading ? (
+              <div className="stat-number">...</div>
+            ) : (
+              <div className="stat-number">{formatNumber(stats?.totalUsers || 0)}</div>
+            )}
+            <div className="stat-label">{t('home.active_donors')}</div>
+          </div>
+          <div className="stat-card">
+            {loading ? (
+              <div className="stat-number">...</div>
+            ) : (
+              <div className="stat-number">{formatNumber(stats?.totalDonations || 0)}</div>
+            )}
+            <div className="stat-label">{t('home.meals_reserved')}</div>
+          </div>
+        </div>
+      </section>
+
+      <section className="donate-section">
+        <div className="donate-card">
+          <div className="donate-content">
+            <span className="donate-tag">Support Our Mission</span>
+            <h2 className="donate-title">Help Us Feed More</h2>
+            <p className="donate-desc">
+              Your donations help us continue our mission of feeding the hungry. 
+              Every contribution makes a difference.
+            </p>
+            
+            <div className="instapay-options">
+              <div className="instapay-option">
+                <div className="instapay-label">Development Support</div>
+                <div className="instapay-number">+201094450141</div>
+                <div className="instapay-name">Amr Lotfy</div>
+              </div>
+              <div className="instapay-divider"></div>
+              <div className="instapay-option">
+                <div className="instapay-label">Donations for Feeding</div>
+                <div className="instapay-number">+201206410261</div>
+                <div className="instapay-name">Amr Lotfy</div>
+              </div>
             </div>
-          ))}
+            
+            <p className="donate-thanks">JazakAllah Khair for your support! 🤲</p>
+          </div>
         </div>
       </section>
 
