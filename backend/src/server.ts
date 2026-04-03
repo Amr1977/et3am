@@ -12,6 +12,7 @@ import { SERVER_ID, startServerRegistry, getHealthyServers } from './services/se
 import authRoutes from './routes/auth';
 import donationRoutes from './routes/donations';
 import userRoutes from './routes/users';
+import mapsRoutes from './routes/maps';
 
 let firebaseInitialized = false;
 
@@ -100,6 +101,7 @@ app.get('/api/auth/google/callback',
 app.use('/api/auth', authRoutes);
 app.use('/api/donations', donationRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/maps', mapsRoutes);
 
 app.get('/api/health', (_req, res) => {
   const healthyServers = getHealthyServers();
