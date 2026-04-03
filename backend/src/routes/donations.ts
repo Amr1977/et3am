@@ -28,6 +28,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       
       const base = {
         id: d.id,
+        donor_id: d.donor_id,
         title: d.title,
         description: d.description,
         food_type: d.food_type,
@@ -38,6 +39,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
         longitude: d.longitude,
         pickup_date: d.pickup_date,
         status: d.status,
+        reserved_by: d.reserved_by,
         created_at: d.created_at,
       };
 
