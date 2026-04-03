@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useRTL } from '../hooks/useRTL';
@@ -9,6 +9,23 @@ export default function Navbar() {
   const { user, logout, updateLanguage, isAuthenticated } = useAuth();
   const { isRTL } = useRTL();
   const navigate = useNavigate();
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('theme');
+      if (saved) return saved as 'light' | 'dark';
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   const handleLogout = () => {
     logout();
@@ -37,6 +54,10 @@ export default function Navbar() {
         </div>
 
         <div className="navbar-actions">
+          <button onClick={toggleTheme} className="theme-toggle" title="Toggle theme">
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
+
           <button onClick={handleLanguageSwitch} className="lang-switch-btn" title={t('language.switch')}>
             <span className="lang-icon">🌐</span>
             <span>{isRTL ? 'EN' : 'عر'}</span>
