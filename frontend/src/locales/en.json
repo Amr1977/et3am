@@ -28,7 +28,12 @@
     "stats_title": "Our Impact",
     "meals_donated": "Meals Donated",
     "active_donors": "Active Donors",
-    "meals_reserved": "Meals Reserved"
+    "meals_reserved": "Meals Reserved",
+    "support_title": "Help Us Feed More",
+    "support_desc": "Your donations help us continue our mission of feeding the hungry. Every contribution makes a difference.",
+    "support_dev": "Development Support",
+    "support_donations": "Donations for Feeding",
+    "support_thanks": "JazakAllah Khair for your support!"
   },
   "auth": {
     "login_title": "Welcome",

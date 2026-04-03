@@ -28,7 +28,12 @@
     "stats_title": "أثرناogether",
     "meals_donated": "وجبة تبرعنا بها",
     "active_donors": "متبرع نشط",
-    "meals_reserved": "وجبة جerala"
+    "meals_reserved": "وجبة محجوزة",
+    "support_title": "ساعدنا لإطعام المزيد",
+    "support_desc": "تبرعاتك تساعدنا على الاستمرار في مهمتنا لإطعام الجائعين. كل مساهمة تحدث فرقاً.",
+    "support_dev": "دعم التطوير",
+    "support_donations": "التبرعات لإطعام",
+    "support_thanks": "جزاك الله خيراً على دعمك!"
   },
   "auth": {
     "login_title": "مرحباً بك",

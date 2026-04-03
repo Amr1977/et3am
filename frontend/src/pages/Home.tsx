@@ -163,27 +163,26 @@ export default function Home() {
         <div className="donate-card">
           <div className="donate-content">
             <span className="donate-tag">Support Our Mission</span>
-            <h2 className="donate-title">Help Us Feed More</h2>
+            <h2 className="donate-title">{t('home.support_title')}</h2>
             <p className="donate-desc">
-              Your donations help us continue our mission of feeding the hungry. 
-              Every contribution makes a difference.
+              {t('home.support_desc')}
             </p>
             
             <div className="instapay-options">
               <div className="instapay-option">
-                <div className="instapay-label">Development Support</div>
+                <div className="instapay-label">{t('home.support_dev')}</div>
                 <div className="instapay-number">+201094450141</div>
                 <div className="instapay-name">Amr Lotfy</div>
               </div>
               <div className="instapay-divider"></div>
               <div className="instapay-option">
-                <div className="instapay-label">Donations for Feeding</div>
+                <div className="instapay-label">{t('home.support_donations')}</div>
                 <div className="instapay-number">+201206410261</div>
                 <div className="instapay-name">Amr Lotfy</div>
               </div>
             </div>
             
-            <p className="donate-thanks">JazakAllah Khair for your support! 🤲</p>
+            <p className="donate-thanks">{t('home.support_thanks')}</p>
           </div>
         </div>
       </section>
