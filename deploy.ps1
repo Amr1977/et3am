@@ -78,7 +78,7 @@ function Deploy-Backend {
     Write-Host "Installing dependencies and restarting backend..."
     ssh -o StrictHostKeyChecking=no $ServerHost @"
         cd $ServerBackendDir
-        npm install --production
+        npm install --omit=dev
         pm2 restart et3am-backend || pm2 start ecosystem.config.js
 "@
     
