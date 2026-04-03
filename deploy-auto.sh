@@ -1,7 +1,8 @@
 #!/bin/bash
-set -Eeuo pipefail
+set -uo pipefail
 
 PROJECT_DIR="/home/ubuntu/et3am"
+SCRIPT_DIR="/home/ubuntu"
 BRANCH="master"
 CHECK_INTERVAL=60
 
@@ -26,7 +27,7 @@ log "---------------------------------------------------"
 cd "$PROJECT_DIR"
 
 while true; do
-    if [ -f .env ]; then
+    if [ -f /home/ubuntu/.env ]; then
         log "Loading env from .env"
         while IFS= read -r line || [ -n "$line" ]; do
             if [[ "$line" =~ ^# ]] || [[ -z "$line" ]]; then continue; fi
@@ -46,8 +47,17 @@ while true; do
         log "New changes detected. Deploying..."
 
         log "Resetting and pulling..."
-        git reset --hard HEAD
-        git pull origin $BRANCH
+        cp /home/ubuntu/.env /tmp/et3am.env.backup 2>/dev/null || true
+        
+        git checkout -- . 2>/dev/null || true
+        git clean -fd 2>/dev/null || true
+        git pull origin $BRANCH || {
+            log "Git pull failed, forcing sync..."
+            git fetch origin $BRANCH
+            git reset --hard origin/$BRANCH
+        }
+        
+        cp /tmp/et3am.env.backup /home/ubuntu/.env 2>/dev/null || true
 
         log "=== Backend Deployment ==="
         cd "$PROJECT_DIR/backend"
