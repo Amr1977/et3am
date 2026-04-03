@@ -79,53 +79,6 @@
   }
 }
 
-[data-theme="dark"] {
-  --bg: #0F1419;
-  --bg-card: #1A2332;
-  --bg-card-hover: #212D40;
-  --bg-pattern: #151D28;
-  --bg-elevated: #1E293B;
-
-  --text: #F1F5F9;
-  --text-secondary: #CBD5E1;
-  --text-muted: #94A3B8;
-  --text-light: #64748B;
-  --text-inverse: #0F172A;
-
-  --border: #2D3B4E;
-  --border-light: #243042;
-  --border-strong: #3D4F66;
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-}
-
-html[dir="rtl"] {
-  direction: rtl;
-}
-
-[data-theme="dark"] {
-  --bg: #0F1419;
-  --bg-card: #1A2332;
-  --bg-card-hover: #212D40;
-  --bg-pattern: #151D28;
-  --bg-elevated: #1E293B;
-  --text: #F1F5F9;
-  --text-secondary: #CBD5E1;
-  --text-muted: #94A3B8;
-  --text-light: #64748B;
-  --text-inverse: #0F172A;
-  --border: #2D3B4E;
-  --border-light: #243042;
-  --border-strong: #3D4F66;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-}
-
 html[dir="rtl"] {
   direction: rtl;
 }
@@ -339,6 +292,10 @@ body {
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 /* Hero Section */
@@ -948,6 +905,18 @@ body {
   gap: 1rem;
 }
 
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text);
+}
+
 .form-actions {
   display: flex;
   gap: 1rem;
@@ -1187,6 +1156,18 @@ body {
   font-size: 3rem;
   display: block;
   margin-bottom: 0.5rem;
+}
+
+.map-container {
+  height: 500px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.map-container .leaflet-container {
+  height: 100%;
+  width: 100%;
 }
 
 /* Modal */
@@ -1508,6 +1489,34 @@ body {
 
 .form-input-modern::placeholder {
   color: var(--text-light);
+}
+
+/* Form Input - used in Donations create form */
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  transition: all var(--transition);
+  background: var(--bg-card);
+  color: var(--text);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
+}
+
+.form-input::placeholder {
+  color: var(--text-light);
+}
+
+.form-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .form-row-modern {

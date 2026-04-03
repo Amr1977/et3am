@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
 import LocationPicker from '../components/LocationPicker';
+import DonationMap from '../components/DonationMap';
 import { fetchWithFailover } from '../services/api';
 
 interface Donation {
@@ -70,6 +71,7 @@ export default function Donations() {
     latitude: '',
     longitude: '',
   });
+  const [createError, setCreateError] = useState('');
 
   const fetchDonations = useCallback(async () => {
     try {
@@ -145,6 +147,7 @@ export default function Donations() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    setCreateError('');
     try {
       const res = await fetchWithFailover('/api/donations', {
         method: 'POST',
@@ -174,9 +177,12 @@ export default function Donations() {
           longitude: '',
         });
         fetchDonations();
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        setCreateError(errorData.error || `Failed to create donation (${res.status})`);
       }
     } catch (err) {
-      console.error('Failed to create donation');
+      setCreateError('Unable to connect to server. Please try again.');
     }
   };
 
@@ -238,6 +244,12 @@ export default function Donations() {
               <span className="create-form-icon">🍽️</span>
               <h2>{t('donations.create_title')}</h2>
             </div>
+            
+            {createError && (
+              <div className="form-error" style={{ color: 'var(--danger)', marginBottom: '1rem', padding: '0.75rem', background: 'color-mix(in srgb, var(--danger) 10%, transparent)', borderRadius: 'var(--radius)' }}>
+                {createError}
+              </div>
+            )}
             
             <form onSubmit={handleCreate} className="donation-form">
               <div className="form-grid">
@@ -385,12 +397,16 @@ export default function Donations() {
       </div>
 
       {viewMode === 'map' ? (
-        <div className="donations-map-placeholder">
-          <div className="map-placeholder-content">
-            <span>🗺️</span>
-            <p>Map view coming soon</p>
+        donations.some(d => d.latitude && d.longitude) ? (
+          <DonationMap donations={donations} t={t} />
+        ) : (
+          <div className="donations-map-placeholder">
+            <div className="map-placeholder-content">
+              <span>🗺️</span>
+              <p>No donations with location data yet</p>
+            </div>
           </div>
-        </div>
+        )
       ) : (
         <>
           {donations.length === 0 ? (

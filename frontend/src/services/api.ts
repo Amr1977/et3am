@@ -1,75 +1,47 @@
 import { fetchServerListFromFirestore, getActiveServers, ServerInfo } from './serverRegistry';
 
-const HEALTH_CHECK_TIMEOUT = 5000;
 const SERVER_LIST_CACHE_TIME = 60000;
 
-let serverCache: { servers: ServerInfo[]; timestamp: number } | null = null;
+let serverCache: ServerInfo[] | null = null;
+let cacheTimestamp: number | null = null;
 let currentServer: ServerInfo | null = null;
 
-async function checkServerHealth(url: string): Promise<boolean> {
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), HEALTH_CHECK_TIMEOUT);
+const DEFAULT_SERVERS: ServerInfo[] = [
+  { id: 'et3am-aws', url: 'https://api.et3am.com' },
+  { id: 'et3am-aws-fallback', url: 'https://et3am-api.matrix-delivery.com' },
+];
 
-    const response = await fetch(`${url}/api/health`, {
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeout);
-    return response.ok;
-  } catch {
-    return false;
-  }
-}
-
-async function getHealthyServers(): Promise<ServerInfo[]> {
+async function getServers(): Promise<ServerInfo[]> {
   const now = Date.now();
 
-  if (serverCache && now - serverCache.timestamp < SERVER_LIST_CACHE_TIME) {
-    return serverCache.servers;
+  if (serverCache && cacheTimestamp && now - cacheTimestamp < SERVER_LIST_CACHE_TIME) {
+    return serverCache;
   }
 
-  let servers: ServerInfo[];
   try {
-    servers = await getActiveServers();
+    const servers = await getActiveServers();
+    if (servers.length > 0) {
+      serverCache = servers;
+      cacheTimestamp = now;
+      return servers;
+    }
   } catch (error) {
-    console.warn('Failed to fetch from Firestore, using cached data:', error);
-    if (serverCache) return serverCache.servers;
-    servers = [];
+    console.warn('Failed to fetch from Firestore, using default servers:', error);
   }
 
-  if (servers.length === 0) {
-    console.warn('No servers in Firestore, falling back to empty list');
-    return [];
-  }
-
-  const healthChecks = await Promise.all(
-    servers.map(async (server) => ({
-      ...server,
-      isHealthy: await checkServerHealth(server.url),
-    }))
-  );
-
-  const healthyServers = healthChecks
-    .filter((s) => s.isHealthy)
-    .map(({ id, url }) => ({ id, url }));
-
-  serverCache = {
-    servers: healthyServers,
-    timestamp: now,
-  };
-
-  return healthyServers;
+  serverCache = DEFAULT_SERVERS;
+  cacheTimestamp = now;
+  return DEFAULT_SERVERS;
 }
 
 export async function fetchWithFailover(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<Response> {
-  const servers = await getHealthyServers();
+  const servers = await getServers();
 
   if (servers.length === 0) {
-    throw new Error('No healthy servers available');
+    throw new Error('No servers available');
   }
 
   if (!currentServer) {
@@ -120,10 +92,12 @@ export function getCurrentServer(): ServerInfo | null {
 
 export function clearServerCache(): void {
   serverCache = null;
+  cacheTimestamp = null;
   currentServer = null;
 }
 
 export async function refreshServerList(): Promise<void> {
   serverCache = null;
-  await getHealthyServers();
+  cacheTimestamp = null;
+  await getServers();
 }
