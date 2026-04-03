@@ -836,6 +836,13 @@ body {
   letter-spacing: 0.05em;
   color: var(--text-muted);
   margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.instapay-icon {
+  font-size: 1rem;
 }
 
 .instapay-number {
