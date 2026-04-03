@@ -165,19 +165,23 @@ export default function Home() {
             
             <div className="instapay-options">
               <div className="instapay-option">
-                <div className="instapay-label">{t('home.support_dev')}</div>
-                <div className="instapay-number">+201094450141</div>
-                <div className="instapay-name">Amr Lotfy</div>
+                <div className="instapay-label">
+                  <span className="instapay-icon">💳</span>
+                  {t('home.support_dev')}
+                </div>
+                <div className="instapay-number">01094450141</div>
               </div>
               <div className="instapay-divider"></div>
               <div className="instapay-option">
-                <div className="instapay-label">{t('home.support_donations')}</div>
-                <div className="instapay-number">+201206410261</div>
-                <div className="instapay-name">Amr Lotfy</div>
+                <div className="instapay-label">
+                  <span className="instapay-icon">💳</span>
+                  {t('home.support_donations')}
+                </div>
+                <div className="instapay-number">01206410261</div>
               </div>
             </div>
             
-            <p className="donate-thanks">{t('home.support_thanks')}</p>
+            <p className="donate-thanks">📱 Instapay {t('home.support_thanks')}</p>
           </div>
         </div>
       </section>

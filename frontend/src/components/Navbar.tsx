@@ -65,8 +65,8 @@ export default function Navbar() {
 
           {isAuthenticated ? (
             <div className="user-menu">
-              <span className="user-name">{user?.name}</span>
-              <button onClick={handleLogout} className="btn btn-outline">{t('nav.logout')}</button>
+              <span className="user-avatar">👤</span>
+              <button onClick={handleLogout} className="btn btn-outline btn-sm">{t('nav.logout')}</button>
             </div>
           ) : (
             <div className="auth-buttons">
