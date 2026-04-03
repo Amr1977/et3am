@@ -2,7 +2,7 @@
   "app": {
     "name": "إطعام",
     "tagline": "Food Donation Platform",
-    "description": "Food for everyone - donate surplus food with blessings"
+    "description": "Feed the hungry, save food"
   },
   "nav": {
     "home": "Home",
@@ -15,25 +15,30 @@
   },
   "home": {
     "hero_title": "Feed the Hungry, Save the Food",
-    "hero_subtitle": "\"Who is it that will offer to Allah a goodly loan, which He will double back to him many times?\" - Surah Al-Baqarah 2:245. Every meal shared is Sadaqah Jariyah (ongoing charity).",
+    "hero_subtitle": "\"And they give food, out of love for Him, to the needy, the orphan, and the prisoner. We feed you only for the face of Allah. We want from you neither reward nor thanks.\" — Surah Al-Insan 76:8-9",
     "get_started": "Start Donating",
     "learn_more": "See Donations",
     "how_it_works": "How It Works",
     "step_1_title": "Give Food",
-    "step_1_desc": "\"Feed the hungry, and visit those in bondage.\" - Surah Al-Balad 90:14-16. Donors share surplus food with those in need.",
+    "step_1_desc": "\"Or [there is] a donation of food in a day of severe hunger, an orphan of close relation, or a needy person in misery.\" — Surah Al-Balad 90:14-16",
     "step_2_title": "Reserve",
-    "step_2_desc": "Browse available donations and reserve what you need. Every morsel feeds a soul.",
+    "step_2_desc": "Browse available donations and reserve what you need.",
     "step_3_title": "Pickup & Verify",
     "step_3_desc": "Meet at pickup location and verify with your secret code. No personal details are exchanged.",
     "stats_title": "Our Impact",
-    "meals_donated": "Meals Donated",
+    "meals_donated": "Meals Served",
     "active_donors": "Benefactors",
     "meals_reserved": "Meals Given",
     "support_title": "Support Our Mission",
-    "support_desc": "\"And they give food, out of love for Him, to the needy.\" - Surah Al-Insan 76:8. Your donations help us continue feeding the hungry.",
+    "support_desc": "\"And in their wealth there is a right due to the seeker and the deprived.\" — Surah Al-Zariyat 51:19",
     "support_dev": "Development Support",
     "support_donations": "Donations for Feeding",
     "support_thanks": "JazakAllah Khair for your support! 🤲"
+  },
+  "hadith": {
+    "feed_believer": "Whoever feeds a believer until they are satiated, Allah will admit them through a gate of Paradise.",
+    "neighbor": "By Allah, he does not believe! By Allah, he does not believe! By Allah, he does not believe! It was said: Who is that, O Messenger of Allah? He said: \"One whose neighbor is hungry beside him.\"",
+    "peace_food": "O people, spread peace, feed food, and pray at night while people sleep, and you will enter Paradise in peace."
   },
   "auth": {
     "login_title": "Welcome",
