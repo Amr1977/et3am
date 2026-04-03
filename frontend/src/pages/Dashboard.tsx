@@ -40,49 +40,91 @@ export default function Dashboard() {
     }
   };
 
-  if (loading) return <div className="loading-page">{t('common.loading')}</div>;
+  if (loading) {
+    return (
+      <div className="dashboard-loading">
+        <div className="loading-spinner"></div>
+        <p>{t('common.loading')}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-page">
-      <div className="dashboard-header">
-        <h1>{t('dashboard.title')}</h1>
-        <p className="welcome-text">{t('dashboard.welcome')}, {user?.name}!</p>
-      </div>
-
-      <div className="stats-grid">
-        <div className="stat-card stat-primary">
-          <div className="stat-number">{stats?.totalDonations || 0}</div>
-          <div className="stat-label">{t('dashboard.total_donations')}</div>
+      <div className="dashboard-header-modern">
+        <div className="welcome-section">
+          <h1>🖐️ {t('dashboard.welcome')}, {user?.name}!</h1>
+          <p>Here's your impact summary</p>
         </div>
-        <div className="stat-card stat-success">
-          <div className="stat-number">{stats?.availableDonations || 0}</div>
-          <div className="stat-label">{t('dashboard.available')}</div>
-        </div>
-        <div className="stat-card stat-warning">
-          <div className="stat-number">{stats?.reservedDonations || 0}</div>
-          <div className="stat-label">{t('dashboard.reserved')}</div>
-        </div>
-        <div className="stat-card stat-info">
-          <div className="stat-number">{stats?.completedDonations || 0}</div>
-          <div className="stat-label">{t('dashboard.completed')}</div>
+        <div className="dashboard-badges">
+          <span className={`role-badge ${user?.role}`}>
+            {user?.role === 'donor' ? '🤝 Donor' : '🍽️ Recipient'}
+          </span>
         </div>
       </div>
 
-      <div className="dashboard-actions">
+      <div className="stats-grid-modern">
+        <div className="stat-card-modern primary">
+          <div className="stat-icon">📊</div>
+          <div className="stat-content">
+            <div className="stat-number">{stats?.totalDonations || 0}</div>
+            <div className="stat-label">{t('dashboard.total_donations')}</div>
+          </div>
+        </div>
+        <div className="stat-card-modern success">
+          <div className="stat-icon">✅</div>
+          <div className="stat-content">
+            <div className="stat-number">{stats?.availableDonations || 0}</div>
+            <div className="stat-label">{t('dashboard.available')}</div>
+          </div>
+        </div>
+        <div className="stat-card-modern warning">
+          <div className="stat-icon">⏳</div>
+          <div className="stat-content">
+            <div className="stat-number">{stats?.reservedDonations || 0}</div>
+            <div className="stat-label">{t('dashboard.reserved')}</div>
+          </div>
+        </div>
+        <div className="stat-card-modern info">
+          <div className="stat-icon">🎉</div>
+          <div className="stat-content">
+            <div className="stat-number">{stats?.completedDonations || 0}</div>
+            <div className="stat-label">{t('dashboard.completed')}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="dashboard-actions-modern">
         {user?.role === 'donor' && (
-          <Link to="/donations?create=true" className="btn btn-primary btn-lg">
+          <Link to="/donations?create=true" className="btn btn-primary-modern">
             + {t('donations.create_title')}
           </Link>
         )}
-        <Link to="/donations" className="btn btn-outline btn-lg">
-          {t('nav.donations')}
+        <Link to="/donations" className="btn btn-outline-modern">
+          📋 {t('nav.donations')}
         </Link>
       </div>
 
-      <div className="dashboard-section">
-        <h2>{t('dashboard.recent_activity')}</h2>
-        <div className="activity-placeholder">
-          <p>{user?.role === 'donor' ? t('dashboard.my_donations') : t('dashboard.my_reservations')}: {user?.role === 'donor' ? stats?.myDonations : stats?.myReservations}</p>
+      <div className="dashboard-section-modern">
+        <h2>📈 {t('dashboard.recent_activity')}</h2>
+        <div className="activity-card-modern">
+          <div className="activity-stat">
+            <span className="activity-icon">
+              {user?.role === 'donor' ? '🎁' : '📦'}
+            </span>
+            <div className="activity-info">
+              <div className="activity-number">
+                {user?.role === 'donor' ? stats?.myDonations : stats?.myReservations || 0}
+              </div>
+              <div className="activity-label">
+                {user?.role === 'donor' ? t('dashboard.my_donations') : t('dashboard.my_reservations')}
+              </div>
+            </div>
+          </div>
+          <div className="activity-verse">
+            <p>﴿وَيُطْعِمُونَ الطَّعَامَ عَلَى حُبِّهِ﴾</p>
+            <span>— Surah Al-Insan 76:8</span>
+          </div>
         </div>
       </div>
     </div>

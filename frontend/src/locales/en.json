@@ -2,7 +2,7 @@
   "app": {
     "name": "إطعام",
     "tagline": "Food Donation Platform",
-    "description": "Feed the hungry, save food"
+    "description": "A charitable platform connecting surplus food to those in need"
   },
   "nav": {
     "home": "Home",
@@ -14,8 +14,8 @@
     "profile": "Profile"
   },
   "home": {
-    "hero_title": "Feed the Hungry, Save the Food",
-    "hero_subtitle": "\"And they give food, out of love for Him, to the needy, the orphan, and the prisoner. We feed you only for the face of Allah. We want from you neither reward nor thanks.\" — Surah Al-Insan 76:8-9",
+    "hero_title": "إطعام",
+    "hero_subtitle": "﴿And they give food, out of love for Him, to the needy, the orphan, and the prisoner. We feed you only for the face of Allah. We want from you neither reward nor thanks.﴾ — Surah Al-Insan 76:8-9",
     "get_started": "Start Donating",
     "learn_more": "See Donations",
     "how_it_works": "How It Works",

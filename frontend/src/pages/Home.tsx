@@ -37,12 +37,7 @@ export default function Home() {
           </div>
           
           <h1 className="hero-title">
-            {t('home.hero_title').split(', ').map((part, i) => (
-              <React.Fragment key={i}>
-                {i > 0 && <br />}
-                <span className="highlight">{part}</span>
-              </React.Fragment>
-            ))}
+            <span className="highlight">إطعام</span>
           </h1>
           
           <p className="hero-subtitle">{t('home.hero_subtitle')}</p>
@@ -190,9 +185,9 @@ export default function Home() {
       <section className="cta-section">
         <div className="cta-card">
           <div className="cta-content">
-            <h2 className="cta-title">{t('home.hero_title')}</h2>
+            <h2 className="cta-title">{t('app.name')}</h2>
             <p className="cta-desc">
-              {t('home.hero_subtitle').split(' - ')[0]}
+              {t('app.description')}
             </p>
             <div className="cta-buttons">
               <Link to="/register" className="btn btn-primary btn-lg">
