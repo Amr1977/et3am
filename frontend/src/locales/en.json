@@ -26,9 +26,9 @@
     "step_3_title": "Pickup & Verify",
     "step_3_desc": "Meet at pickup location and verify with your secret code. No personal details are exchanged.",
     "stats_title": "Our Impact",
-    "meals_donated": "Meals Served",
-    "active_donors": "Benefactors",
-    "meals_reserved": "Meals Given",
+    "meals_given": "Meals Given",
+    "total_donors": "Food Donors",
+    "total_receivers": "Receivers",
     "support_title": "Support Our Mission",
     "support_desc": "\"And in their wealth there is a right due to the seeker and the deprived.\" — Surah Al-Zariyat 51:19",
     "support_dev": "Development Support",
@@ -97,7 +97,12 @@
     "click_map_to_set": "Click on map to set location",
     "view_map": "Map View",
     "view_grid": "Grid View",
-    "map": "Map"
+    "map": "Map",
+    "your_location": "Your Location",
+    "enable_location": "Enable Location",
+    "location_permission_title": "Enable Your Location",
+    "location_permission_desc": "Enable location to find meals near you and get personalized recommendations",
+    "geolocation_not_supported": "Geolocation is not supported by your browser"
   },
   "dashboard": {
     "title": "Dashboard",

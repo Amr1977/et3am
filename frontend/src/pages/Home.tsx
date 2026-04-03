@@ -7,6 +7,8 @@ interface Stats {
   totalDonations: number;
   completedDonations: number;
   totalUsers: number;
+  totalDonors: number;
+  totalReceivers: number;
 }
 
 export default function Home() {
@@ -133,23 +135,23 @@ export default function Home() {
             ) : (
               <div className="stat-number">{formatNumber(stats?.completedDonations || 0)}</div>
             )}
-            <div className="stat-label">{t('home.meals_donated')}</div>
+            <div className="stat-label">{t('home.meals_given')}</div>
           </div>
           <div className="stat-card">
             {loading ? (
               <div className="stat-number">...</div>
             ) : (
-              <div className="stat-number">{formatNumber(stats?.totalUsers || 0)}</div>
+              <div className="stat-number">{formatNumber(stats?.totalDonors || 0)}</div>
             )}
-            <div className="stat-label">{t('home.active_donors')}</div>
+            <div className="stat-label">{t('home.total_donors')}</div>
           </div>
           <div className="stat-card">
             {loading ? (
               <div className="stat-number">...</div>
             ) : (
-              <div className="stat-number">{formatNumber(stats?.totalDonations || 0)}</div>
+              <div className="stat-number">{formatNumber(stats?.totalReceivers || 0)}</div>
             )}
-            <div className="stat-label">{t('home.meals_reserved')}</div>
+            <div className="stat-label">{t('home.total_receivers')}</div>
           </div>
         </div>
       </section>

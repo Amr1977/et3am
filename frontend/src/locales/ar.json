@@ -26,9 +26,9 @@
     "step_3_title": "استلم والتحقق",
     "step_3_desc": "التقي في مكان الاستلم وتحقق بالرمز السري. لا يتم تبادل أي بيانات شخصية.",
     "stats_title": "أثرنا",
-    "meals_donated": "وجبة مُقدَّمة",
-    "active_donors": "محسنين",
-    "meals_reserved": "وجبة وزعت",
+    "meals_given": "وجبات مُقدَّمة",
+    "total_donors": "متبرعين",
+    "total_receivers": "مستفيدين",
     "support_title": "ادعم مهمتنا",
     "support_desc": "﴿وَفِي أَمْوَالِهِمْ حَقٌّ لِّلسَّائِلِ وَالْمَحْرُومِ﴾ — سورة الذاريات الآية ١٩",
     "support_dev": "دعم التطوير",
@@ -94,9 +94,11 @@
     "view_map": "عرض الخريطة",
     "view_grid": "عرض البطاقات",
     "map": "خريطة",
-    "hash_code": "رمز التحقق",
-    "enter_hash": "أدخل رمز التحقق",
-    "verify": "تحقق"
+    "your_location": "موقعك",
+    "enable_location": "تفعيل الموقع",
+    "location_permission_title": "تفعيل موقعك",
+    "location_permission_desc": "تفعيل الموقع للعثور على الطعام المتاح بالقرب منك والحصول على توصيات مخصصة",
+    "geolocation_not_supported": "الموقع الجغرافي غير مدعوم في متصفحك"
   },
   "dashboard": {
     "title": "لوحة التحكم",

@@ -18,6 +18,10 @@ export interface User {
   role: 'donor' | 'recipient' | 'admin';
   phone: string | null;
   address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  location_city: string | null;
+  location_area: string | null;
   preferred_language: 'en' | 'ar';
   google_id: string | null;
   avatar_url: string | null;
@@ -46,7 +50,7 @@ export interface Donation {
 }
 
 export async function initDb(): Promise<void> {
-await pool.query(`
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS donations (
       id TEXT PRIMARY KEY,
       donor_id TEXT NOT NULL REFERENCES users(id),
@@ -66,6 +70,13 @@ await pool.query(`
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+  `);
+
+  await pool.query(`
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS location_city TEXT;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS location_area TEXT;
   `);
 
   const { rows } = await pool.query('SELECT id FROM users WHERE email = $1', ['admin@et3am.com']);
@@ -106,9 +117,9 @@ export const dbOps = {
     },
     async create(user: Omit<User, 'created_at' | 'updated_at'>): Promise<User> {
       const { rows } = await pool.query(
-        `INSERT INTO users (id, name, email, password, role, phone, address, preferred_language, google_id, avatar_url)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
-        [user.id, user.name, user.email, user.password, user.role, user.phone, user.address, user.preferred_language, user.google_id, user.avatar_url]
+        `INSERT INTO users (id, name, email, password, role, phone, address, latitude, longitude, location_city, location_area, preferred_language, google_id, avatar_url)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
+        [user.id, user.name, user.email, user.password, user.role, user.phone, user.address, user.latitude, user.longitude, user.location_city, user.location_area, user.preferred_language, user.google_id, user.avatar_url]
       );
       return rows[0];
     },

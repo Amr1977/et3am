@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
-import { dbOps } from '../database';
+import { dbOps, User } from '../database';
 import { authenticate, generateToken, AuthRequest } from '../middleware/auth';
 
 const router = Router();
@@ -33,6 +33,10 @@ router.post('/register', async (req: AuthRequest, res: Response) => {
       role: role || 'donor',
       phone: phone || null,
       address: address || null,
+      latitude: null,
+      longitude: null,
+      location_city: null,
+      location_area: null,
       preferred_language: lang as 'en' | 'ar',
       google_id: null,
       avatar_url: null,
@@ -132,6 +136,61 @@ router.put('/language', authenticate, async (req: AuthRequest, res: Response) =>
   }
 });
 
+router.put('/location', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const { latitude, longitude, city, area } = req.body;
+
+    if (latitude == null || longitude == null) {
+      res.status(400).json({ messageKey: 'validation.required_field', message: 'Latitude and longitude are required' });
+      return;
+    }
+
+    if (typeof latitude !== 'number' || typeof longitude !== 'number') {
+      res.status(400).json({ messageKey: 'validation.invalid_coordinates', message: 'Invalid coordinates' });
+      return;
+    }
+
+    if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+      res.status(400).json({ messageKey: 'validation.invalid_coordinates', message: 'Coordinates out of range' });
+      return;
+    }
+
+    const locationData: Partial<User> = {
+      latitude,
+      longitude,
+      location_city: city || null,
+      location_area: area || null,
+    };
+
+    if (!city || !area) {
+      const { reverseGeocode } = await import('../services/geocoding');
+      const geoResult = await reverseGeocode(latitude, longitude);
+      locationData.location_city = geoResult.city;
+      locationData.location_area = geoResult.area;
+    }
+
+    const updatedUser = await dbOps.users.update(req.userId!, locationData);
+
+    if (!updatedUser) {
+      res.status(404).json({ messageKey: 'user.not_found' });
+      return;
+    }
+
+    res.json({
+      messageKey: 'user.location_updated',
+      location: {
+        latitude: updatedUser.latitude,
+        longitude: updatedUser.longitude,
+        city: updatedUser.location_city,
+        area: updatedUser.location_area,
+      },
+    });
+  } catch (err) {
+    console.error('Location update error:', err);
+    res.status(500).json({ messageKey: 'general.server_error' });
+  }
+});
+
 router.post('/google', async (req: AuthRequest, res: Response) => {
   try {
     const { idToken } = req.body;
@@ -179,6 +238,10 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
         role: 'donor',
         phone: null,
         address: null,
+        latitude: null,
+        longitude: null,
+        location_city: null,
+        location_area: null,
         preferred_language: lang as 'en' | 'ar',
         google_id: uid,
         avatar_url: picture || null,
