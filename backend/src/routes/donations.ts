@@ -3,6 +3,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { dbOps } from '../database';
 import { authenticate, AuthRequest } from '../middleware/auth';
 
+function generateHashCode(): string {
+  return Math.random().toString(36).substring(2, 8).toUpperCase();
+}
+
 const router = Router();
 
 router.get('/', async (req: AuthRequest, res: Response) => {
@@ -14,16 +18,50 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       parseInt(limit as string)
     );
 
-    const enriched = await Promise.all(donations.map(async d => {
-      const donor = await dbOps.users.findById(d.donor_id);
-      const reservedBy = d.reserved_by ? await dbOps.users.findById(d.reserved_by) : null;
-      return {
-        ...d,
-        donor_name: donor?.name,
-        donor_phone: donor?.phone,
-        reserved_by_name: reservedBy?.name,
+    const isAuthenticated = !!req.userId;
+    const isDonor = isAuthenticated && donations.some(d => d.donor_id === req.userId);
+    const isReceiver = isAuthenticated && donations.some(d => d.reserved_by === req.userId);
+
+    const enriched = donations.map(d => {
+      const base = {
+        id: d.id,
+        title: d.title,
+        description: d.description,
+        food_type: d.food_type,
+        quantity: d.quantity,
+        unit: d.unit,
+        expiry_date: d.expiry_date,
+        pickup_address: d.pickup_address,
+        latitude: d.latitude,
+        longitude: d.longitude,
+        pickup_date: d.pickup_date,
+        status: d.status,
+        created_at: d.created_at,
       };
-    }));
+
+      if (!isAuthenticated) {
+        return { ...base, donor_name: 'Anonymous' };
+      }
+
+      if (d.donor_id === req.userId) {
+        return {
+          ...base,
+          donor_name: 'You',
+          hash_code: d.hash_code,
+          reserved_by_name: d.reserved_by ? 'Someone' : null,
+        };
+      }
+
+      if (d.reserved_by === req.userId) {
+        return {
+          ...base,
+          donor_name: 'Anonymous',
+          hash_code: d.hash_code,
+        };
+      }
+
+      return { ...base, donor_name: 'Anonymous' };
+    });
 
     res.json({
       messageKey: 'donation.list_retrieved',
@@ -40,6 +78,40 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   }
 });
 
+router.get('/my-donations', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const donations = await dbOps.donations.findByDonor(req.userId!);
+    
+    const enriched = donations.map(d => ({
+      ...d,
+      donor_name: 'You',
+      reserved_by_name: d.reserved_by ? 'Reserved' : null,
+    }));
+
+    res.json({ donations: enriched });
+  } catch (err) {
+    console.error('My donations error:', err);
+    res.status(500).json({ messageKey: 'general.server_error' });
+  }
+});
+
+router.get('/my-reservations', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const donations = await dbOps.donations.findByReserved(req.userId!);
+    
+    const enriched = donations.map(d => ({
+      ...d,
+      donor_name: 'Anonymous',
+      hash_code: d.hash_code,
+    }));
+
+    res.json({ donations: enriched });
+  } catch (err) {
+    console.error('My reservations error:', err);
+    res.status(500).json({ messageKey: 'general.server_error' });
+  }
+});
+
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const donation = await dbOps.donations.findById(req.params.id);
@@ -48,17 +120,38 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    const donor = await dbOps.users.findById(donation.donor_id);
-    const reservedBy = donation.reserved_by ? await dbOps.users.findById(donation.reserved_by) : null;
+    const isOwner = req.userId === donation.donor_id;
+    const isReceiver = req.userId === donation.reserved_by;
 
-    res.json({
-      donation: {
-        ...donation,
-        donor_name: donor?.name,
-        donor_phone: donor?.phone,
-        reserved_by_name: reservedBy?.name
-      }
-    });
+    let responseData: any = {
+      id: donation.id,
+      title: donation.title,
+      description: donation.description,
+      food_type: donation.food_type,
+      quantity: donation.quantity,
+      unit: donation.unit,
+      expiry_date: donation.expiry_date,
+      pickup_address: donation.pickup_address,
+      latitude: donation.latitude,
+      longitude: donation.longitude,
+      pickup_date: donation.pickup_date,
+      status: donation.status,
+      created_at: donation.created_at,
+    };
+
+    if (!req.userId) {
+      responseData.donor_name = 'Anonymous';
+    } else if (isOwner) {
+      responseData.donor_name = 'You';
+      responseData.hash_code = donation.hash_code;
+    } else if (isReceiver) {
+      responseData.donor_name = 'Anonymous';
+      responseData.hash_code = donation.hash_code;
+    } else {
+      responseData.donor_name = 'Anonymous';
+    }
+
+    res.json({ donation: responseData });
   } catch (err) {
     console.error('Get donation error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
@@ -89,6 +182,7 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
       pickup_date: pickup_date || null,
       status: 'available',
       reserved_by: null,
+      hash_code: null,
     });
 
     res.status(201).json({ messageKey: 'donation.created', donation });
@@ -138,14 +232,48 @@ router.post('/:id/reserve', authenticate, async (req: AuthRequest, res: Response
       return;
     }
 
+    const hashCode = generateHashCode();
+    
     const updated = await dbOps.donations.update(req.params.id, {
       status: 'reserved',
-      reserved_by: req.userId
+      reserved_by: req.userId,
+      hash_code: hashCode
     });
 
-    res.json({ messageKey: 'donation.reserved', donation: updated });
+    res.json({ 
+      messageKey: 'donation.reserved', 
+      donation: { ...updated, hash_code: hashCode },
+      hash_code: hashCode 
+    });
   } catch (err) {
     console.error('Reserve error:', err);
+    res.status(500).json({ messageKey: 'general.server_error' });
+  }
+});
+
+router.post('/:id/verify-hash', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const { hash_code } = req.body;
+    const donation = await dbOps.donations.findById(req.params.id);
+    
+    if (!donation) {
+      res.status(404).json({ messageKey: 'donation.not_found' });
+      return;
+    }
+
+    if (donation.donor_id !== req.userId && req.userRole !== 'admin') {
+      res.status(403).json({ messageKey: 'auth.unauthorized' });
+      return;
+    }
+
+    if (!donation.hash_code || donation.hash_code !== hash_code?.toUpperCase()) {
+      res.status(400).json({ messageKey: 'donation.invalid_hash', valid: false });
+      return;
+    }
+
+    res.json({ messageKey: 'donation.hash_verified', valid: true });
+  } catch (err) {
+    console.error('Verify hash error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -170,7 +298,8 @@ router.post('/:id/cancel-reservation', authenticate, async (req: AuthRequest, re
 
     const updated = await dbOps.donations.update(req.params.id, {
       status: 'available',
-      reserved_by: null
+      reserved_by: null,
+      hash_code: null
     });
 
     res.json({ messageKey: 'donation.reservation_cancelled', donation: updated });
@@ -193,7 +322,15 @@ router.post('/:id/complete', authenticate, async (req: AuthRequest, res: Respons
       return;
     }
 
-    const updated = await dbOps.donations.update(req.params.id, { status: 'completed' });
+    if (!donation.hash_code) {
+      res.status(400).json({ messageKey: 'donation.no_hash' });
+      return;
+    }
+
+    const updated = await dbOps.donations.update(req.params.id, { 
+      status: 'completed',
+      hash_code: null 
+    });
     res.json({ messageKey: 'donation.completed', donation: updated });
   } catch (err) {
     console.error('Complete error:', err);
