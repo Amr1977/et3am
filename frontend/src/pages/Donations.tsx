@@ -2,8 +2,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
-import DonationCard from '../components/DonationCard';
-import DonationMap from '../components/DonationMap';
 import LocationPicker from '../components/LocationPicker';
 import { fetchWithFailover } from '../services/api';
 
@@ -24,6 +22,30 @@ interface Donation {
   donor_name?: string;
   reserved_by?: string;
   reserved_by_name?: string;
+  hash_code?: string;
+  created_at: string;
+}
+
+const foodIcons: Record<string, string> = {
+  'meat': '🥩',
+  'chicken': '🍗',
+  'fish': '🐟',
+  'vegetables': '🥬',
+  'fruits': '🍎',
+  'bread': '🍞',
+  'rice': '🍚',
+  'pasta': '🍝',
+  'soup': '🥣',
+  'dessert': '🍰',
+  'other': '🍽️',
+};
+
+function getFoodIcon(type: string): string {
+  const key = type.toLowerCase();
+  for (const [k, v] of Object.entries(foodIcons)) {
+    if (key.includes(k)) return v;
+  }
+  return foodIcons['other'];
 }
 
 export default function Donations() {
@@ -35,6 +57,7 @@ export default function Donations() {
   const [showCreateForm, setShowCreateForm] = useState(searchParams.get('create') === 'true');
   const [filter, setFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
+  const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -161,124 +184,381 @@ export default function Donations() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  if (loading) return <div className="loading-page">{t('common.loading')}</div>;
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'available': return 'var(--success)';
+      case 'reserved': return 'var(--warning)';
+      case 'completed': return 'var(--text-muted)';
+      case 'expired': return 'var(--danger)';
+      default: return 'var(--text-muted)';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="donations-loading">
+        <div className="loading-spinner"></div>
+        <p>{t('common.loading')}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="donations-page">
-      <div className="page-header">
-        <h1>{t('donations.title')}</h1>
-        <div className="page-header-actions">
+      <div className="donations-header">
+        <div className="donations-title-section">
+          <h1>{t('donations.title')}</h1>
+          <p className="donations-count">
+            {donations.length} {donations.length === 1 ? 'donation' : 'donations'} found
+          </p>
+        </div>
+        
+        <div className="donations-actions">
           <button
             onClick={() => setViewMode(viewMode === 'grid' ? 'map' : 'grid')}
-            className="btn btn-outline"
+            className="btn btn-outline btn-sm"
           >
-            {viewMode === 'grid' ? `🗺️ ${t('donations.view_map')}` : `📋 ${t('donations.view_grid')}`}
+            {viewMode === 'grid' ? '🗺️' : '📋'} {viewMode === 'grid' ? t('donations.view_map') : t('donations.view_grid')}
           </button>
           {isAuthenticated && user?.role === 'donor' && (
             <button
               onClick={() => setShowCreateForm(!showCreateForm)}
-              className="btn btn-primary"
+              className="btn btn-primary btn-sm"
             >
-              {showCreateForm ? t('donations.cancel') : `+ ${t('donations.create_title')}`}
+              {showCreateForm ? '✕' : '+'} {showCreateForm ? t('donations.cancel') : t('donations.create_title')}
             </button>
           )}
         </div>
       </div>
 
       {showCreateForm && (
-        <div className="create-form-card">
-          <h2>{t('donations.create_title')}</h2>
-          <form onSubmit={handleCreate} className="donation-form">
-            <div className="form-row">
-              <div className="form-group">
-                <label>{t('donations.title')}</label>
-                <input name="title" value={formData.title} onChange={handleChange} required className="form-input" />
-              </div>
-              <div className="form-group">
-                <label>{t('donations.food_type')}</label>
-                <input name="food_type" value={formData.food_type} onChange={handleChange} required className="form-input" />
-              </div>
+        <div className="create-form-container">
+          <div className="create-form-card">
+            <div className="create-form-header">
+              <span className="create-form-icon">🍽️</span>
+              <h2>{t('donations.create_title')}</h2>
             </div>
-            <div className="form-group">
-              <label>{t('donations.description')}</label>
-              <textarea name="description" value={formData.description} onChange={handleChange} className="form-input" rows={3} />
-            </div>
-            <div className="form-row">
-              <div className="form-group">
-                <label>{t('donations.quantity')}</label>
-                <input name="quantity" type="number" min="1" value={formData.quantity} onChange={handleChange} required className="form-input" />
+            
+            <form onSubmit={handleCreate} className="donation-form">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>{t('donations.title')} *</label>
+                  <input 
+                    name="title" 
+                    value={formData.title} 
+                    onChange={handleChange} 
+                    required 
+                    className="form-input" 
+                    placeholder="e.g., Fresh Biryani"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label>{t('donations.food_type')} *</label>
+                  <select name="food_type" value={formData.food_type} onChange={handleChange} required className="form-input">
+                    <option value="">Select type...</option>
+                    <option value="meat">🥩 Meat</option>
+                    <option value="chicken">🍗 Chicken</option>
+                    <option value="fish">🐟 Fish</option>
+                    <option value="vegetables">🥬 Vegetables</option>
+                    <option value="fruits">🍎 Fruits</option>
+                    <option value="bread">🍞 Bread</option>
+                    <option value="rice">🍚 Rice</option>
+                    <option value="pasta">🍝 Pasta</option>
+                    <option value="soup">🥣 Soup</option>
+                    <option value="dessert">🍰 Dessert</option>
+                    <option value="other">🍽️ Other</option>
+                  </select>
+                </div>
               </div>
+              
               <div className="form-group">
-                <label>{t('donations.unit')}</label>
-                <select name="unit" value={formData.unit} onChange={handleChange} className="form-input">
-                  <option value="portions">{t('donations.portions')}</option>
-                  <option value="kg">{t('donations.kg')}</option>
-                  <option value="items">{t('donations.items')}</option>
-                </select>
+                <label>{t('donations.description')}</label>
+                <textarea 
+                  name="description" 
+                  value={formData.description} 
+                  onChange={handleChange} 
+                  className="form-input" 
+                  rows={2}
+                  placeholder="Describe the food..."
+                />
               </div>
-            </div>
-            <div className="form-group">
-              <label>{t('donations.pickup_address')}</label>
-              <input name="pickup_address" value={formData.pickup_address} onChange={handleChange} required className="form-input" />
-            </div>
+              
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>{t('donations.quantity')} *</label>
+                  <input 
+                    name="quantity" 
+                    type="number" 
+                    min="1" 
+                    value={formData.quantity} 
+                    onChange={handleChange} 
+                    required 
+                    className="form-input" 
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label>{t('donations.unit')}</label>
+                  <select name="unit" value={formData.unit} onChange={handleChange} className="form-input">
+                    <option value="portions">{t('donations.portions')}</option>
+                    <option value="kg">{t('donations.kg')}</option>
+                    <option value="items">{t('donations.items')}</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="form-group">
+                <label>{t('donations.pickup_address')} *</label>
+                <input 
+                  name="pickup_address" 
+                  value={formData.pickup_address} 
+                  onChange={handleChange} 
+                  required 
+                  className="form-input" 
+                  placeholder="Full address for pickup"
+                />
+              </div>
 
-            <LocationPicker
-              latitude={formData.latitude}
-              longitude={formData.longitude}
-              onLocationChange={handleLocationChange}
-              t={t}
-            />
-
-            <div className="form-row">
               <div className="form-group">
-                <label>{t('donations.pickup_date')}</label>
-                <input name="pickup_date" type="datetime-local" value={formData.pickup_date} onChange={handleChange} className="form-input" />
+                <label>{t('donations.pickup_location')}</label>
+                <LocationPicker
+                  latitude={formData.latitude}
+                  longitude={formData.longitude}
+                  onLocationChange={handleLocationChange}
+                  t={t}
+                />
               </div>
-              <div className="form-group">
-                <label>{t('donations.expiry_date')}</label>
-                <input name="expiry_date" type="datetime-local" value={formData.expiry_date} onChange={handleChange} className="form-input" />
+              
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>{t('donations.pickup_date')}</label>
+                  <input 
+                    name="pickup_date" 
+                    type="datetime-local" 
+                    value={formData.pickup_date} 
+                    onChange={handleChange} 
+                    className="form-input" 
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label>{t('donations.expiry_date')}</label>
+                  <input 
+                    name="expiry_date" 
+                    type="datetime-local" 
+                    value={formData.expiry_date} 
+                    onChange={handleChange} 
+                    className="form-input" 
+                  />
+                </div>
               </div>
-            </div>
-            <button type="submit" className="btn btn-primary">{t('donations.save')}</button>
-          </form>
+              
+              <div className="form-actions">
+                <button type="button" onClick={() => setShowCreateForm(false)} className="btn btn-outline">
+                  {t('donations.cancel')}
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  {t('donations.save')}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
-      <div className="filter-bar">
+      <div className="filter-tabs">
         {['all', 'available', 'reserved', 'completed'].map((status) => (
           <button
             key={status}
             onClick={() => setFilter(status)}
-            className={`filter-btn ${filter === status ? 'active' : ''}`}
+            className={`filter-tab ${filter === status ? 'active' : ''}`}
           >
             {status === 'all' ? t('donations.filter_all') : t(`donations.${status}`)}
+            {status !== 'all' && (
+              <span className="filter-count">
+                {donations.filter(d => d.status === status).length}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
       {viewMode === 'map' ? (
-        <DonationMap donations={donations} t={t} />
+        <div className="donations-map-placeholder">
+          <div className="map-placeholder-content">
+            <span>🗺️</span>
+            <p>Map view coming soon</p>
+          </div>
+        </div>
       ) : (
-        <div className="donations-grid">
+        <>
           {donations.length === 0 ? (
-            <div className="empty-state">
-              <p>{t('donations.no_donations')}</p>
+            <div className="empty-state-container">
+              <div className="empty-state-icon">🍽️</div>
+              <h3>{t('donations.no_donations')}</h3>
+              <p>Be the first to share food with those in need</p>
+              {isAuthenticated && user?.role === 'donor' && (
+                <button onClick={() => setShowCreateForm(true)} className="btn btn-primary">
+                  {t('donations.create_title')}
+                </button>
+              )}
             </div>
           ) : (
-            donations.map((donation) => (
-              <DonationCard
-                key={donation.id}
-                donation={donation}
-                onReserve={isAuthenticated && user?.role === 'recipient' && donation.status === 'available' ? handleReserve : undefined}
-                onCancelReservation={isAuthenticated && (donation.reserved_by === user?.id || donation.donor_id === user?.id || user?.role === 'admin') ? handleCancelReservation : undefined}
-                onComplete={isAuthenticated && (donation.donor_id === user?.id || user?.role === 'admin') ? handleComplete : undefined}
-                onDelete={isAuthenticated && (donation.donor_id === user?.id || user?.role === 'admin') ? handleDelete : undefined}
-                isOwner={donation.donor_id === user?.id}
-                isReserver={donation.reserved_by === user?.id}
-                t={t}
-              />
-            ))
+            <div className="donations-grid">
+              {donations.map((donation) => (
+                <div 
+                  key={donation.id} 
+                  className={`donation-card-new ${donation.status}`}
+                  onClick={() => setSelectedDonation(donation)}
+                >
+                  <div className="donation-card-header">
+                    <span className="donation-food-icon">{getFoodIcon(donation.food_type)}</span>
+                    <span 
+                      className="donation-status-badge"
+                      style={{ backgroundColor: getStatusColor(donation.status) }}
+                    >
+                      {t(`donations.${donation.status}`)}
+                    </span>
+                  </div>
+                  
+                  <h3 className="donation-title">{donation.title}</h3>
+                  
+                  {donation.description && (
+                    <p className="donation-desc">{donation.description.slice(0, 80)}{donation.description.length > 80 ? '...' : ''}</p>
+                  )}
+                  
+                  <div className="donation-meta">
+                    <div className="donation-meta-item">
+                      <span className="meta-label">{t('donations.quantity')}</span>
+                      <span className="meta-value">{donation.quantity} {t(`donations.${donation.unit}`)}</span>
+                    </div>
+                    <div className="donation-meta-item">
+                      <span className="meta-label">{t('donations.donated_by')}</span>
+                      <span className="meta-value">{donation.donor_name}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="donation-address">
+                    <span className="address-icon">📍</span>
+                    <span className="address-text">{donation.pickup_address}</span>
+                  </div>
+                  
+                  <div className="donation-card-footer">
+                    {donation.status === 'available' && isAuthenticated && user?.role === 'recipient' ? (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleReserve(donation.id); }}
+                        className="btn btn-primary btn-sm"
+                      >
+                        {t('donations.reserve')}
+                      </button>
+                    ) : donation.status === 'reserved' && isAuthenticated ? (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleCancelReservation(donation.id); }}
+                        className="btn btn-outline btn-sm"
+                      >
+                        {t('donations.cancel_reservation')}
+                      </button>
+                    ) : donation.status === 'reserved' && donation.donor_id === user?.id ? (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleComplete(donation.id); }}
+                        className="btn btn-success btn-sm"
+                      >
+                        {t('donations.complete')}
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
+        </>
+      )}
+
+      {selectedDonation && (
+        <div className="modal-overlay" onClick={() => setSelectedDonation(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setSelectedDonation(null)}>✕</button>
+            
+            <div className="modal-header">
+              <span className="modal-food-icon">{getFoodIcon(selectedDonation.food_type)}</span>
+              <div>
+                <span 
+                  className="modal-status"
+                  style={{ backgroundColor: getStatusColor(selectedDonation.status) }}
+                >
+                  {t(`donations.${selectedDonation.status}`)}
+                </span>
+                <h2>{selectedDonation.title}</h2>
+              </div>
+            </div>
+            
+            {selectedDonation.description && (
+              <div className="modal-section">
+                <h4>{t('donations.description')}</h4>
+                <p>{selectedDonation.description}</p>
+              </div>
+            )}
+            
+            <div className="modal-grid">
+              <div className="modal-info">
+                <span className="info-label">{t('donations.quantity')}</span>
+                <span className="info-value">{selectedDonation.quantity} {selectedDonation.unit}</span>
+              </div>
+              <div className="modal-info">
+                <span className="info-label">{t('donations.food_type')}</span>
+                <span className="info-value">{selectedDonation.food_type}</span>
+              </div>
+              <div className="modal-info">
+                <span className="info-label">{t('donations.donated_by')}</span>
+                <span className="info-value">{selectedDonation.donor_name}</span>
+              </div>
+              {selectedDonation.pickup_date && (
+                <div className="modal-info">
+                  <span className="info-label">{t('donations.pickup_date')}</span>
+                  <span className="info-value">{new Date(selectedDonation.pickup_date).toLocaleString()}</span>
+                </div>
+              )}
+              {selectedDonation.expiry_date && (
+                <div className="modal-info">
+                  <span className="info-label">{t('donations.expiry_date')}</span>
+                  <span className="info-value">{new Date(selectedDonation.expiry_date).toLocaleString()}</span>
+                </div>
+              )}
+            </div>
+            
+            <div className="modal-section">
+              <h4>{t('donations.pickup_address')}</h4>
+              <p className="modal-address">📍 {selectedDonation.pickup_address}</p>
+            </div>
+
+            {selectedDonation.hash_code && selectedDonation.reserved_by === user?.id && (
+              <div className="modal-section hash-section">
+                <h4>{t('donations.hash_code')}</h4>
+                <div className="hash-code">{selectedDonation.hash_code}</div>
+                <p className="hash-hint">Share this code with the donor when you meet</p>
+              </div>
+            )}
+            
+            <div className="modal-actions">
+              {selectedDonation.status === 'available' && isAuthenticated && user?.role === 'recipient' ? (
+                <button onClick={() => { handleReserve(selectedDonation.id); setSelectedDonation(null); }} className="btn btn-primary">
+                  {t('donations.reserve')}
+                </button>
+              ) : selectedDonation.status === 'reserved' && isAuthenticated && (selectedDonation.reserved_by === user?.id || selectedDonation.donor_id === user?.id) ? (
+                <>
+                  <button onClick={() => { handleCancelReservation(selectedDonation.id); setSelectedDonation(null); }} className="btn btn-outline">
+                    {t('donations.cancel_reservation')}
+                  </button>
+                  {selectedDonation.donor_id === user?.id && (
+                    <button onClick={() => { handleComplete(selectedDonation.id); setSelectedDonation(null); }} className="btn btn-success">
+                      {t('donations.complete')}
+                    </button>
+                  )}
+                </>
+              ) : null}
+            </div>
+          </div>
         </div>
       )}
     </div>
