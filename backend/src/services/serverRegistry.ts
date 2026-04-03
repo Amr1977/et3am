@@ -1,9 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
+import { initFirestore } from '../firebase-firestore';
 
 const SERVER_ID = process.env.SERVER_ID || `et3am-${uuidv4().slice(0, 8)}`;
 const SERVER_URL = process.env.SERVER_URL || `http://localhost:${process.env.PORT || 3001}`;
 
-const SERVERS_CONFIG = [
+const STATIC_SERVERS = [
   { id: 'et3am-gcp', url: 'https://et3am-api.mywire.org' },
   { id: 'et3am-aws', url: 'https://et3am-api.matrix-delivery.com' },
 ];
@@ -19,14 +20,15 @@ interface ServerDoc {
 }
 
 const registeredServers = new Map<string, ServerDoc>();
+let useFirestore = false;
 
 function getMyPosition(): number {
-  const index = SERVERS_CONFIG.findIndex(s => s.id === SERVER_ID);
+  const index = STATIC_SERVERS.findIndex(s => s.id === SERVER_ID);
   return index >= 0 ? index + 1 : 1;
 }
 
 function getTotalServers(): number {
-  return SERVERS_CONFIG.length;
+  return STATIC_SERVERS.length;
 }
 
 function shouldRunHealthCheck(): boolean {
@@ -56,7 +58,7 @@ async function checkServerHealth(server: { id: string; url: string }): Promise<b
 async function healthCheckAndClean(): Promise<void> {
   console.log(`[${SERVER_ID}] Running health check...`);
 
-  for (const server of SERVERS_CONFIG) {
+  for (const server of STATIC_SERVERS) {
     if (server.id === SERVER_ID) continue;
     
     const isHealthy = await checkServerHealth(server);
@@ -69,6 +71,20 @@ async function healthCheckAndClean(): Promise<void> {
 
     if (!isHealthy) {
       console.log(`[${SERVER_ID}] Server ${server.id} is DOWN`);
+    }
+
+    if (useFirestore) {
+      try {
+        const db = initFirestore();
+        await db?.collection('servers').doc(server.id).set({
+          serverId: server.id,
+          url: server.url,
+          isHealthy,
+          lastHealthCheck: Date.now(),
+        }, { merge: true });
+      } catch (err) {
+        console.warn(`[${SERVER_ID}] Failed to update health in Firestore:`, err);
+      }
     }
   }
 
@@ -87,10 +103,26 @@ async function registerServer(): Promise<void> {
   registeredServers.set(SERVER_ID, serverDoc);
   console.log(`[${SERVER_ID}] Registered with URL: ${SERVER_URL}`);
   console.log(`[${SERVER_ID}] My position: ${getMyPosition()} of ${getTotalServers()}`);
+
+  try {
+    const db = initFirestore();
+    if (db) {
+      useFirestore = true;
+      await db.collection('servers').doc(SERVER_ID).set({
+        serverId: SERVER_ID,
+        url: SERVER_URL,
+        isHealthy: true,
+        lastHealthCheck: Date.now(),
+      }, { merge: true });
+      console.log(`[${SERVER_ID}] Registered in Firestore`);
+    }
+  } catch (err) {
+    console.warn(`[${SERVER_ID}] Failed to register in Firestore:`, err);
+  }
 }
 
 function getHealthyServers(): { id: string; url: string }[] {
-  return SERVERS_CONFIG.map(s => ({ id: s.id, url: s.url }));
+  return STATIC_SERVERS.map(s => ({ id: s.id, url: s.url }));
 }
 
 async function startServerRegistry(): Promise<void> {
