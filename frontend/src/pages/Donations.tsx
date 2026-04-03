@@ -464,20 +464,30 @@ export default function Donations() {
                       <span className="meta-label">{t('donations.quantity')}</span>
                       <span className="meta-value">{donation.quantity} {t(`donations.${donation.unit}`)}</span>
                     </div>
-                    <div className="donation-meta-item">
-                      <span className="meta-label">{t('donations.donated_by')}</span>
-                      <span className="meta-value">{donation.donor_name}</span>
-                    </div>
+                    {donation.reserved_by !== user?.id && donation.donor_name && (
+                      <div className="donation-meta-item">
+                        <span className="meta-label">{t('donations.donated_by')}</span>
+                        <span className="meta-value">{donation.donor_name}</span>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="donation-address">
                     <span className="address-icon">📍</span>
                     <span className="address-text">
-                      {donation.pickup_address || (isAuthenticated ? 'Address hidden' : 'Login to see address')}
+                      {donation.pickup_address && (isAuthenticated && (donation.donor_id === user?.id || donation.reserved_by === user?.id)) 
+                        ? donation.pickup_address 
+                        : (isAuthenticated ? 'Address hidden' : 'Login to see address')}
                     </span>
                   </div>
                   
                   <div className="donation-card-footer">
+                    {donation.hash_code && donation.reserved_by === user?.id && (
+                      <div className="hash-code-display">
+                        <span className="hash-label">Code:</span>
+                        <span className="hash-value">{donation.hash_code}</span>
+                      </div>
+                    )}
                     {donation.status === 'available' && isAuthenticated && user?.can_receive ? (
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleReserve(donation.id); }}
@@ -542,10 +552,12 @@ export default function Donations() {
                 <span className="info-label">{t('donations.food_type')}</span>
                 <span className="info-value">{selectedDonation.food_type}</span>
               </div>
-              <div className="modal-info">
-                <span className="info-label">{t('donations.donated_by')}</span>
-                <span className="info-value">{selectedDonation.donor_name}</span>
-              </div>
+              {selectedDonation.donor_name && selectedDonation.donor_id !== user?.id && (
+                <div className="modal-info">
+                  <span className="info-label">{t('donations.donated_by')}</span>
+                  <span className="info-value">{selectedDonation.donor_name}</span>
+                </div>
+              )}
               {selectedDonation.pickup_date && (
                 <div className="modal-info">
                   <span className="info-label">{t('donations.pickup_date')}</span>
@@ -565,11 +577,11 @@ export default function Donations() {
               <p className="modal-address">📍 {selectedDonation.pickup_address}</p>
             </div>
 
-            {selectedDonation.hash_code && selectedDonation.reserved_by === user?.id && (
+            {selectedDonation.hash_code && (selectedDonation.reserved_by === user?.id || selectedDonation.donor_id === user?.id) && (
               <div className="modal-section hash-section">
                 <h4>{t('donations.hash_code')}</h4>
                 <div className="hash-code">{selectedDonation.hash_code}</div>
-                <p className="hash-hint">Share this code with the donor when you meet</p>
+                <p className="hash-hint">Share this code with the other party when you meet</p>
               </div>
             )}
             
