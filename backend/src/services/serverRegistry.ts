@@ -5,8 +5,8 @@ const SERVER_ID = process.env.SERVER_ID || `et3am-${uuidv4().slice(0, 8)}`;
 const SERVER_URL = process.env.SERVER_URL || `http://localhost:${process.env.PORT || 3001}`;
 
 const STATIC_SERVERS = [
+  { id: 'et3am-aws', url: 'https://api.et3am.com' },
   { id: 'et3am-gcp', url: 'https://et3am-api.mywire.org' },
-  { id: 'et3am-aws', url: 'https://et3am-api.matrix-delivery.com' },
 ];
 
 const HEALTH_CHECK_INTERVAL = 60000;

@@ -11,8 +11,8 @@ export interface ServerInfo {
 const SERVERS_COLLECTION = 'servers';
 
 const FALLBACK_SERVERS: ServerInfo[] = [
-  { id: 'et3am-gcp', url: 'https://et3am-api.mywire.org' },
-  { id: 'et3am-aws', url: 'https://et3am-api.matrix-delivery.com' },
+  { id: 'et3am-aws', url: 'https://api.et3am.com' },
+  { id: 'et3am-aws-fallback', url: 'https://et3am-api.matrix-delivery.com' },
 ];
 
 export async function fetchServerListFromFirestore(): Promise<ServerInfo[]> {
@@ -23,7 +23,6 @@ export async function fetchServerListFromFirestore(): Promise<ServerInfo[]> {
     const snapshot = await getDocs(q);
 
     if (snapshot.empty) {
-      console.warn('No servers in Firestore, using fallback servers');
       return FALLBACK_SERVERS;
     }
 
@@ -37,7 +36,6 @@ export async function fetchServerListFromFirestore(): Promise<ServerInfo[]> {
       };
     });
   } catch (error) {
-    console.warn('Failed to fetch from Firestore, using fallback servers:', error);
     return FALLBACK_SERVERS;
   }
 }

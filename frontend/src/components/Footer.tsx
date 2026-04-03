@@ -12,8 +12,15 @@ export default function Footer() {
           <span>{t('app.name')}</span>
           <p className="footer-tagline">{t('app.description')}</p>
         </div>
+        
+        <div className="footer-links">
+          <a href="https://et3am.com" target="_blank" rel="noopener noreferrer" className="footer-link">
+            🌐 et3am.com
+          </a>
+        </div>
+        
         <div className="footer-bottom">
-          <p>&copy; 2024 {t('app.name')}. All rights reserved.</p>
+          <p>&copy; 2025 {t('app.name')}. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -177,6 +177,8 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const { title, description, food_type, quantity, unit, expiry_date, pickup_address, pickup_date, latitude, longitude } = req.body;
 
+    console.log('Creating donation:', { title, food_type, pickup_address, quantity, userId: req.userId });
+
     if (!title || !food_type || !pickup_address) {
       res.status(400).json({ messageKey: 'validation.required_field' });
       return;
@@ -188,12 +190,12 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
       title,
       description: description || null,
       food_type,
-      quantity: quantity || 1,
-      unit: unit || 'portion',
+      quantity: Number(quantity) || 1,
+      unit: unit || 'portions',
       expiry_date: expiry_date || null,
       pickup_address,
-      latitude: latitude != null ? parseFloat(latitude) : null,
-      longitude: longitude != null ? parseFloat(longitude) : null,
+      latitude: latitude != null && latitude !== '' ? parseFloat(latitude) : null,
+      longitude: longitude != null && longitude !== '' ? parseFloat(longitude) : null,
       pickup_date: pickup_date || null,
       status: 'available',
       reserved_by: null,
@@ -201,9 +203,9 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
     });
 
     res.status(201).json({ messageKey: 'donation.created', donation });
-  } catch (err) {
+  } catch (err: any) {
     console.error('Create donation error:', err);
-    res.status(500).json({ messageKey: 'general.server_error' });
+    res.status(500).json({ messageKey: 'general.server_error', error: err.message });
   }
 });
 
