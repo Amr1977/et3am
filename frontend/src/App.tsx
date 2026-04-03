@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { useRTL } from './hooks/useRTL';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import LocationPrompt from './components/LocationPrompt';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -41,6 +42,7 @@ function AppContent() {
         </Routes>
       </main>
       <Footer />
+      <LocationPrompt />
       <OAuthCallbackHandler />
     </div>
   );

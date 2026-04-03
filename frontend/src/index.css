@@ -1170,6 +1170,113 @@ body {
   width: 100%;
 }
 
+/* Marker Cluster Styles */
+.marker-cluster-custom {
+  background: transparent;
+}
+
+.cluster-marker {
+  background: var(--primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.cluster-small {
+  width: 30px;
+  height: 30px;
+  font-size: 12px;
+}
+
+.cluster-medium {
+  width: 36px;
+  height: 36px;
+  font-size: 14px;
+}
+
+.cluster-large {
+  width: 44px;
+  height: 44px;
+  font-size: 16px;
+}
+
+/* User Location Marker */
+.user-location-marker {
+  width: 16px;
+  height: 16px;
+  background: #3b82f6;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3), 0 2px 6px rgba(0, 0, 0, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(59, 130, 246, 0), 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0), 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Location Prompt */
+.location-prompt-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.location-prompt-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.location-prompt-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.location-prompt-card h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--text);
+}
+
+.location-prompt-card p {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.location-prompt-buttons {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.location-prompt-buttons .btn {
+  flex: 1;
+  max-width: 160px;
+}
+
 /* Modal */
 .modal-overlay {
   position: fixed;

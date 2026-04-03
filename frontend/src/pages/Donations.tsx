@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
 import LocationPicker from '../components/LocationPicker';
-import DonationMap from '../components/DonationMap';
+import ClusterMap from '../components/ClusterMap';
 import { fetchWithFailover } from '../services/api';
 
 interface Donation {
@@ -57,7 +57,7 @@ export default function Donations() {
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(searchParams.get('create') === 'true');
   const [filter, setFilter] = useState('all');
-  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'map'>('map');
   const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
   const [formData, setFormData] = useState({
     title: '',
@@ -397,8 +397,12 @@ export default function Donations() {
       </div>
 
       {viewMode === 'map' ? (
-        donations.some(d => d.latitude && d.longitude) ? (
-          <DonationMap donations={donations} t={t} />
+        donations.some(d => d.latitude && d.longitude) || user?.latitude ? (
+          <ClusterMap 
+            donations={donations} 
+            userLocation={user?.latitude && user?.longitude ? { lat: user.latitude, lng: user.longitude } : null}
+            t={t} 
+          />
         ) : (
           <div className="donations-map-placeholder">
             <div className="map-placeholder-content">

@@ -15,6 +15,10 @@ interface User {
   role: string;
   phone?: string;
   address?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  location_city?: string | null;
+  location_area?: string | null;
   preferred_language: string;
   avatar_url?: string;
 }
@@ -28,6 +32,7 @@ interface AuthContextType {
   loginWithToken: (token: string) => Promise<void>;
   logout: () => void;
   updateLanguage: (lang: string) => Promise<void>;
+  updateLocation: (lat: number, lng: number) => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -155,8 +160,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateLocation = async (latitude: number, longitude: number) => {
+    if (!token) return;
+    
+    try {
+      const res = await fetchWithFailover(`${API_ENDPOINT}/auth/location`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ latitude, longitude }),
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        if (user) {
+          setUser({
+            ...user,
+            latitude,
+            longitude,
+            location_city: data.location?.city,
+            location_area: data.location?.area,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to update location:', error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, loginWithGoogle, register, loginWithToken, logout, updateLanguage, isAuthenticated: !!token }}>
+    <AuthContext.Provider value={{ user, token, login, loginWithGoogle, register, loginWithToken, logout, updateLanguage, updateLocation, isAuthenticated: !!token }}>
       {children}
     </AuthContext.Provider>
   );
