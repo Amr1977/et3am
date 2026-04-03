@@ -28,12 +28,12 @@ cd "$PROJECT_DIR"
 
 while true; do
     if [ -f /home/ubuntu/.env ]; then
-        log "Loading env from .env"
+        log "Loading env from /home/ubuntu/.env"
         while IFS= read -r line || [ -n "$line" ]; do
             if [[ "$line" =~ ^# ]] || [[ -z "$line" ]]; then continue; fi
             line=$(echo "$line" | tr -d '\r')
             export "$line"
-        done < .env
+        done < /home/ubuntu/.env
     fi
 
     if ! git fetch origin $BRANCH > /dev/null 2>&1; then
