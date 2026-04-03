@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2D6A4F"/>
+      <stop offset="100%" style="stop-color:#1B4332"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#D4A373"/>
+      <stop offset="100%" style="stop-color:#E9C46A"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+  <!-- Decorative circles -->
+  <circle cx="150" cy="150" r="200" fill="#D4A373" opacity="0.1"/>
+  <circle cx="1050" cy="480" r="250" fill="#E9C46A" opacity="0.1"/>
+  <circle cx="600" cy="315" r="180" fill="#ffffff" opacity="0.05"/>
+  
+  <!-- Main icon circle -->
+  <circle cx="600" cy="280" r="100" fill="#ffffff" opacity="0.15"/>
+  <text x="600" y="305" text-anchor="middle" font-size="80">🤲</text>
+  
+  <!-- Title -->
+  <text x="600" y="440" text-anchor="middle" font-family="serif" font-size="72" font-weight="bold" fill="#ffffff">
+    إطعام
+  </text>
+  
+  <!-- Tagline -->
+  <text x="600" y="490" text-anchor="middle" font-family="sans-serif" font-size="28" fill="#D4A373">
+    Feed the Hungry, Save the Food
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="600" y="530" text-anchor="middle" font-family="sans-serif" font-size="18" fill="#ffffff" opacity="0.8">
+    A charitable platform connecting surplus food to those in need
+  </text>
+  
+  <!-- Bottom accent line -->
+  <rect x="450" y="555" width="300" height="4" rx="2" fill="url(#accent)"/>
+  
+  <!-- URL -->
+  <text x="600" y="595" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#ffffff" opacity="0.6">
+    et3am26.web.app
+  </text>
+</svg>
