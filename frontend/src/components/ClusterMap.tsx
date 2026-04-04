@@ -93,8 +93,7 @@ function MapEvents({ userLocation, donations, t, onReserve, isAuthenticated }: {
   isAuthenticated?: boolean;
 }) {
   const map = useMap();
-  const clusterRef = useRef<L.MarkerClusterGroup | null>(null);
-  const initialized = useRef(false);
+  const clusterGroupRef = useRef<L.MarkerClusterGroup | L.LayerGroup | null>(null);
   
   useEffect(() => {
     if (userLocation) {
@@ -109,35 +108,38 @@ function MapEvents({ userLocation, donations, t, onReserve, isAuthenticated }: {
   }, [userLocation, donations, map]);
   
   useEffect(() => {
-    if (initialized.current) return;
-    initialized.current = true;
+    if (!map) return;
     
-    if (typeof (L as any).markerClusterGroup !== 'function') {
-      console.warn('MarkerCluster plugin not loaded, using simple markers');
+    let clusterGroup = clusterGroupRef.current;
+    
+    if (!clusterGroup) {
+      clusterGroup = (L as any).markerClusterGroup ? (L as any).markerClusterGroup({
+        chunkedLoading: true,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true,
+        maxClusterRadius: 50,
+        disableClusteringAtZoom: 16,
+        iconCreateFunction: (cluster: any) => {
+          const count = cluster.getChildCount();
+          let size = 'small';
+          if (count > 10) size = 'medium';
+          if (count > 50) size = 'large';
+          
+          return L.divIcon({
+            html: `<div class="cluster-marker cluster-${size}"><span>${count}</span></div>`,
+            className: 'marker-cluster-custom',
+            iconSize: L.point(40, 40),
+          });
+        },
+      }) : L.layerGroup();
+      
+      clusterGroupRef.current = clusterGroup as any;
+      map.addLayer(clusterGroup as any);
     }
     
-    const clusterGroup = (L as any).markerClusterGroup ? (L as any).markerClusterGroup({
-      chunkedLoading: true,
-      spiderfyOnMaxZoom: true,
-      showCoverageOnHover: false,
-      zoomToBoundsOnClick: true,
-      maxClusterRadius: 50,
-      disableClusteringAtZoom: 16,
-      iconCreateFunction: (cluster: any) => {
-        const count = cluster.getChildCount();
-        let size = 'small';
-        if (count > 10) size = 'medium';
-        if (count > 50) size = 'large';
-        
-        return L.divIcon({
-          html: `<div class="cluster-marker cluster-${size}"><span>${count}</span></div>`,
-          className: 'marker-cluster-custom',
-          iconSize: L.point(40, 40),
-        });
-      },
-    }) : L.layerGroup();
-    
-    clusterRef.current = clusterGroup;
+    const clusterGroupAny = clusterGroupRef.current as any;
+    clusterGroupAny.clearLayers();
     
     donations.forEach(d => {
       if (!d.latitude || !d.longitude) return;
@@ -191,10 +193,8 @@ function MapEvents({ userLocation, donations, t, onReserve, isAuthenticated }: {
         className: 'donation-popup'
       });
       
-      clusterGroup.addLayer(marker);
+      clusterGroupRef.current!.addLayer(marker);
     });
-    
-    map.addLayer(clusterGroup);
     
     window.reserveDonation = (id: string) => {
       if (onReserve) {
@@ -204,8 +204,8 @@ function MapEvents({ userLocation, donations, t, onReserve, isAuthenticated }: {
     
     return () => {
       window.reserveDonation = () => {};
-      if (clusterRef.current) {
-        map.removeLayer(clusterRef.current);
+      if (clusterGroupRef.current) {
+        map.removeLayer(clusterGroupRef.current);
       }
     };
   }, [map, donations, t, onReserve, isAuthenticated]);
