@@ -6,6 +6,8 @@ import { fetchWithFailover } from '../services/api';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet-routing-machine';
+import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import '../styles/MealDetails.css';
 
 interface Donation {
@@ -104,11 +106,19 @@ export default function MealDetails() {
         const res = await fetchWithFailover(`/api/donations/${id}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
+        if (!res.ok) {
+          setError('Failed to load donation details');
+          setLoading(false);
+          return;
+        }
         const data = await res.json();
         if (data.donation) {
           setDonation(data.donation);
+        } else {
+          setError('Invalid donation data');
         }
       } catch (err) {
+        console.error('Fetch error:', err);
         setError('Failed to load donation details');
       } finally {
         setLoading(false);
