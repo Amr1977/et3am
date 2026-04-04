@@ -627,6 +627,119 @@ body {
   line-height: 1.7;
 }
 
+/* Steps Flow */
+.steps-flow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.step-flow-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  text-align: center;
+  box-shadow: var(--shadow);
+  position: relative;
+  transition: all var(--transition);
+  border: 2px solid var(--border-light);
+  flex: 1;
+  min-width: 280px;
+  max-width: 350px;
+}
+
+.step-flow-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-xl);
+}
+
+.step-flow-card.donor {
+  border-color: var(--success);
+}
+
+.step-flow-card.receiver {
+  border-color: var(--warning);
+}
+
+.step-flow-card.pickup {
+  border-color: var(--primary);
+}
+
+.step-flow-number {
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  width: 32px;
+  height: 32px;
+  background: var(--primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow);
+}
+
+.step-flow-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.step-flow-card h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.75rem;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.step-flow-card p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+.step-flow-role {
+  display: inline-block;
+  background: var(--bg-pattern);
+  padding: 0.35rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.step-flow-arrow {
+  font-size: 2rem;
+  color: var(--text-light);
+  align-self: center;
+  margin-top: 2rem;
+}
+
+@media (max-width: 900px) {
+  .steps-flow {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .step-flow-arrow {
+    transform: rotate(90deg);
+    margin: 0;
+  }
+  
+  .step-flow-card {
+    width: 100%;
+  }
+}
+
 /* Stats */
 .stats-section {
   padding: 5rem 0;
