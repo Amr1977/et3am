@@ -201,6 +201,8 @@ function MapEvents({ userLocation, donations, t, onReserve, isAuthenticated }: {
       clusterGroupRef.current!.addLayer(marker);
     });
     
+    console.log('[ClusterMap] Added', donations.filter(d => d.latitude && d.longitude).length, 'markers to cluster, layers:', clusterGroupAny.getLayers().length);
+    
     window.reserveDonation = (id: string) => {
       if (onReserve) {
         onReserve(id);
