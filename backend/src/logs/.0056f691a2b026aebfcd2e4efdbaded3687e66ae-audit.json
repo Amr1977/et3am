@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "D:\\et3am\\backend\\src\\logs\\.0056f691a2b026aebfcd2e4efdbaded3687e66ae-audit.json",
+    "files": [
+        {
+            "date": 1775333632164,
+            "name": "D:\\et3am\\backend\\src\\logs\\error-2026-04-04.log",
+            "hash": "9ce5bce8ea5c634eb8601ca6138b7331bb5f6a970f37afb4acc2bad1a0b2097d"
+        }
+    ],
+    "hashType": "sha256"
+}
