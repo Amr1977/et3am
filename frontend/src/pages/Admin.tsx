@@ -67,18 +67,23 @@ export default function Admin() {
 
   if (!isAuthenticated || user?.role !== 'admin') {
     return (
-      <div className="admin-access-denied">
-        <h2>Access Denied</h2>
-        <p>You do not have permission to access this page.</p>
+      <div className="admin-page">
+        <div className="admin-access-denied">
+          <div className="denied-icon">🚫</div>
+          <h2>Access Denied</h2>
+          <p>You do not have permission to access this page.</p>
+        </div>
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="admin-loading">
-        <div className="loading-spinner"></div>
-        <p>Loading...</p>
+      <div className="admin-page">
+        <div className="page-loading">
+          <div className="loading-spinner"></div>
+          <p>Loading admin dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -130,100 +135,141 @@ export default function Admin() {
     },
   };
 
+  const tabs = [
+    { id: 'dashboard', label: t('admin.tabs.dashboard'), icon: '📊' },
+    { id: 'users', label: t('admin.tabs.users'), icon: '👥' },
+    { id: 'donations', label: t('admin.tabs.donations'), icon: '🎁' },
+    { id: 'tickets', label: t('admin.tabs.tickets'), icon: '🎫' },
+  ];
+
   return (
     <div className="admin-page">
-      <div className="admin-header">
-        <h1>Admin Dashboard</h1>
-      </div>
-
-      <div className="admin-tabs">
-        {['dashboard', 'users', 'donations', 'tickets'].map(tab => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`admin-tab ${activeTab === tab ? 'active' : ''}`}
-          >
-            {t(`admin.tabs.${tab}`)}
-          </button>
-        ))}
-      </div>
-
-      {activeTab === 'dashboard' && stats && (
-        <div className="admin-dashboard">
-          <div className="stats-grid">
-            <div className="stat-card">
-              <span className="stat-icon">👥</span>
-              <div className="stat-content">
-                <span className="stat-value">{stats.users.total}</span>
-                <span className="stat-label">Total Users</span>
-              </div>
-            </div>
-            <div className="stat-card">
-              <span className="stat-icon">📦</span>
-              <div className="stat-content">
-                <span className="stat-value">{stats.donations.total}</span>
-                <span className="stat-label">Total Donations</span>
-              </div>
-            </div>
-            <div className="stat-card">
-              <span className="stat-icon">✅</span>
-              <div className="stat-content">
-                <span className="stat-value">{stats.donations.completed}</span>
-                <span className="stat-label">Completed</span>
-              </div>
-            </div>
-            <div className="stat-card">
-              <span className="stat-icon">⏳</span>
-              <div className="stat-content">
-                <span className="stat-value">{stats.donations.activeReservations}</span>
-                <span className="stat-label">Active Reservations</span>
-              </div>
-            </div>
+      <div className="page-container">
+        <div className="admin-header-modern">
+          <div className="admin-title-section">
+            <h1 className="page-title">Admin Dashboard</h1>
+            <p className="page-subtitle">Manage your platform</p>
           </div>
-
-          <div className="charts-grid">
-            <div className="chart-card">
-              <h3>Donations Over Time</h3>
-              <div className="chart-container">
-                <Line data={dailyDonationsData} options={chartOptions} />
-              </div>
-            </div>
-
-            <div className="chart-card">
-              <h3>Status Distribution</h3>
-              <div className="chart-container">
-                <Doughnut data={statusDistributionData} options={{ ...chartOptions, plugins: { legend: { display: true, position: 'bottom' } } }} />
-              </div>
-            </div>
-
-            <div className="chart-card">
-              <h3>Top Areas</h3>
-              <div className="chart-container">
-                <Bar data={topAreasData} options={chartOptions} />
-              </div>
-            </div>
-          </div>
-
-          <div className="metrics-grid">
-            <div className="metric-card">
-              <h4>User Growth (30 days)</h4>
-              <span className="metric-value">+{stats.users.newLast30Days}</span>
-            </div>
-            <div className="metric-card">
-              <h4>New Donations (7 days)</h4>
-              <span className="metric-value">+{stats.donations.newLast7Days}</span>
-            </div>
-            <div className="metric-card">
-              <h4>Completions (7 days)</h4>
-              <span className="metric-value">+{stats.donations.completedLast7Days}</span>
-            </div>
-            <div className="metric-card">
-              <h4>Active Donors</h4>
-              <span className="metric-value">{stats.users.donors}</span>
-            </div>
+          <div className="admin-actions">
+            <button className="btn btn-outline">
+              <span>📥</span> Export
+            </button>
           </div>
         </div>
-      )}
+
+        <div className="admin-tabs-modern">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`tab-modern ${activeTab === tab.id ? 'active' : ''}`}
+            >
+              <span className="tab-icon">{tab.icon}</span>
+              <span className="tab-label">{tab.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {activeTab === 'dashboard' && stats && (
+          <div className="admin-dashboard">
+            <div className="stats-grid-modern">
+              <div className="stat-card-modern">
+                <div className="stat-icon-wrap blue">
+                  <span>👥</span>
+                </div>
+                <div className="stat-content">
+                  <span className="stat-value">{stats.users.total}</span>
+                  <span className="stat-label">Total Users</span>
+                </div>
+                <span className="stat-badge positive">+{stats.users.newLast30Days} this month</span>
+              </div>
+              <div className="stat-card-modern">
+                <div className="stat-icon-wrap green">
+                  <span>🎁</span>
+                </div>
+                <div className="stat-content">
+                  <span className="stat-value">{stats.donations.total}</span>
+                  <span className="stat-label">Total Donations</span>
+                </div>
+                <span className="stat-badge positive">+{stats.donations.newLast7Days} this week</span>
+              </div>
+              <div className="stat-card-modern">
+                <div className="stat-icon-wrap purple">
+                  <span>✅</span>
+                </div>
+                <div className="stat-content">
+                  <span className="stat-value">{stats.donations.completed}</span>
+                  <span className="stat-label">Completed</span>
+                </div>
+                <span className="stat-badge">{stats.donations.completedLast7Days} this week</span>
+              </div>
+              <div className="stat-card-modern">
+                <div className="stat-icon-wrap orange">
+                  <span>⏳</span>
+                </div>
+                <div className="stat-content">
+                  <span className="stat-value">{stats.donations.activeReservations}</span>
+                  <span className="stat-label">Active Reservations</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="charts-grid-modern">
+              <div className="chart-card-modern">
+                <h3>📈 Donations Over Time</h3>
+                <div className="chart-container">
+                  <Line data={dailyDonationsData} options={chartOptions} />
+                </div>
+              </div>
+
+              <div className="chart-card-modern">
+                <h3>🍩 Status Distribution</h3>
+                <div className="chart-container doughnut">
+                  <Doughnut data={statusDistributionData} options={{ ...chartOptions, plugins: { legend: { display: true, position: 'bottom' } } }} />
+                </div>
+              </div>
+
+              <div className="chart-card-modern">
+                <h3>🏛️ Top Areas</h3>
+                <div className="chart-container">
+                  <Bar data={topAreasData} options={chartOptions} />
+                </div>
+              </div>
+            </div>
+
+            <div className="metrics-grid-modern">
+              <div className="metric-card-modern">
+                <div className="metric-icon">📈</div>
+                <div className="metric-content">
+                  <span className="metric-label">User Growth (30 days)</span>
+                  <span className="metric-value">+{stats.users.newLast30Days}</span>
+                </div>
+              </div>
+              <div className="metric-card-modern">
+                <div className="metric-icon">📦</div>
+                <div className="metric-content">
+                  <span className="metric-label">New Donations (7 days)</span>
+                  <span className="metric-value">+{stats.donations.newLast7Days}</span>
+                </div>
+              </div>
+              <div className="metric-card-modern">
+                <div className="metric-icon">✨</div>
+                <div className="metric-content">
+                  <span className="metric-label">Completions (7 days)</span>
+                  <span className="metric-value">+{stats.donations.completedLast7Days}</span>
+                </div>
+              </div>
+              <div className="metric-card-modern">
+                <div className="metric-icon">🤝</div>
+                <div className="metric-content">
+                  <span className="metric-label">Active Donors</span>
+                  <span className="metric-value">{stats.users.donors}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

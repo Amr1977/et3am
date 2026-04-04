@@ -85,7 +85,7 @@ export default function Settings() {
 
   if (loading || !settings) {
     return (
-      <div className="settings-loading">
+      <div className="page-loading">
         <div className="loading-spinner"></div>
       </div>
     );
@@ -93,87 +93,146 @@ export default function Settings() {
 
   return (
     <div className="settings-page">
-      <div className="settings-container">
-        <h1>{t('settings.title')}</h1>
-        <p className="settings-subtitle">{t('settings.subtitle')}</p>
+      <div className="page-container">
+        <div className="page-header">
+          <h1 className="page-title">{t('settings.title')}</h1>
+          <p className="page-subtitle">{t('settings.subtitle')}</p>
+        </div>
 
-        <div className="settings-section">
-          <h2>{t('settings.profile_info')}</h2>
-          <div className="profile-summary">
-            <div className="profile-avatar-large">👤</div>
-            <div className="profile-details">
-              <p><strong>{t('auth.name')}:</strong> {settings.name}</p>
-              <p><strong>{t('auth.email')}:</strong> {settings.email}</p>
-              <p><strong>Role:</strong> {settings.role}</p>
-              <div className="profile-stats-row">
-                <span>📦 {t('dashboard.total_donations')}: {settings.total_donations}</span>
-                <span>🍽️ {t('profile.meals_received')}: {settings.total_received}</span>
-                <span>⭐ {t('profile.reputation')}: {settings.reputation_score}</span>
+        <div className="settings-grid">
+          <div className="settings-card profile-card">
+            <div className="card-header">
+              <h2>{t('settings.profile_info')}</h2>
+            </div>
+            <div className="profile-content">
+              <div className="profile-avatar">
+                {settings.name?.charAt(0).toUpperCase() || '👤'}
+              </div>
+              <div className="profile-info">
+                <h3>{settings.name}</h3>
+                <p className="profile-email">{settings.email}</p>
+                <span className="profile-role">{settings.role}</span>
+              </div>
+            </div>
+            <div className="profile-stats">
+              <div className="stat-item">
+                <span className="stat-icon">📦</span>
+                <div className="stat-info">
+                  <span className="stat-value">{settings.total_donations}</span>
+                  <span className="stat-label">{t('dashboard.total_donations')}</span>
+                </div>
+              </div>
+              <div className="stat-item">
+                <span className="stat-icon">🍽️</span>
+                <div className="stat-info">
+                  <span className="stat-value">{settings.total_received}</span>
+                  <span className="stat-label">{t('profile.meals_received')}</span>
+                </div>
+              </div>
+              <div className="stat-item">
+                <span className="stat-icon">⭐</span>
+                <div className="stat-info">
+                  <span className="stat-value">{settings.reputation_score}</span>
+                  <span className="stat-label">{t('profile.reputation')}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="settings-card">
+            <div className="card-header">
+              <h2>{t('settings.notifications')}</h2>
+            </div>
+            <div className="card-body">
+              <label className="toggle-option">
+                <div className="toggle-info">
+                  <span className="toggle-icon">🔔</span>
+                  <div className="toggle-text">
+                    <span className="toggle-title">{t('settings.notifications_enabled')}</span>
+                    <span className="toggle-desc">{t('settings.notifications_desc')}</span>
+                  </div>
+                </div>
+                <div className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={settings.notifications_enabled}
+                    onChange={(e) => setSettings({ ...settings, notifications_enabled: e.target.checked })}
+                  />
+                  <span className="toggle-slider"></span>
+                </div>
+              </label>
+
+              <label className="toggle-option">
+                <div className="toggle-info">
+                  <span className="toggle-icon">🔊</span>
+                  <div className="toggle-text">
+                    <span className="toggle-title">{t('settings.sound_effects')}</span>
+                    <span className="toggle-desc">{t('settings.sound_effects_desc')}</span>
+                  </div>
+                </div>
+                <div className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={settings.sound_enabled}
+                    onChange={(e) => setSettings({ ...settings, sound_enabled: e.target.checked })}
+                  />
+                  <span className="toggle-slider"></span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div className="settings-card">
+            <div className="card-header">
+              <h2>{t('settings.language')}</h2>
+            </div>
+            <div className="card-body">
+              <div className="language-options">
+                <label className={`language-card ${settings.preferred_language === 'en' ? 'selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name="language"
+                    value="en"
+                    checked={settings.preferred_language === 'en'}
+                    onChange={() => setSettings({ ...settings, preferred_language: 'en' })}
+                  />
+                  <span className="language-flag">🇬🇧</span>
+                  <span className="language-name">English</span>
+                  <span className="language-check">✓</span>
+                </label>
+                <label className={`language-card ${settings.preferred_language === 'ar' ? 'selected' : ''}`}>
+                  <input
+                    type="radio"
+                    name="language"
+                    value="ar"
+                    checked={settings.preferred_language === 'ar'}
+                    onChange={() => setSettings({ ...settings, preferred_language: 'ar' })}
+                  />
+                  <span className="language-flag">🇸🇦</span>
+                  <span className="language-name">العربية</span>
+                  <span className="language-check">✓</span>
+                </label>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="settings-section">
-          <h2>{t('settings.notifications')}</h2>
-          <div className="settings-toggle">
-            <label className="toggle-label">
-              <input
-                type="checkbox"
-                checked={settings.sound_enabled}
-                onChange={(e) => setSettings({ ...settings, sound_enabled: e.target.checked })}
-              />
-              <span className="toggle-text">{t('settings.sound_effects')}</span>
-            </label>
-            <p className="toggle-desc">{t('settings.sound_effects_desc')}</p>
-          </div>
-
-          <div className="settings-toggle">
-            <label className="toggle-label">
-              <input
-                type="checkbox"
-                checked={settings.notifications_enabled}
-                onChange={(e) => setSettings({ ...settings, notifications_enabled: e.target.checked })}
-              />
-              <span className="toggle-text">{t('settings.notifications_enabled')}</span>
-            </label>
-            <p className="toggle-desc">{t('settings.notifications_desc')}</p>
-          </div>
-        </div>
-
-        <div className="settings-section">
-          <h2>{t('settings.language')}</h2>
-          <div className="language-options">
-            <label className={`language-option ${settings.preferred_language === 'en' ? 'selected' : ''}`}>
-              <input
-                type="radio"
-                name="language"
-                value="en"
-                checked={settings.preferred_language === 'en'}
-                onChange={() => setSettings({ ...settings, preferred_language: 'en' })}
-              />
-              <span>🇬🇧 English</span>
-            </label>
-            <label className={`language-option ${settings.preferred_language === 'ar' ? 'selected' : ''}`}>
-              <input
-                type="radio"
-                name="language"
-                value="ar"
-                checked={settings.preferred_language === 'ar'}
-                onChange={() => setSettings({ ...settings, preferred_language: 'ar' })}
-              />
-              <span>🇸🇦 العربية</span>
-            </label>
-          </div>
-        </div>
-
         {success && (
-          <div className="settings-success">{t('settings.saved')}</div>
+          <div className="success-toast">
+            <span>✓</span> {t('settings.saved')}
+          </div>
         )}
 
-        <div className="settings-actions">
-          <button onClick={handleSave} className="btn btn-primary" disabled={saving}>
-            {saving ? t('common.loading') : t('settings.save')}
+        <div className="settings-footer">
+          <button onClick={handleSave} className="btn btn-primary btn-lg" disabled={saving}>
+            {saving ? (
+              <>
+                <span className="btn-spinner"></span>
+                {t('common.loading')}
+              </>
+            ) : (
+              t('settings.save')
+            )}
           </button>
         </div>
       </div>
