@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
+import { getServerUrl } from '../services/api';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -8,8 +9,8 @@ interface SocketContextType {
   joinDonationRoom: (donationId: string) => void;
   leaveDonationRoom: (donationId: string) => void;
   sendMessage: (donationId: string, message: string) => void;
-  onNewMessage: (callback: (message: any) => void) => void;
-  onChatNotification: (callback: (data: any) => void) => void;
+  onNewMessage: (callback: (message: any) => void) => () => void;
+  onChatNotification: (callback: (data: any) => void) => () => void;
 }
 
 const SocketContext = createContext<SocketContextType | null>(null);
@@ -33,30 +34,41 @@ export function SocketProvider({ children }: SocketProviderProps) {
       return;
     }
 
-    const socketInstance = io(window.location.origin, {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-    });
+    const setupSocket = async () => {
+      const serverUrl = await getServerUrl();
+      
+      const socketInstance = io(serverUrl, {
+        auth: { token },
+        transports: ['websocket', 'polling'],
+        reconnection: true,
+        reconnectionAttempts: 3,
+        reconnectionDelay: 1000,
+      });
 
-    socketInstance.on('connect', () => {
-      console.log('[Socket] Connected');
-      setIsConnected(true);
-    });
+      socketInstance.on('connect', () => {
+        console.log('[Socket] Connected to', serverUrl);
+        setIsConnected(true);
+      });
 
-    socketInstance.on('disconnect', () => {
-      console.log('[Socket] Disconnected');
-      setIsConnected(false);
-    });
+      socketInstance.on('disconnect', () => {
+        console.log('[Socket] Disconnected');
+        setIsConnected(false);
+      });
 
-    socketInstance.on('connect_error', (error) => {
-      console.error('[Socket] Connection error:', error);
-      setIsConnected(false);
-    });
+      socketInstance.on('connect_error', (error) => {
+        console.error('[Socket] Connection error:', error.message);
+        setIsConnected(false);
+      });
 
-    setSocket(socketInstance);
+      setSocket(socketInstance);
+    };
+
+    setupSocket();
 
     return () => {
-      socketInstance.disconnect();
+      if (socket) {
+        socket.disconnect();
+      }
     };
   }, [token, isAuthenticated]);
 
