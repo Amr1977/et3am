@@ -47,11 +47,7 @@ export const strictCorsConfig = {
     const allowedOrigins = CORS_ORIGIN.split(',').map(o => o.trim()).filter(Boolean);
 
     if (!origin) {
-      if (IS_PRODUCTION) {
-        callback(new Error('Origin required in production'));
-      } else {
-        callback(null, true);
-      }
+      callback(null, true);
       return;
     }
 
