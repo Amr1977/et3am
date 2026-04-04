@@ -84,6 +84,8 @@ router.post('/login', async (req: AuthRequest, res: Response) => {
     
     const passwordValid = bcrypt.compareSync(password, user.password);
     console.log('Password valid:', passwordValid);
+    console.log('Attempting bcrypt directly on user.password:');
+    console.log('  bcrypt.compareSync:', bcrypt.compareSync(password, user.password));
     if (!passwordValid && user.password.startsWith('$2a$')) {
       const newHash = user.password.replace('$2a$', '$2b$');
       const newValid = bcrypt.compareSync(password, newHash);
