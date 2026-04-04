@@ -92,6 +92,10 @@ export default function Login() {
               />
             </div>
 
+            <div className="forgot-password-link">
+              <Link to="/forgot-password">{t('auth.forgot_password')}</Link>
+            </div>
+
             <button type="submit" className="btn btn-primary-modern btn-full" disabled={loading}>
               {loading ? (
                 <span className="loading-dots">...</span>
