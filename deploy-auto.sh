@@ -1,8 +1,11 @@
 #!/bin/bash
 set -uo pipefail
 
-PROJECT_DIR="/home/ubuntu/et3am"
-SCRIPT_DIR="/home/ubuntu"
+# Auto-detect home directory (compatible with different deployment users)
+# If running from within et3am/deploy-auto.sh, find the project root
+SCRIPT_LOCATION="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_LOCATION")"
+SCRIPT_DIR="$(dirname "$PROJECT_DIR")"
 BRANCH="master"
 CHECK_INTERVAL=60
 
@@ -27,13 +30,13 @@ log "---------------------------------------------------"
 cd "$PROJECT_DIR"
 
 while true; do
-    if [ -f /home/ubuntu/.env ]; then
-        log "Loading env from /home/ubuntu/.env"
+    if [ -f "$SCRIPT_DIR/.env" ]; then
+        log "Loading env from $SCRIPT_DIR/.env"
         while IFS= read -r line || [ -n "$line" ]; do
             if [[ "$line" =~ ^# ]] || [[ -z "$line" ]]; then continue; fi
             line=$(echo "$line" | tr -d '\r')
             export "$line"
-        done < /home/ubuntu/.env
+        done < "$SCRIPT_DIR/.env"
     fi
 
     if ! git fetch origin $BRANCH > /dev/null 2>&1; then
@@ -47,7 +50,7 @@ while true; do
         log "New changes detected. Deploying..."
 
         log "Resetting and pulling..."
-        cp /home/ubuntu/.env /tmp/et3am.env.backup 2>/dev/null || true
+        cp "$SCRIPT_DIR/.env" /tmp/et3am.env.backup 2>/dev/null || true
         
         git checkout -- . 2>/dev/null || true
         git clean -fd 2>/dev/null || true
@@ -57,7 +60,7 @@ while true; do
             git reset --hard origin/$BRANCH
         }
         
-        cp /tmp/et3am.env.backup /home/ubuntu/.env 2>/dev/null || true
+        cp /tmp/et3am.env.backup "$SCRIPT_DIR/.env" 2>/dev/null || true
 
         log "=== Backend Deployment ==="
         
