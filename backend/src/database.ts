@@ -29,6 +29,11 @@ export interface User {
   preferred_language: 'en' | 'ar';
   google_id: string | null;
   avatar_url: string | null;
+  reputation_score: number;
+  total_donations: number;
+  total_received: number;
+  sound_enabled: boolean;
+  notifications_enabled: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -198,6 +203,204 @@ export const dbOps = {
   async userCount(): Promise<number> {
     const { rows } = await pool.query('SELECT COUNT(*) as count FROM users');
     return parseInt(rows[0].count);
+  },
+  pool,
+  dailyReservations: {
+    async checkTodayAction(userId: string): Promise<number> {
+      const { rows } = await pool.query(
+        'SELECT COUNT(*) as count FROM daily_reservations WHERE user_id = $1 AND reservation_date = CURRENT_DATE',
+        [userId]
+      );
+      return parseInt(rows[0].count);
+    },
+    async create(userId: string, donationId: string | null, actionType: 'reserve' | 'receive'): Promise<void> {
+      await pool.query(
+        'INSERT INTO daily_reservations (user_id, donation_id, action_type, reservation_date) VALUES ($1, $2, $3, CURRENT_DATE)',
+        [userId, donationId, actionType]
+      );
+    },
+    async getTodayActions(userId: string): Promise<{ id: string; action_type: string; donation_id: string | null }[]> {
+      const { rows } = await pool.query(
+        'SELECT id, action_type, donation_id FROM daily_reservations WHERE user_id = $1 AND reservation_date = CURRENT_DATE',
+        [userId]
+      );
+      return rows;
+    },
+  },
+  chat: {
+    async findByDonation(donationId: string): Promise<any[]> {
+      const { rows } = await pool.query(
+        `SELECT cm.*, u.name as sender_name, u.avatar_url as sender_avatar
+         FROM chat_messages cm
+         JOIN users u ON cm.sender_id = u.id
+         WHERE cm.donation_id = $1
+         ORDER BY cm.created_at ASC`,
+        [donationId]
+      );
+      return rows;
+    },
+    async create(donationId: string, senderId: string, receiverId: string, message: string): Promise<any> {
+      const { rows } = await pool.query(
+        `INSERT INTO chat_messages (donation_id, sender_id, receiver_id, message)
+         VALUES ($1, $2, $3, $4) RETURNING *`,
+        [donationId, senderId, receiverId, message]
+      );
+      return rows[0];
+    },
+    async markAsRead(donationId: string, receiverId: string): Promise<void> {
+      await pool.query(
+        'UPDATE chat_messages SET is_read = TRUE WHERE donation_id = $1 AND receiver_id = $2 AND is_read = FALSE',
+        [donationId, receiverId]
+      );
+    },
+    async getUnreadCount(userId: string): Promise<number> {
+      const { rows } = await pool.query(
+        'SELECT COUNT(*) as count FROM chat_messages WHERE receiver_id = $1 AND is_read = FALSE',
+        [userId]
+      );
+      return parseInt(rows[0].count);
+    },
+  },
+  reviews: {
+    async create(reviewerId: string, reviewedId: string, donationId: string | null, rating: number, comment: string | null, reviewType: string): Promise<any> {
+      const { rows } = await pool.query(
+        `INSERT INTO user_reviews (reviewer_id, reviewed_id, donation_id, rating, comment, review_type)
+         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+        [reviewerId, reviewedId, donationId, rating, comment, reviewType]
+      );
+      return rows[0];
+    },
+    async findByUser(userId: string): Promise<any[]> {
+      const { rows } = await pool.query(
+        `SELECT ur.*, u.name as reviewer_name, d.title as donation_title
+         FROM user_reviews ur
+         JOIN users u ON ur.reviewer_id = u.id
+         LEFT JOIN donations d ON ur.donation_id = d.id
+         WHERE ur.reviewed_id = $1
+         ORDER BY ur.created_at DESC`,
+        [userId]
+      );
+      return rows;
+    },
+    async findByDonation(donationId: string): Promise<any[]> {
+      const { rows } = await pool.query(
+        `SELECT ur.*, u.name as reviewer_name
+         FROM user_reviews ur
+         JOIN users u ON ur.reviewer_id = u.id
+         WHERE ur.donation_id = $1`,
+        [donationId]
+      );
+      return rows;
+    },
+    async getUserRating(userId: string): Promise<{ avgRating: number; totalReviews: number }> {
+      const { rows } = await pool.query(
+        'SELECT AVG(rating)::numeric(2,1) as avg_rating, COUNT(*) as total_reviews FROM user_reviews WHERE reviewed_id = $1',
+        [userId]
+      );
+      return {
+        avgRating: parseFloat(rows[0].avg_rating) || 0,
+        totalReviews: parseInt(rows[0].total_reviews) || 0
+      };
+    },
+  },
+  support: {
+    async createTicket(userId: string, type: string, title: string, description: string): Promise<any> {
+      const { rows } = await pool.query(
+        `INSERT INTO support_tickets (user_id, type, title, description)
+         VALUES ($1, $2, $3, $4) RETURNING *`,
+        [userId, type, title, description]
+      );
+      return rows[0];
+    },
+    async findByUser(userId: string): Promise<any[]> {
+      const { rows } = await pool.query(
+        'SELECT * FROM support_tickets WHERE user_id = $1 ORDER BY created_at DESC',
+        [userId]
+      );
+      return rows;
+    },
+    async findById(ticketId: string): Promise<any | null> {
+      const { rows } = await pool.query('SELECT * FROM support_tickets WHERE id = $1', [ticketId]);
+      return rows[0] || null;
+    },
+    async findAll(filters?: { status?: string; priority?: string }, page = 1, limit = 20): Promise<{ tickets: any[]; total: number }> {
+      let where = 'WHERE 1=1';
+      const params: any[] = [];
+      let idx = 1;
+
+      if (filters?.status) {
+        where += ` AND status = $${idx++}`;
+        params.push(filters.status);
+      }
+      if (filters?.priority) {
+        where += ` AND priority = $${idx++}`;
+        params.push(filters.priority);
+      }
+
+      const countResult = await pool.query(`SELECT COUNT(*) as total FROM support_tickets ${where}`, params);
+      const total = parseInt(countResult.rows[0].total);
+
+      params.push(limit);
+      params.push((page - 1) * limit);
+      const { rows } = await pool.query(
+        `SELECT st.*, u.name as user_name, au.name as assigned_to_name
+         FROM support_tickets st
+         JOIN users u ON st.user_id = u.id
+         LEFT JOIN users au ON st.assigned_to = au.id
+         ${where} ORDER BY 
+           CASE st.priority WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END,
+           st.created_at DESC
+         LIMIT $${idx++} OFFSET $${idx}`,
+        params
+      );
+      return { tickets: rows, total };
+    },
+    async updateTicket(ticketId: string, updates: { status?: string; priority?: string; assigned_to?: string }): Promise<any | null> {
+      const fields: string[] = [];
+      const values: any[] = [];
+      let idx = 1;
+
+      if (updates.status) {
+        fields.push(`status = $${idx++}`);
+        values.push(updates.status);
+      }
+      if (updates.priority) {
+        fields.push(`priority = $${idx++}`);
+        values.push(updates.priority);
+      }
+      if (updates.assigned_to !== undefined) {
+        fields.push(`assigned_to = $${idx++}`);
+        values.push(updates.assigned_to);
+      }
+
+      fields.push(`updated_at = NOW()`);
+      values.push(ticketId);
+
+      const { rows } = await pool.query(
+        `UPDATE support_tickets SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`,
+        values
+      );
+      return rows[0] || null;
+    },
+  },
+  adminAudit: {
+    async log(adminId: string, action: string, targetType: string, targetId: string | null, details: any): Promise<void> {
+      await pool.query(
+        'INSERT INTO admin_audit_log (admin_id, action, target_type, target_id, details) VALUES ($1, $2, $3, $4, $5)',
+        [adminId, action, targetType, targetId, JSON.stringify(details)]
+      );
+    },
+    async getRecent(limit = 50): Promise<any[]> {
+      const { rows } = await pool.query(
+        `SELECT al.*, u.name as admin_name
+         FROM admin_audit_log al
+         JOIN users u ON al.admin_id = u.id
+         ORDER BY al.created_at DESC
+         LIMIT $1`,
+        [limit]
+      );
+      return rows;
+    },
   },
 };
 

@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useSearchParams, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { SocketProvider } from './context/SocketContext';
+import { SoundProvider } from './context/SoundContext';
 import { useRTL } from './hooks/useRTL';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -10,6 +12,11 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Donations from './pages/Donations';
+import Chat from './pages/Chat';
+import Support from './pages/Support';
+import Admin from './pages/Admin';
+import UserProfile from './pages/UserProfile';
+import Settings from './pages/Settings';
 
 function OAuthCallbackHandler() {
   const [searchParams] = useSearchParams();
@@ -39,6 +46,11 @@ function AppContent() {
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/donations" element={<Donations />} />
+          <Route path="/chat/:donationId" element={<Chat />} />
+          <Route path="/support" element={<Support />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/profile/:userId" element={<UserProfile />} />
+          <Route path="/settings" element={<Settings />} />
         </Routes>
       </main>
       <Footer />
@@ -52,7 +64,11 @@ export default function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppContent />
+        <SocketProvider>
+          <SoundProvider>
+            <AppContent />
+          </SoundProvider>
+        </SocketProvider>
       </AuthProvider>
     </Router>
   );

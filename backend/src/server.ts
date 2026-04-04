@@ -9,10 +9,17 @@ import { i18nMiddleware } from './middleware/i18n';
 import { generateToken } from './middleware/auth';
 import { serviceAccount } from './firebase-admin';
 import { SERVER_ID, startServerRegistry, getHealthyServers } from './services/serverRegistry';
+import { initSocket } from './config/socket';
 import authRoutes from './routes/auth';
 import donationRoutes from './routes/donations';
 import userRoutes from './routes/users';
 import mapsRoutes from './routes/maps';
+import chatRoutes from './routes/chat';
+import supportRoutes from './routes/support';
+import reviewsRoutes from './routes/reviews';
+import adminRoutes from './routes/admin';
+
+import http from 'http';
 
 let firebaseInitialized = false;
 
@@ -102,6 +109,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/donations', donationRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/maps', mapsRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/support', supportRoutes);
+app.use('/api/reviews', reviewsRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (_req, res) => {
   const healthyServers = getHealthyServers();
@@ -141,7 +152,10 @@ initDb().then(async () => {
   await warmupDatabase();
   await startServerRegistry();
   
-  app.listen(PORT, () => {
+  const httpServer = http.createServer(app);
+  initSocket(httpServer);
+  
+  httpServer.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Server ID: ${SERVER_ID}`);
   });

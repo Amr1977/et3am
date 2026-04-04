@@ -129,5 +129,75 @@
     "filter": "تصفية",
     "sort": "ترتيب",
     "actions": "الإجراءات"
+  },
+  "chat": {
+    "title": "المحادثة",
+    "subtitle": "محادثة",
+    "no_messages": "لا توجد رسائل بعد. ابدأ المحادثة!",
+    "placeholder": "اكتب رسالة...",
+    "send": "إرسال"
+  },
+  "support": {
+    "title": "الدعم",
+    "subtitle": "نحن هنا لمساعدتك",
+    "create": "تذكرة جديدة",
+    "cancel": "إلغاء",
+    "create_ticket": "إنشاء تذكرة دعم",
+    "type": "النوع",
+    "title_label": "العنوان",
+    "title_placeholder": "وصف موجز للمشكلة",
+    "description": "الوصف",
+    "description_placeholder": "قدم تفاصيل حول مشكلتك...",
+    "submit": "إرسال التذكرة",
+    "ticket_created": "تم إنشاء التذكرة بنجاح!",
+    "no_tickets": "لا توجد تذاكر بعد",
+    "no_tickets_desc": "أنشئ تذكرة دعم إذا كنت تحتاج مساعدة",
+    "types": {
+      "bug": "تبليغ عن خطأ",
+      "feature": "اقتراح ميزة",
+      "support": "دعام عام"
+    },
+    "statuses": {
+      "open": "مفتوح",
+      "in_progress": "قيد المعالجة",
+      "resolved": "تم الحل",
+      "closed": "مغلق"
+    },
+    "priorities": {
+      "low": "منخفضة",
+      "medium": "متوسطة",
+      "high": "عالية"
+    }
+  },
+  "admin": {
+    "tabs": {
+      "dashboard": "لوحة التحكم",
+      "users": "المستخدمون",
+      "donations": "التبرعات",
+      "tickets": "التذاكر"
+    }
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "reviews": "تقييمات",
+    "reviews_title": "التقييمات",
+    "no_reviews": "لا توجد تقييمات بعد",
+    "from_donor": "من المتبرع",
+    "from_receiver": "من المستلم",
+    "meals_received": "وجبات مستلمة",
+    "reputation": "السمعة"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "subtitle": "تخصيص تجربتك",
+    "profile_info": "معلومات الملف",
+    "notifications": "الإشعارات",
+    "sound_effects": "المؤثرات الصوتية",
+    "sound_effects_desc": "تشغيل أصوات عند أحداث جديدة",
+    "notifications_enabled": "الإشعارات",
+    "notifications_desc": "تلقي إشعارات حول الأنشطة",
+    "language": "اللغة",
+    "saved": "تم الحفظ بنجاح!",
+    "save": "حفظ"
   }
 }

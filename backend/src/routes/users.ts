@@ -7,20 +7,33 @@ const router = Router();
 
 router.get('/public-stats', async (_req, res: Response) => {
   try {
-    const [totalDonations, completedDonations, totalUsers, donorsCount, recipientsCount] = await Promise.all([
-      dbOps.donations.totalCount(),
-      dbOps.donations.countByStatus('completed'),
-      dbOps.userCount(),
-      pool.query("SELECT COUNT(*) as count FROM users WHERE can_donate = true"),
-      pool.query("SELECT COUNT(*) as count FROM users WHERE can_receive = true"),
-    ]);
+    const totalDonations = await dbOps.donations.totalCount();
+    const completedDonations = await dbOps.donations.countByStatus('completed');
+    const totalUsers = await dbOps.userCount();
+
+    let donorsCount = 0;
+    let recipientsCount = 0;
+
+    try {
+      const donorsResult = await pool.query("SELECT COUNT(*) as count FROM users WHERE can_donate = true");
+      donorsCount = parseInt(donorsResult.rows[0]?.count || '0');
+    } catch (e) {
+      console.warn('donors count query failed:', e);
+    }
+
+    try {
+      const recipientsResult = await pool.query("SELECT COUNT(*) as count FROM users WHERE can_receive = true");
+      recipientsCount = parseInt(recipientsResult.rows[0]?.count || '0');
+    } catch (e) {
+      console.warn('recipients count query failed:', e);
+    }
 
     res.json({
       totalDonations,
       completedDonations,
       totalUsers,
-      totalDonors: parseInt(donorsCount.rows[0].count),
-      totalReceivers: parseInt(recipientsCount.rows[0].count),
+      totalDonors: donorsCount,
+      totalReceivers: recipientsCount,
     });
   } catch (err) {
     console.error('Public stats error:', err);
@@ -137,6 +150,60 @@ router.get('/stats', authenticate, async (req: AuthRequest, res: Response) => {
     });
   } catch (err) {
     console.error('Stats error:', err);
+    res.status(500).json({ messageKey: 'general.server_error' });
+  }
+});
+
+router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const user = await dbOps.users.findById(req.userId!);
+    if (!user) {
+      res.status(404).json({ messageKey: 'user.not_found' });
+      return;
+    }
+
+    res.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        can_donate: user.can_donate,
+        can_receive: user.can_receive,
+        reputation_score: user.reputation_score,
+        total_donations: user.total_donations,
+        total_received: user.total_received,
+        sound_enabled: user.sound_enabled,
+        notifications_enabled: user.notifications_enabled,
+        avatar_url: user.avatar_url,
+        preferred_language: user.preferred_language,
+      }
+    });
+  } catch (err) {
+    console.error('Get me error:', err);
+    res.status(500).json({ messageKey: 'general.server_error' });
+  }
+});
+
+router.put('/me', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const { name, sound_enabled, notifications_enabled, preferred_language } = req.body;
+    
+    const updates: any = {};
+    if (name) updates.name = name;
+    if (sound_enabled !== undefined) updates.sound_enabled = sound_enabled;
+    if (notifications_enabled !== undefined) updates.notifications_enabled = notifications_enabled;
+    if (preferred_language) updates.preferred_language = preferred_language;
+
+    const updated = await dbOps.users.update(req.userId!, updates);
+    if (!updated) {
+      res.status(404).json({ messageKey: 'user.not_found' });
+      return;
+    }
+
+    res.json({ messageKey: 'user.updated', user: updated });
+  } catch (err) {
+    console.error('Update me error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });

@@ -133,5 +133,75 @@
     "filter": "Filter",
     "sort": "Sort",
     "actions": "Actions"
+  },
+  "chat": {
+    "title": "Chat",
+    "subtitle": "Conversation",
+    "no_messages": "No messages yet. Start the conversation!",
+    "placeholder": "Type a message...",
+    "send": "Send"
+  },
+  "support": {
+    "title": "Support",
+    "subtitle": "We're here to help",
+    "create": "New Ticket",
+    "cancel": "Cancel",
+    "create_ticket": "Create Support Ticket",
+    "type": "Type",
+    "title_label": "Title",
+    "title_placeholder": "Brief description of your issue",
+    "description": "Description",
+    "description_placeholder": "Provide details about your issue...",
+    "submit": "Submit Ticket",
+    "ticket_created": "Ticket created successfully!",
+    "no_tickets": "No tickets yet",
+    "no_tickets_desc": "Create a support ticket if you need help",
+    "types": {
+      "bug": "Bug Report",
+      "feature": "Feature Request",
+      "support": "General Support"
+    },
+    "statuses": {
+      "open": "Open",
+      "in_progress": "In Progress",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    },
+    "priorities": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    }
+  },
+  "admin": {
+    "tabs": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "donations": "Donations",
+      "tickets": "Tickets"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "reviews": "reviews",
+    "reviews_title": "Reviews",
+    "no_reviews": "No reviews yet",
+    "from_donor": "From Donor",
+    "from_receiver": "From Receiver",
+    "meals_received": "Meals Received",
+    "reputation": "Reputation"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Customize your experience",
+    "profile_info": "Profile Info",
+    "notifications": "Notifications",
+    "sound_effects": "Sound Effects",
+    "sound_effects_desc": "Play sounds for new events",
+    "notifications_enabled": "Notifications",
+    "notifications_desc": "Receive notifications about activity",
+    "language": "Language",
+    "saved": "Saved successfully!",
+    "save": "Save"
   }
 }

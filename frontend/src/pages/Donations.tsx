@@ -56,7 +56,7 @@ export default function Donations() {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(searchParams.get('create') === 'true');
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState('available');
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('map');
   const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
   const [formData, setFormData] = useState({
@@ -77,7 +77,20 @@ export default function Donations() {
     try {
       console.log('Fetching donations, filter:', filter);
       const params = new URLSearchParams();
-      if (filter !== 'all') params.set('status', filter);
+      
+      // Use filter parameter - 'available', 'reserved', 'completed'
+      // For unauthenticated users, only 'available' works
+      if (isAuthenticated) {
+        if (filter === 'all') {
+          // Show all statuses user has access to
+        } else {
+          params.set('filter', filter);
+        }
+      } else {
+        // Unauthenticated - only show available
+        params.set('filter', 'available');
+      }
+      
       const res = await fetchWithFailover(`/api/donations?${params}`);
       console.log('Response status:', res.status);
       if (res.ok) {
@@ -92,7 +105,7 @@ export default function Donations() {
     } finally {
       setLoading(false);
     }
-  }, [filter]);
+  }, [filter, isAuthenticated]);
 
   useEffect(() => {
     fetchDonations();
@@ -386,20 +399,27 @@ export default function Donations() {
       )}
 
       <div className="filter-tabs">
-        {['all', 'available', 'reserved', 'completed'].map((status) => (
+        {isAuthenticated ? (
+          <>
+            {['available', 'reserved', 'completed'].map((status) => (
+              <button
+                key={status}
+                onClick={() => setFilter(status)}
+                className={`filter-tab ${filter === status ? 'active' : ''}`}
+              >
+                {t(`donations.${status}`)}
+              </button>
+            ))}
+          </>
+        ) : (
           <button
-            key={status}
-            onClick={() => setFilter(status)}
-            className={`filter-tab ${filter === status ? 'active' : ''}`}
+            key="available"
+            onClick={() => setFilter('available')}
+            className={`filter-tab ${filter === 'available' ? 'active' : ''}`}
           >
-            {status === 'all' ? t('donations.filter_all') : t(`donations.${status}`)}
-            {status !== 'all' && (
-              <span className="filter-count">
-                {donations.filter(d => d.status === status).length}
-              </span>
-            )}
+            {t('donations.available')}
           </button>
-        ))}
+        )}
       </div>
 
       {viewMode === 'map' ? (

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
+import { useSound } from '../context/SoundContext';
 import { useRTL } from '../hooks/useRTL';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
   const { t } = useTranslation();
   const { user, logout, updateLanguage, isAuthenticated } = useAuth();
+  const { soundEnabled, setSoundEnabled } = useSound();
   const { isRTL } = useRTL();
   const navigate = useNavigate();
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -37,6 +39,10 @@ export default function Navbar() {
     updateLanguage(newLang);
   };
 
+  const toggleSound = () => {
+    setSoundEnabled(!soundEnabled);
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
@@ -49,7 +55,14 @@ export default function Navbar() {
           <Link to="/" className="nav-link">{t('nav.home')}</Link>
           <Link to="/donations" className="nav-link">{t('nav.donations')}</Link>
           {isAuthenticated && (
-            <Link to="/dashboard" className="nav-link">{t('nav.dashboard')}</Link>
+            <>
+              <Link to="/dashboard" className="nav-link">{t('nav.dashboard')}</Link>
+              <Link to="/support" className="nav-link">{t('support.title')}</Link>
+              <Link to="/settings" className="nav-link">⚙️</Link>
+              {user?.role === 'admin' && (
+                <Link to="/admin" className="nav-link">{t('admin.tabs.dashboard')}</Link>
+              )}
+            </>
           )}
         </div>
 
@@ -62,6 +75,16 @@ export default function Navbar() {
             <span className="lang-icon">🌐</span>
             <span>{isRTL ? 'EN' : 'ع'}</span>
           </button>
+
+          {isAuthenticated && (
+            <button 
+              onClick={toggleSound} 
+              className={`sound-toggle ${soundEnabled ? 'active' : ''}`}
+              title={soundEnabled ? 'Disable sounds' : 'Enable sounds'}
+            >
+              {soundEnabled ? '🔊' : '🔇'}
+            </button>
+          )}
 
           {isAuthenticated ? (
             <div className="user-menu">
