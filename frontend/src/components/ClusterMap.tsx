@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useMap, MapContainer, TileLayer } from 'react-leaflet';
 import L from 'leaflet';
+import { getServerUrl } from '../services/api';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -238,7 +239,14 @@ declare global {
 }
 
 export default function ClusterMap({ donations, userLocation, t, onReserve, isAuthenticated }: ClusterMapProps) {
+  const [tileUrl, setTileUrl] = useState<string>('');
   const geoDonations = donations.filter(d => d.latitude && d.longitude);
+
+  useEffect(() => {
+    getServerUrl().then(url => {
+      setTileUrl(`${url}/api/maps/tiles/{z}/{x}/{y}.png`);
+    });
+  }, []);
   console.log('ClusterMap: geoDonations:', geoDonations.length, 'total:', donations.length);
   
   const defaultCenter: [number, number] = userLocation 
@@ -256,7 +264,7 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url={`${import.meta.env.VITE_API_URL || ''}/api/maps/tiles/{z}/{x}/{y}.png`}
+          url={tileUrl}
         />
         <MapEvents 
           userLocation={userLocation} 

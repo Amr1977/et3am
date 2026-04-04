@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { getServerUrl } from '../services/api';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -42,7 +43,15 @@ function createColoredIcon(color: string) {
 }
 
 export default function DonationMap({ donations, t }: DonationMapProps) {
+  const [tileUrl, setTileUrl] = useState<string>('');
   const geoDonations = donations.filter(d => d.latitude && d.longitude);
+
+  useEffect(() => {
+    getServerUrl().then(url => {
+      setTileUrl(`${url}/api/maps/tiles/{z}/{x}/{y}.png`);
+    });
+  }, []);
+
   const center: [number, number] = geoDonations.length > 0
     ? [geoDonations[0].latitude!, geoDonations[0].longitude!]
     : [30.0444, 31.2357];
@@ -52,7 +61,7 @@ export default function DonationMap({ donations, t }: DonationMapProps) {
       <MapContainer center={center} zoom={12} style={{ height: '100%', width: '100%' }}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url={`${import.meta.env.VITE_API_URL || ''}/api/maps/tiles/{z}/{x}/{y}.png`}
+          url={tileUrl}
         />
         {geoDonations.map(d => (
           <Marker
