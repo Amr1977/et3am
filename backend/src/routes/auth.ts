@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { dbOps, User } from '../database';
 import { authenticate, generateToken, AuthRequest } from '../middleware/auth';
+import logger from '../config/logger';
 
 const router = Router();
 
@@ -17,6 +18,7 @@ router.post('/register', async (req: AuthRequest, res: Response) => {
 
     const existing = await dbOps.users.findByEmail(email);
     if (existing) {
+      (logger as any).auth('Registration failed - email exists', { email });
       res.status(409).json({ messageKey: 'auth.email_exists' });
       return;
     }
@@ -26,6 +28,8 @@ router.post('/register', async (req: AuthRequest, res: Response) => {
     const lang = ['en', 'ar'].includes(preferred_language) ? preferred_language : (req as any).lang || 'en';
     
     const userRole = ['donor', 'recipient', 'admin'].includes(role) ? role : 'donor';
+
+    (logger as any).auth('New user registration', { userId: id, email, role: userRole });
 
     const user = await dbOps.users.create({
       id,

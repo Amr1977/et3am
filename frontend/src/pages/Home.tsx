@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { fetchWithFailover } from '../services/api';
+import { fetchWithFailover, getServerUrl } from '../services/api';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
@@ -105,6 +105,13 @@ export default function Home() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [tileUrl, setTileUrl] = useState<string>('');
+
+  useEffect(() => {
+    getServerUrl().then(url => {
+      setTileUrl(`${url}/api/maps/tiles/{z}/{x}/{y}.png`);
+    });
+  }, []);
 
   useEffect(() => {
     fetchWithFailover('/api/users/public-stats')
@@ -163,12 +170,12 @@ export default function Home() {
             <MapContainer 
               center={[30.0444, 31.2357]} 
               zoom={11} 
-              style={{ height: '100%', width: '100%' }}
+              style={{ height: '100%', width: '100%', minHeight: '300px' }}
               zoomControl={false}
               attributionControl={false}
             >
               <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                url={tileUrl || "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
               />
               <MarkerClusterGroup
                 chunkedLoading

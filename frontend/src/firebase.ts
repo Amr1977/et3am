@@ -4,7 +4,7 @@ import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyD6L3_dHbWGYi6S_OOAitj69PLvdx2jjsI",
-  authDomain: "et3am.com",
+  authDomain: "et3am26.firebaseapp.com",
   projectId: "et3am26",
   storageBucket: "et3am26.firebasestorage.app",
   messagingSenderId: "119582207501",

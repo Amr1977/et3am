@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { dbOps } from '../database';
 import { authenticate, optionalAuth, AuthRequest } from '../middleware/auth';
 import { emitDonationEvent, emitToUser } from '../config/socket';
+import logger from '../config/logger';
 
 function generateHashCode(): string {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -269,9 +270,10 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
       hash_code: null,
     });
 
+    (logger as any).donation('New donation created', { donationId: donation.id, donorId: req.userId, title, food_type, quantity });
     res.status(201).json({ messageKey: 'donation.created', donation });
   } catch (err: any) {
-    console.error('Create donation error:', err);
+    logger.error('Create donation error:', err);
     res.status(500).json({ messageKey: 'general.server_error', error: err.message });
   }
 });

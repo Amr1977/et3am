@@ -11,6 +11,7 @@
     "test:run": "vitest run"
   },
   "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^5.1.0",
     "chart.js": "^4.4.1",
     "firebase": "^10.8.0",
     "i18next": "^23.7.16",

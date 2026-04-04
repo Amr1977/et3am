@@ -10,6 +10,7 @@ import { generateToken } from './middleware/auth';
 import { serviceAccount } from './firebase-admin';
 import { SERVER_ID, startServerRegistry, getHealthyServers } from './services/serverRegistry';
 import { initSocket } from './config/socket';
+import logger from './config/logger';
 import authRoutes from './routes/auth';
 import donationRoutes from './routes/donations';
 import userRoutes from './routes/users';
@@ -39,6 +40,29 @@ if (serviceAccount?.privateKey) {
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Request logging middleware
+app.use((req, res, next) => {
+  const start = Date.now();
+  (logger as any).api(`REQUEST: ${req.method} ${req.originalUrl}`, {
+    method: req.method,
+    url: req.originalUrl,
+    ip: req.ip,
+    userAgent: req.get('User-Agent'),
+  });
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    const level = res.statusCode >= 400 ? 'warn' : 'http';
+    (logger as any).api(`RESPONSE: ${req.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`, {
+      method: req.method,
+      url: req.originalUrl,
+      statusCode: res.statusCode,
+      duration: `${duration}ms`,
+      ip: req.ip,
+    });
+  });
+  next();
+});
 
 app.use(cors());
 app.use(express.json());
@@ -156,11 +180,12 @@ initDb().then(async () => {
   initSocket(httpServer);
   
   httpServer.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Server ID: ${SERVER_ID}`);
+    logger.info(`Server running on port ${PORT}`);
+    logger.info(`Server ID: ${SERVER_ID}`);
+    logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
   });
 }).catch(err => {
-  console.error('Failed to initialize database:', err);
+  logger.error('Failed to initialize database:', err);
   process.exit(1);
 });
 
