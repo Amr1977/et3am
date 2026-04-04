@@ -153,26 +153,28 @@ while true; do
             log "Frontend commit changed: $LAST_COMMIT -> $CURRENT_COMMIT, deploying..."
             exec_cmd npm install --no-progress
             exec_cmd npm run build
-            if [ -n "$FIREBASE_TOKEN" ]; then
-                exec_cmd npx firebase deploy --only hosting --project et3am26 --token "$FIREBASE_TOKEN"
-                exec_cmd node -e "
-                    const { initializeApp } = require('firebase/app');
-                    const { getFirestore, doc, setDoc } = require('firebase/firestore');
-                    const config = {
-                      apiKey: 'AIzaSyD6L3_dHbWGYi6S_OOAitj69PLvdx2jjsI',
-                      authDomain: 'et3am26.firebaseapp.com',
-                      projectId: 'et3am26',
-                      storageBucket: 'et3am26.firebasestorage.app',
-                      messagingSenderId: '119582207501',
-                      appId: '1:119582207501:web:38dc0c5e6af37acd092f44',
-                    };
-                    const app = initializeApp(config);
-                    const db = getFirestore(app);
-                    setDoc(doc(db, 'deployments', 'frontend'), { commit: '$CURRENT_COMMIT', deployedAt: Date.now() }, { merge: true }).catch(() => {});
-                "
-            else
-                log "FIREBASE_TOKEN not set - skipping frontend deploy"
-            fi
+            log "Firebase deploy disabled - skipping frontend deployment"
+            # Firebase deploy disabled - uncomment to enable
+            # if [ -n "$FIREBASE_TOKEN" ]; then
+            #     exec_cmd npx firebase deploy --only hosting --project et3am26 --token "$FIREBASE_TOKEN"
+            #     exec_cmd node -e "
+            #         const { initializeApp } = require('firebase/app');
+            #         const { getFirestore, doc, setDoc } = require('firebase/firestore');
+            #         const config = {
+            #           apiKey: 'AIzaSyD6L3_dHbWGYi6S_OOAitj69PLvdx2jjsI',
+            #           authDomain: 'et3am26.firebaseapp.com',
+            #           projectId: 'et3am26',
+            #           storageBucket: 'et3am26.firebasestorage.app',
+            #           messagingSenderId: '119582207501',
+            #           appId: '1:119582207501:web:38dc0c5e6af37acd092f44',
+            #         };
+            #         const app = initializeApp(config);
+            #         const db = getFirestore(app);
+            #         setDoc(doc(db, 'deployments', 'frontend'), { commit: '$CURRENT_COMMIT', deployedAt: Date.now() }, { merge: true }).catch(() => {});
+            #     "
+            # else
+            #     log "FIREBASE_TOKEN not set - skipping frontend deploy"
+            # fi
         fi
 
         log "Deployment complete!"
