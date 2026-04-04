@@ -2,7 +2,7 @@ import rateLimit from 'express-rate-limit';
 
 export const authLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 10,
+  max: 30,
   message: { messageKey: 'auth.too_many_attempts' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -11,7 +11,7 @@ export const authLimiter = rateLimit({
 
 export const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 100,
+  max: 200,
   message: { messageKey: 'general.rate_limit_exceeded' },
   standardHeaders: true,
   legacyHeaders: false,
