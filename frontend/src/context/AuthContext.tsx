@@ -96,6 +96,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    });
+    provider.addScope('profile');
+    provider.addScope('email');
     const result = await signInWithPopup(auth, provider);
     const idToken = await result.user.getIdToken();
     
