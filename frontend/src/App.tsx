@@ -18,6 +18,7 @@ import Support from './pages/Support';
 import Admin from './pages/Admin';
 import UserProfile from './pages/UserProfile';
 import Settings from './pages/Settings';
+import MealDetails from './pages/MealDetails';
 
 function OAuthCallbackHandler() {
   const [searchParams] = useSearchParams();
@@ -47,6 +48,7 @@ function AppContent() {
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/donations" element={<Donations />} />
+          <Route path="/donations/:id" element={<MealDetails />} />
           <Route path="/chat/:donationId" element={<Chat />} />
           <Route path="/support" element={<Support />} />
           <Route path="/admin" element={<Admin />} />

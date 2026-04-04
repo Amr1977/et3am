@@ -129,6 +129,38 @@
     "english": "English",
     "arabic": "العربية"
   },
+  "navigation": {
+    "directions": "الاتجاهات",
+    "your_location": "موقعك",
+    "pickup_location": "مكان الاستلام",
+    "use_map_directions": "استخدم الخريطة للحصول علىDirections to the pickup location",
+    "no_coordinates": "لا توجد إحداثيات للخريطة لهذا التبرع"
+  },
+  "donations": {
+    "title": "التبرعات الغذائية",
+    "create_title": "إضافة تبرع",
+    "food_type": "نوع الطعام",
+    "quantity": "الكمية",
+    "unit": "الوحدة",
+    "description": "الوصف",
+    "pickup_address": "عنوان الاستلام",
+    "pickup_date": "تاريخ الاستلام",
+    "expiry_date": "تاريخ الانتهاء",
+    "status": "الحالة",
+    "available": "متاح",
+    "reserved": "محجوز",
+    "completed": "مكتمل",
+    "donated_by": "تبرع به",
+    "reserved_by": "حجز بواسطة",
+    "reserve": "حجز",
+    "cancel_reservation": "إلغاء",
+    "complete": "تأكيد الاستلام",
+    "hash_code": "رمز الاستلام",
+    "hash_hint": "مشارك هذا الرمز عند اللقاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "view_on_map": "عرض على الخريطة"
+  },
   "common": {
     "loading": "جاري التحميل...",
     "error": "حدث خطأ",

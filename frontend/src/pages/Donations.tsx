@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import LocationPicker from '../components/LocationPicker';
 import ClusterMap from '../components/ClusterMap';
 import { fetchWithFailover } from '../services/api';
@@ -111,6 +111,8 @@ export default function Donations() {
     fetchDonations();
   }, [fetchDonations]);
 
+  const navigate = useNavigate();
+  
   const handleReserve = async (id: string) => {
     try {
       const res = await fetchWithFailover(`/api/donations/${id}/reserve`, {
@@ -118,9 +120,8 @@ export default function Donations() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
-        // After reserving, switch to 'reserved' filter to see the reservation
-        setFilter('reserved');
-        fetchDonations();
+        // Navigate to meal details page to show map and directions
+        navigate(`/donations/${id}`);
       }
     } catch (err) {
       console.error('Failed to reserve donation');

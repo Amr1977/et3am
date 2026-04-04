@@ -1,0 +1,148 @@
+.meal-details-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.meal-details-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.meal-details-header h1 {
+  flex: 1;
+  margin: 0;
+}
+
+.meal-details-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .meal-details-content {
+    grid-template-columns: 400px 1fr;
+  }
+}
+
+.meal-info-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+}
+
+.info-row {
+  margin-bottom: 1rem;
+}
+
+.info-row .label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.info-row .value {
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.hash-section {
+  background: var(--primary-light);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.hash-code {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.2em;
+  display: block;
+  margin: 0.5rem 0;
+}
+
+.hash-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.map-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+}
+
+.map-section h3 {
+  margin: 0 0 1rem 0;
+}
+
+.navigation-info {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+.navigation-info .info-text {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.95rem;
+}
+
+.navigation-info .hint-text {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.no-map-message {
+  padding: 2rem;
+  text-align: center;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+.no-map-message p {
+  margin: 0.5rem 0;
+}
+
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: 1rem;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-badge.status-available {
+  background: var(--success-light);
+  color: var(--success);
+}
+
+.status-badge.status-reserved {
+  background: var(--warning-light);
+  color: var(--warning);
+}
+
+.status-badge.status-completed {
+  background: var(--primary-light);
+  color: var(--primary);
+}

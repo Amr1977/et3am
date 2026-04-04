@@ -133,6 +133,38 @@
     "english": "English",
     "arabic": "العربية"
   },
+  "navigation": {
+    "directions": "Directions",
+    "your_location": "Your Location",
+    "pickup_location": "Pickup Location",
+    "use_map_directions": "Use the map to get directions to the pickup location",
+    "no_coordinates": "No map coordinates available for this donation"
+  },
+  "donations": {
+    "title": "Food Donations",
+    "create_title": "Add Donation",
+    "food_type": "Food Type",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "description": "Description",
+    "pickup_address": "Pickup Address",
+    "pickup_date": "Pickup Date",
+    "expiry_date": "Expiry Date",
+    "status": "Status",
+    "available": "Available",
+    "reserved": "Reserved",
+    "completed": "Completed",
+    "donated_by": "Donated by",
+    "reserved_by": "Reserved by",
+    "reserve": "Reserve",
+    "cancel_reservation": "Cancel",
+    "complete": "Confirm Pickup",
+    "hash_code": "Pickup Code",
+    "hash_hint": "Share this code when you meet",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view_on_map": "View on Map"
+  },
   "common": {
     "loading": "Loading...",
     "error": "An error occurred",
