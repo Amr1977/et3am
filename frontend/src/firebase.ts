@@ -1,9 +1,10 @@
 import { initializeApp } from 'firebase/app';
+import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyD6L3_dHbWGYi6S_OOAitj69PLvdx2jjsI",
-  authDomain: "et3am26.firebaseapp.com",
+  authDomain: "et3am.com",
   projectId: "et3am26",
   storageBucket: "et3am26.firebasestorage.app",
   messagingSenderId: "119582207501",
@@ -12,7 +13,12 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const db = getFirestore(app);
+
+if (import.meta.env.DEV) {
+  connectAuthEmulator(auth, 'http://localhost:9099');
+}
 
 const DEPLOYMENTS_COLLECTION = 'deployments';
 const FRONTEND_DOC_ID = 'frontend';
@@ -42,5 +48,5 @@ export async function setFrontendDeployCommit(commit: string): Promise<void> {
   }
 }
 
-export { db };
+export { db, auth, firebaseConfig };
 export default firebaseConfig;

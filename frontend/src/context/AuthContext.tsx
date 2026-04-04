@@ -1,12 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { initializeAuth, getAuth, signInWithPopup, GoogleAuthProvider, signOut as firebaseSignOut } from 'firebase/auth';
-import { initializeApp } from 'firebase/app';
-import firebaseConfig from '../firebase';
+import { signInWithPopup, GoogleAuthProvider, signOut as firebaseSignOut } from 'firebase/auth';
+import { auth, firebaseConfig } from '../firebase';
 import { fetchWithFailover, clearServerCache } from '../services/api';
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 
 interface User {
   id: string;
