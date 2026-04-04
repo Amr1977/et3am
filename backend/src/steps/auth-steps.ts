@@ -4,7 +4,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'et3am-secret-key-2024';
+const JWT_SECRET = process.env.JWT_SECRET || 'test_jwt_secret_for_integration_tests';
 
 declare global {
   namespace NodeJS {

@@ -1,9 +1,12 @@
 import { Server as SocketIOServer } from 'socket.io';
 import { Server as HTTPServer } from 'http';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { dbOps } from '../database';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'et3am-secret-key-2024';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
 
 let io: SocketIOServer | null = null;
 
@@ -24,7 +27,7 @@ export function initSocket(httpServer: HTTPServer): SocketIOServer {
         return next(new Error('Authentication required'));
       }
 
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; role: string };
+      const decoded = jwt.verify(token, JWT_SECRET!) as JwtPayload & { userId: string; role: string };
       const user = await dbOps.users.findById(decoded.userId);
       
       if (!user) {

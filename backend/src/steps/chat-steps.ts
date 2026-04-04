@@ -2,7 +2,7 @@ import { Given, When, Then, Before } from '@cucumber/cucumber';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'et3am-secret-key-2024';
+const JWT_SECRET = process.env.JWT_SECRET || 'test_jwt_secret_for_integration_tests';
 
 const mockChatDonation = {
   id: 'chat-donation-1',

@@ -2,7 +2,7 @@ import request from 'supertest';
 import express from 'express';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'et3am-secret-key-2024';
+const JWT_SECRET = process.env.JWT_SECRET || 'test_jwt_secret_for_integration_tests';
 
 const mockStats = {
   users: { total: 100, newLast30Days: 10, admins: 2, donors: 50, receivers: 40 },
