@@ -74,6 +74,8 @@ export default function Navbar() {
           {isAuthenticated && (
             <>
               <Link to="/dashboard" className="nav-link" onClick={closeMobileMenu}>{t('nav.dashboard')}</Link>
+              <Link to="/my-donations" className="nav-link" onClick={closeMobileMenu}>{t('my_donations.title')}</Link>
+              <Link to="/my-reservations" className="nav-link" onClick={closeMobileMenu}>{t('my_reservations.title')}</Link>
               <Link to="/support" className="nav-link" onClick={closeMobileMenu}>{t('support.title')}</Link>
               <Link to="/settings" className="nav-link" onClick={closeMobileMenu}>⚙️ {t('nav.settings')}</Link>
               {user?.role === 'admin' && (

@@ -24,21 +24,24 @@ interface DonationCardProps {
   onCancelReservation?: (id: string) => void;
   onComplete?: (id: string) => void;
   onDelete?: (id: string) => void;
+  onMarkReceived?: (id: string) => void;
+  onClick?: () => void;
   isOwner?: boolean;
   isReserver?: boolean;
   t: (key: string) => string;
 }
 
-export default function DonationCard({ donation, onReserve, onCancelReservation, onComplete, onDelete, isOwner, isReserver, t }: DonationCardProps) {
+export default function DonationCard({ donation, onReserve, onCancelReservation, onComplete, onDelete, onMarkReceived, onClick, isOwner, isReserver, t }: DonationCardProps) {
   const statusColors: Record<string, string> = {
     available: '#22c55e',
     reserved: '#f59e0b',
+    received: '#8b5cf6',
     completed: '#3b82f6',
     expired: '#ef4444',
   };
 
   return (
-    <div className="donation-card">
+    <div className="donation-card" onClick={onClick} style={onClick ? { cursor: 'pointer' } : undefined}>
       <div className="donation-card-header">
         <h3 className="donation-title">{donation.title}</h3>
         <span className="donation-status" style={{ backgroundColor: statusColors[donation.status] || '#6b7280' }}>
@@ -102,6 +105,11 @@ export default function DonationCard({ donation, onReserve, onCancelReservation,
         {donation.status === 'reserved' && onCancelReservation && (isReserver || isOwner) && (
           <button onClick={() => onCancelReservation(donation.id)} className="btn btn-warning btn-sm">
             {t('donations.cancel_reservation')}
+          </button>
+        )}
+        {(donation.status === 'reserved' || donation.status === 'received') && isReserver && onMarkReceived && (
+          <button onClick={() => onMarkReceived(donation.id)} className="btn btn-success btn-sm">
+            {t('donations.mark_received')}
           </button>
         )}
         {donation.status === 'reserved' && isOwner && onComplete && (

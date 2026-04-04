@@ -96,6 +96,7 @@ export default function MealDetails() {
   const [userLng, setUserLng] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     const fetchDonation = async () => {
@@ -122,6 +123,50 @@ export default function MealDetails() {
   const handleLocation = (lat: number, lng: number) => {
     setUserLat(lat);
     setUserLng(lng);
+  };
+
+  const handleMarkReceived = async () => {
+    if (!token || !id) return;
+    setActionLoading(true);
+    try {
+      await fetchWithFailover(`/api/donations/${id}/mark-received`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const res = await fetchWithFailover(`/api/donations/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.donation) {
+        setDonation(data.donation);
+      }
+    } catch (err) {
+      console.error('Failed to mark received:', err);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleComplete = async () => {
+    if (!token || !id) return;
+    setActionLoading(true);
+    try {
+      await fetchWithFailover(`/api/donations/${id}/complete`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const res = await fetchWithFailover(`/api/donations/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.donation) {
+        setDonation(data.donation);
+      }
+    } catch (err) {
+      console.error('Failed to complete:', err);
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   if (loading) {
@@ -190,6 +235,27 @@ export default function MealDetails() {
               <span className="hash-code">{donation.hash_code}</span>
               <p className="hash-hint">{t('donations.hash_hint')}</p>
             </div>
+          )}
+          
+          {user?.id === donation.reserved_by && donation.status === 'reserved' && (
+            <button 
+              onClick={handleMarkReceived} 
+              disabled={actionLoading}
+              className="btn btn-success"
+            >
+              {actionLoading ? t('common.loading') : t('donations.mark_received')}
+            </button>
+          )}
+          
+          {(user?.id === donation.donor_id || user?.id === donation.reserved_by) && 
+           (donation.status === 'reserved' || donation.status === 'received') && (
+            <button 
+              onClick={handleComplete} 
+              disabled={actionLoading}
+              className="btn btn-primary"
+            >
+              {actionLoading ? t('common.loading') : t('donations.complete')}
+            </button>
           )}
         </div>
 

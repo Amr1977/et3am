@@ -123,10 +123,19 @@
     "total_donations": "Total Donations",
     "available": "Available",
     "reserved": "Reserved",
-    "completed": "Received",
+    "completed": "Completed",
+    "received": "Received",
     "my_donations": "My Donations",
     "my_reservations": "My Reservations",
     "recent_activity": "Recent Activity"
+  },
+  "my_donations": {
+    "title": "My Donations",
+    "empty": "You haven't created any donations yet"
+  },
+  "my_reservations": {
+    "title": "My Reservations",
+    "empty": "You haven't reserved any meals yet"
   },
   "language": {
     "switch": "Language",
@@ -159,6 +168,7 @@
     "reserve": "Reserve",
     "cancel_reservation": "Cancel",
     "complete": "Confirm Pickup",
+    "mark_received": "Mark as Received",
     "hash_code": "Pickup Code",
     "hash_hint": "Share this code when you meet",
     "delete": "Delete",

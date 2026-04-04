@@ -443,8 +443,52 @@ router.post('/:id/cancel-reservation', authenticate, async (req: AuthRequest, re
     }
 
     res.json({ messageKey: 'donation.reservation_cancelled', donation: updated });
-  } catch (err) {
-    console.error('Cancel reservation error:', err);
+  } catch (err: any) {
+    logger.error('Cancel reservation error:', err);
+    res.status(500).json({ messageKey: 'general.server_error' });
+  }
+});
+
+// Mark as received - Receiver confirms they have picked up the meal
+router.post('/:id/mark-received', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const donation = await dbOps.donations.findById(req.params.id);
+    if (!donation) {
+      res.status(404).json({ messageKey: 'donation.not_found' });
+      return;
+    }
+
+    if (donation.reserved_by !== req.userId) {
+      res.status(403).json({ messageKey: 'auth.unauthorized' });
+      return;
+    }
+
+    if (donation.status !== 'reserved') {
+      res.status(400).json({ messageKey: 'donation.not_reserved' });
+      return;
+    }
+
+    const updated = await dbOps.donations.update(req.params.id, { 
+      status: 'received'
+    });
+
+    (logger as any).donation('Meal marked as received', { 
+      donationId: req.params.id, 
+      receiverId: req.userId,
+      pickupCode: donation.hash_code 
+    });
+
+    // Notify donor
+    if (donation.donor_id) {
+      emitToUser(donation.donor_id, 'meal_received', {
+        donationId: req.params.id,
+        title: donation.title,
+      });
+    }
+
+    res.json({ messageKey: 'donation.received', donation: updated });
+  } catch (err: any) {
+    logger.error('Mark received error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });

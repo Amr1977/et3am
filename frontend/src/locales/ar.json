@@ -120,9 +120,18 @@
     "available": "متاح",
     "reserved": "محجوز",
     "completed": "مستلم",
+    "received": "مستلم",
     "my_donations": "تبرعاتي",
     "my_reservations": "حجوزاتي",
     "recent_activity": "النشاط الأخير"
+  },
+  "my_donations": {
+    "title": "تبرعاتي",
+    "empty": "لم تقم بإنشاء أي تبرعات بعد"
+  },
+  "my_reservations": {
+    "title": "حجوزاتي",
+    "empty": "لم تقم بحجز أي وجبات بعد"
   },
   "language": {
     "switch": "اللغة",
@@ -155,6 +164,7 @@
     "reserve": "حجز",
     "cancel_reservation": "إلغاء",
     "complete": "تأكيد الاستلام",
+    "mark_received": "تم الاستلام",
     "hash_code": "رمز الاستلام",
     "hash_hint": "مشارك هذا الرمز عند اللقاء",
     "delete": "حذف",
