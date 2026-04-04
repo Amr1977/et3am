@@ -95,35 +95,70 @@ function Deploy-Frontend {
 function Deploy-Backend {
     Write-Host "`n=== Deploying Backend to Server ===" -ForegroundColor Yellow
     
-    # Build backend
+    $commitHash = git rev-parse HEAD
+    Write-Host "Current commit: $commitHash" -ForegroundColor Cyan
+    
+    Write-Host "Checking if backend already deployed..."
+    $lastCommit = node -e "
+        const { initializeApp } = require('firebase/app');
+        const { getFirestore, doc, getDoc } = require('firebase/firestore');
+        const config = {
+          apiKey: 'AIzaSyD6L3_dHbWGYi6S_OOAitj69PLvdx2jjsI',
+          authDomain: 'et3am26.firebaseapp.com',
+          projectId: 'et3am26',
+          storageBucket: 'et3am26.firebasestorage.app',
+          messagingSenderId: '119582207501',
+          appId: '1:119582207501:web:38dc0c5e6af37acd092f44',
+        };
+        const app = initializeApp(config);
+        const db = getFirestore(app);
+        getDoc(doc(db, 'deployments', 'backend')).then(snap => {
+          if (snap.exists()) console.log(snap.data().commit || '');
+          else console.log('');
+        }).catch(() => console.log(''));
+    " 2>$null
+    
+    if ($lastCommit -eq $commitHash) {
+        Write-Host "Backend already deployed at commit: $commitHash" -ForegroundColor Green
+        
+        Write-Host "Triggering reload on server..."
+        ssh -o StrictHostKeyChecking=no $ServerHost "cd /home/ubuntu/et3am && git pull origin master && pm2 restart et3am-backend"
+        
+        Write-Host "Backend reloaded successfully!" -ForegroundColor Green
+        return
+    }
+    
     Write-Host "Building backend..."
     Push-Location $BackendDir
     npm run build
     Pop-Location
     
-    # Sync files to server
-    Write-Host "Syncing files to server..."
-    $backendFiles = @("src", "dist", "package.json", "package-lock.json", "tsconfig.json", "ecosystem.config.js", "vitest.config.ts")
-    
-    foreach ($file in $backendFiles) {
-        if (Test-Path "$BackendDir\$file") {
-            scp -r -o StrictHostKeyChecking=no "$BackendDir\$file" "$ServerHost`:$ServerBackendDir/"
-        }
-    }
-    
-    # Copy ecosystem config
-    if (Test-Path "et3am-ecosystem.config.js") {
-        Write-Host "Copying ecosystem config..."
-        scp -o StrictHostKeyChecking=no "et3am-ecosystem.config.js" "$ServerHost`:/home/ubuntu/et3am/"
-    }
-    
-    # Install dependencies and restart on server
-    Write-Host "Installing dependencies and restarting backend..."
+    Write-Host "Triggering git pull and restart on server..."
     ssh -o StrictHostKeyChecking=no $ServerHost @"
-        cd $ServerBackendDir
+        cd /home/ubuntu/et3am
+        git fetch origin master
+        git reset --hard origin/master
+        cd backend
         npm install --omit=dev
-        pm2 restart et3am-backend || pm2 start ecosystem.config.js
+        pm2 restart et3am-backend
 "@
+    
+    Write-Host "Updating deployment record..."
+    node -e "
+        const { initializeApp } = require('firebase/app');
+        const { getFirestore, doc, setDoc } = require('firebase/firestore');
+        const config = {
+          apiKey: 'AIzaSyD6L3_dHbWGYi6S_OOAitj69PLvdx2jjsI',
+          authDomain: 'et3am26.firebaseapp.com',
+          projectId: 'et3am26',
+          storageBucket: 'et3am26.firebasestorage.app',
+          messagingSenderId: '119582207501',
+          appId: '1:119582207501:web:38dc0c5e6af37acd092f44',
+        };
+        const app = initializeApp(config);
+        const db = getFirestore(app);
+        setDoc(doc(db, 'deployments', 'backend'), { commit: '$commitHash', deployedAt: Date.now() }, { merge: true }).catch(() => {});
+    "
     
     Write-Host "Backend deployed successfully!" -ForegroundColor Green
     Write-Host "Backend URL: $serverUrl" -ForegroundColor Green
