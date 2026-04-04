@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "dev": "node scripts/generate-git-info.cjs && vite",
+    "build": "node scripts/generate-git-info.cjs && tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
