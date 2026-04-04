@@ -73,7 +73,20 @@ router.post('/login', async (req: AuthRequest, res: Response) => {
     }
 
     const user = await dbOps.users.findByEmail(email);
-    if (!user || !user.password || !bcrypt.compareSync(password, user.password)) {
+    if (!user || !user.password) {
+      res.status(401).json({ messageKey: 'auth.invalid_credentials' });
+      return;
+    }
+    
+    const passwordValid = bcrypt.compareSync(password, user.password);
+    if (!passwordValid && user.password.startsWith('$2a$')) {
+      const newHash = user.password.replace('$2a$', '$2b$');
+      const newValid = bcrypt.compareSync(password, newHash);
+      if (!newValid) {
+        res.status(401).json({ messageKey: 'auth.invalid_credentials' });
+        return;
+      }
+    } else if (!passwordValid) {
       res.status(401).json({ messageKey: 'auth.invalid_credentials' });
       return;
     }
