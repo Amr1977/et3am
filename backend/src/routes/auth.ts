@@ -302,3 +302,10 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
 });
 
 export default router;
+
+router.post('/test-hash', async (req, res) => {
+  const { password } = req.body;
+  const hash = bcrypt.hashSync(password, 10);
+  const valid = bcrypt.compareSync(password, hash);
+  res.json({ password, hash, valid });
+});
