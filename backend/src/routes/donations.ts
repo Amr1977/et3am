@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { dbOps } from '../database';
 import { authenticate, AuthRequest } from '../middleware/auth';
+import { emitDonationEvent, emitToUser } from '../config/socket';
 
 function generateHashCode(): string {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -11,9 +12,66 @@ const router = Router();
 
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
-    const { status, food_type, page = '1', limit = '10' } = req.query;
+    const { status, food_type, page = '1', limit = '10', filter } = req.query;
+    
+    // Handle filter parameter: 'available', 'reserved', 'completed', 'all'
+    // For unauthenticated users, always show available
+    if (!req.userId) {
+      if (filter && filter !== 'available') {
+        res.status(401).json({ messageKey: 'auth.login_required' });
+        return;
+      }
+    }
+
+    let statusFilter = status as string;
+    
+    // Apply filter logic
+    if (filter === 'available' || (!req.userId && !status)) {
+      statusFilter = 'available';
+    } else if (filter === 'reserved' && req.userId) {
+      // Reserved donations where user is either donor or receiver
+      const myReserved = await dbOps.donations.findByReserved(req.userId!);
+      const myDonationsReserved = (await dbOps.donations.findByDonor(req.userId!)).filter(d => d.status === 'reserved');
+      
+      const donations = [...myReserved, ...myDonationsReserved];
+      const enriched = donations.map(d => ({
+        ...d,
+        donor_name: d.donor_id === req.userId ? 'You' : 'Anonymous',
+        pickup_address: d.donor_id === req.userId || d.reserved_by === req.userId ? d.pickup_address : null,
+        hash_code: d.reserved_by === req.userId || d.donor_id === req.userId ? d.hash_code : null,
+      }));
+      
+      res.json({
+        messageKey: 'donation.list_retrieved',
+        donations: enriched,
+        pagination: { page: 1, limit: donations.length, total: donations.length }
+      });
+      return;
+    } else if (filter === 'completed' && req.userId) {
+      const myCompleted = (await dbOps.donations.findByDonor(req.userId!)).filter(d => d.status === 'completed');
+      const myReceived = (await dbOps.donations.findByReserved(req.userId!)).filter(d => d.status === 'completed');
+      const donations = [...myCompleted, ...myReceived];
+      
+      const enriched = donations.map(d => ({
+        ...d,
+        donor_name: d.donor_id === req.userId ? 'You' : 'Anonymous',
+      }));
+      
+      res.json({
+        messageKey: 'donation.list_retrieved',
+        donations: enriched,
+        pagination: { page: 1, limit: donations.length, total: donations.length }
+      });
+      return;
+    } else if (statusFilter) {
+      // Keep the explicit status filter
+    } else {
+      // Default to available for public
+      statusFilter = 'available';
+    }
+
     const { donations, total } = await dbOps.donations.findAll(
-      { status: status as string, food_type: food_type as string },
+      { status: statusFilter, food_type: food_type as string },
       parseInt(page as string),
       parseInt(limit as string)
     );
@@ -246,6 +304,13 @@ router.put('/:id', authenticate, async (req: AuthRequest, res: Response) => {
 
 router.post('/:id/reserve', authenticate, async (req: AuthRequest, res: Response) => {
   try {
+    // Check daily limit
+    const actionCount = await dbOps.dailyReservations.checkTodayAction(req.userId!);
+    if (actionCount > 0) {
+      res.status(429).json({ messageKey: 'donation.daily_limit_reached' });
+      return;
+    }
+
     const donation = await dbOps.donations.findById(req.params.id);
     if (!donation) {
       res.status(404).json({ messageKey: 'donation.not_found' });
@@ -270,12 +335,31 @@ router.post('/:id/reserve', authenticate, async (req: AuthRequest, res: Response
 
     const hashCode = generateHashCode();
     
+    await dbOps.dailyReservations.create(req.userId!, req.params.id, 'reserve');
+    
     const updated = await dbOps.donations.update(req.params.id, {
       status: 'reserved',
       reserved_by: req.userId,
       hash_code: hashCode
     });
 
+    // Emit real-time events
+    const donor = await dbOps.users.findById(donation.donor_id);
+    emitDonationEvent('meal_reserved', {
+      donationId: req.params.id,
+      title: donation.title,
+      reserverId: req.userId,
+      reserverName: user?.name,
+    });
+    
+    if (donor) {
+      emitToUser(donation.donor_id, 'reservation_notification', {
+        donationId: req.params.id,
+        title: donation.title,
+        reserverName: user?.name,
+      });
+    }
+    
     res.json({ 
       messageKey: 'donation.reserved', 
       donation: { ...updated, hash_code: hashCode },
@@ -338,6 +422,18 @@ router.post('/:id/cancel-reservation', authenticate, async (req: AuthRequest, re
       hash_code: null
     });
 
+    emitDonationEvent('reservation_cancelled', {
+      donationId: req.params.id,
+      title: donation.title,
+    });
+
+    if (donation.reserved_by) {
+      emitToUser(donation.reserved_by, 'reservation_cancelled', {
+        donationId: req.params.id,
+        title: donation.title,
+      });
+    }
+
     res.json({ messageKey: 'donation.reservation_cancelled', donation: updated });
   } catch (err) {
     console.error('Cancel reservation error:', err);
@@ -367,6 +463,28 @@ router.post('/:id/complete', authenticate, async (req: AuthRequest, res: Respons
       status: 'completed',
       hash_code: null 
     });
+    
+    // Update user stats
+    const user = await dbOps.users.findById(req.userId!);
+    if (user) {
+      await dbOps.users.update(req.userId!, {
+        total_received: (user.total_received || 0) + 1,
+        reputation_score: (user.reputation_score || 0) + 10
+      });
+    }
+
+    emitDonationEvent('meal_delivered', {
+      donationId: req.params.id,
+      title: donation.title,
+    });
+
+    if (donation.reserved_by) {
+      emitToUser(donation.reserved_by, 'delivery_completed', {
+        donationId: req.params.id,
+        title: donation.title,
+      });
+    }
+    
     res.json({ messageKey: 'donation.completed', donation: updated });
   } catch (err) {
     console.error('Complete error:', err);

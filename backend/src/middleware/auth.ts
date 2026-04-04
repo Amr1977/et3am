@@ -34,6 +34,16 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
   }
 }
 
+export function requireRole(role: string) {
+  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+    if (!req.userId || req.userRole !== role) {
+      res.status(403).json({ message: 'Forbidden', messageKey: 'auth.admin_required' });
+      return;
+    }
+    next();
+  };
+}
+
 export function generateToken(userId: string, role: string): string {
   return jwt.sign({ userId, role }, JWT_SECRET, { expiresIn: '7d' });
 }

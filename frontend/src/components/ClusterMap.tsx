@@ -1,8 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import { getServerUrl } from '../services/api';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -98,6 +102,19 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
       ? [geoDonations[0].latitude!, geoDonations[0].longitude!]
       : [30.0444, 31.2357];
 
+  const createClusterIcon = (cluster: any) => {
+    const count = cluster.getChildCount();
+    let size = 'small';
+    if (count > 10) size = 'medium';
+    if (count > 50) size = 'large';
+    
+    return L.divIcon({
+      html: `<div class="cluster-marker cluster-${size}"><span>${count}</span></div>`,
+      className: 'marker-cluster-custom',
+      iconSize: L.point(40, 40),
+    });
+  };
+
   const handlePopup = (id: string) => {
     if (onReserve) {
       onReserve(id);
@@ -120,59 +137,69 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
             <Popup>{t('donations.your_location') || 'Your Location'}</Popup>
           </Marker>
         )}
-        {geoDonations.map(d => {
-          const color = statusColors[d.status] || '#6b7280';
-          const foodIcon = getFoodIcon(d.food_type);
-          const canReserve = d.status === 'available' && isAuthenticated;
+        <MarkerClusterGroup
+          chunkedLoading
+          spiderfyOnMaxZoom
+          showCoverageOnHover={false}
+          zoomToBoundsOnClick
+          maxClusterRadius={50}
+          disableClusteringAtZoom={16}
+          iconCreateFunction={createClusterIcon}
+        >
+          {geoDonations.map(d => {
+            const color = statusColors[d.status] || '#6b7280';
+            const foodIcon = getFoodIcon(d.food_type);
+            const canReserve = d.status === 'available' && isAuthenticated;
 
-          return (
-            <Marker
-              key={d.id}
-              position={[d.latitude!, d.longitude!]}
-              icon={createMarkerIcon(color, d.food_type)}
-            >
-              <Popup>
-                <div style={{ minWidth: '180px', padding: '8px' }}>
-                  <div style={{ fontSize: '24px', marginBottom: '8px' }}>{foodIcon}</div>
-                  <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '4px' }}>{d.title}</div>
-                  <div style={{ color: '#666', marginBottom: '8px' }}>{d.food_type} - {d.quantity} {d.unit}</div>
-                  <div style={{ color, fontWeight: 600, marginBottom: '8px' }}>{t(`donations.${d.status}`)}</div>
-                  <div style={{ fontSize: '12px', color: '#888', marginBottom: '8px' }}>📍 {d.pickup_address || 'No address'}</div>
-                  {canReserve && (
-                    <button
-                      onClick={() => handlePopup(d.id)}
+            return (
+              <Marker
+                key={d.id}
+                position={[d.latitude!, d.longitude!]}
+                icon={createMarkerIcon(color, d.food_type)}
+              >
+                <Popup>
+                  <div style={{ minWidth: '180px', padding: '8px' }}>
+                    <div style={{ fontSize: '24px', marginBottom: '8px' }}>{foodIcon}</div>
+                    <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '4px' }}>{d.title}</div>
+                    <div style={{ color: '#666', marginBottom: '8px' }}>{d.food_type} - {d.quantity} {d.unit}</div>
+                    <div style={{ color, fontWeight: 600, marginBottom: '8px' }}>{t(`donations.${d.status}`)}</div>
+                    <div style={{ fontSize: '12px', color: '#888', marginBottom: '8px' }}>📍 {d.pickup_address || 'No address'}</div>
+                    {canReserve && (
+                      <button
+                        onClick={() => handlePopup(d.id)}
+                        style={{
+                          background: '#22c55e',
+                          color: 'white',
+                          border: 'none',
+                          padding: '8px 16px',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          width: '100%',
+                          fontWeight: 600,
+                        }}
+                      >
+                        {t('donations.reserve')}
+                      </button>
+                    )}
+                    <a
+                      href={`/donations#${d.id}`}
                       style={{
-                        background: '#22c55e',
-                        color: 'white',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        width: '100%',
-                        fontWeight: 600,
+                        display: 'block',
+                        textAlign: 'center',
+                        marginTop: '8px',
+                        color: '#3b82f6',
+                        textDecoration: 'none',
+                        fontSize: '13px',
                       }}
                     >
-                      {t('donations.reserve')}
-                    </button>
-                  )}
-                  <a
-                    href={`/donations#${d.id}`}
-                    style={{
-                      display: 'block',
-                      textAlign: 'center',
-                      marginTop: '8px',
-                      color: '#3b82f6',
-                      textDecoration: 'none',
-                      fontSize: '13px',
-                    }}
-                  >
-                    {t('donations.view_card') || 'View Details'} →
-                  </a>
-                </div>
-              </Popup>
-            </Marker>
-          );
-        })}
+                      {t('donations.view_card') || 'View Details'} →
+                    </a>
+                  </div>
+                </Popup>
+              </Marker>
+            );
+          })}
+        </MarkerClusterGroup>
       </MapContainer>
     </div>
   );

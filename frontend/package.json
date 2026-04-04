@@ -11,18 +11,23 @@
     "test:run": "vitest run"
   },
   "dependencies": {
+    "chart.js": "^4.4.1",
     "firebase": "^10.8.0",
     "i18next": "^23.7.16",
     "i18next-browser-languagedetector": "^7.2.0",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "react": "^18.2.0",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0",
     "react-i18next": "^14.0.0",
     "react-leaflet": "^4.2.1",
-    "react-router-dom": "^6.21.1"
+    "react-leaflet-cluster": "^4.1.3",
+    "react-router-dom": "^6.21.1",
+    "socket.io-client": "^4.7.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@testing-library/jest-dom": "^6.1.6",
     "@testing-library/react": "^14.1.2",
     "@types/leaflet": "^1.9.8",
