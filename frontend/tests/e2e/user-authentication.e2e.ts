@@ -78,4 +78,55 @@ test.describe('User Authentication', () => {
     await page.goto('/login');
     await expect(page.locator('text=Sign in with Google')).toBeVisible();
   });
+
+  test('should display forgot password page', async ({ page }) => {
+    await page.goto('/forgot-password');
+    await expect(page.locator('text=Forgot Password')).toBeVisible();
+    await expect(page.locator('input[type="email"]')).toBeVisible();
+  });
+
+  test('should show error for invalid email on forgot password', async ({ page }) => {
+    await page.goto('/forgot-password');
+    await page.fill('input[type="email"]', 'invalid-email');
+    await page.click('button[type="submit"]');
+    await expect(page.locator('text=Invalid email address')).toBeVisible();
+  });
+
+  test('should display reset password page without token', async ({ page }) => {
+    await page.goto('/reset-password');
+    await expect(page.locator('text=Invalid Reset Link')).toBeVisible();
+  });
+
+  test('should display reset password page with invalid token', async ({ page }) => {
+    await page.goto('/reset-password?token=invalid-token');
+    await expect(page.locator('text=Invalid Reset Link')).toBeVisible();
+  });
+
+  test('should show password mismatch error on reset password', async ({ page }) => {
+    await page.goto('/reset-password?token=invalid-token');
+    await page.fill('input[id="password"]', 'password123');
+    await page.fill('input[id="confirmPassword"]', 'differentpassword');
+    await page.click('button[type="submit"]');
+    await expect(page.locator('text=Passwords do not match')).toBeVisible();
+  });
+
+  test('should show password too short error on reset password', async ({ page }) => {
+    await page.goto('/reset-password?token=invalid-token');
+    await page.fill('input[id="password"]', '123');
+    await page.fill('input[id="confirmPassword"]', '123');
+    await page.click('button[type="submit"]');
+    await expect(page.locator('text=Password must be at least 6 characters')).toBeVisible();
+  });
+
+  test('should navigate to login from forgot password', async ({ page }) => {
+    await page.goto('/forgot-password');
+    await page.click('text=Back to Login');
+    await expect(page).toHaveURL('/login');
+  });
+
+  test('should navigate to forgot password from login', async ({ page }) => {
+    await page.goto('/login');
+    await page.click('text=Forgot Password?');
+    await expect(page).toHaveURL('/forgot-password');
+  });
 });
