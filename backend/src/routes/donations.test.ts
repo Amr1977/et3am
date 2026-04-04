@@ -33,6 +33,8 @@ vi.mock('../database', () => ({
       findAll: vi.fn().mockResolvedValue({ donations: [mockDonation], total: 1 }),
       findById: vi.fn().mockImplementation((id: string) => {
         if (id === 'donation-1') return Promise.resolve(mockDonation);
+        if (id === 'reserved-donation-1') return Promise.resolve({ ...mockDonation, id: 'reserved-donation-1', status: 'reserved', reserved_by: 'user-2', hash_code: 'ABC123' });
+        if (id === 'my-donation-1') return Promise.resolve({ ...mockDonation, id: 'my-donation-1', donor_id: 'user-1' });
         return Promise.resolve(null);
       }),
       findByDonor: vi.fn().mockResolvedValue([mockDonation]),
@@ -40,25 +42,81 @@ vi.mock('../database', () => ({
       create: vi.fn().mockResolvedValue(mockDonation),
       update: vi.fn().mockResolvedValue({ ...mockDonation }),
       delete: vi.fn().mockResolvedValue(true),
+      countByStatus: vi.fn().mockResolvedValue(10),
+      totalCount: vi.fn().mockResolvedValue(100),
     },
     users: {
-      findById: vi.fn().mockResolvedValue({ id: 'user-1', preferred_language: 'en' }),
+      findById: vi.fn().mockImplementation((id: string) => {
+        if (id === 'user-1') return Promise.resolve({ id: 'user-1', can_donate: true, can_receive: true, name: 'Test User', preferred_language: 'en' });
+        if (id === 'user-2') return Promise.resolve({ id: 'user-2', can_donate: true, can_receive: true, name: 'Receiver User', preferred_language: 'en' });
+        return Promise.resolve(null);
+      }),
+    },
+    dailyReservations: {
+      checkTodayAction: vi.fn().mockImplementation((userId: string) => {
+        if (userId === 'user-at-limit') return Promise.resolve(1);
+        return Promise.resolve(0);
+      }),
+      create: vi.fn().mockResolvedValue(true),
     },
   },
+  pool: { query: vi.fn().mockResolvedValue({ rows: [] }) },
+}));
+
+vi.mock('../config/socket', () => ({
+  emitDonationEvent: vi.fn(),
+  emitToUser: vi.fn(),
 }));
 
 describe('Donations Routes', () => {
   const app = express();
   app.use(express.json());
-  
+  app.use((req: any, res: any, next: any) => {
+    const auth = req.headers.authorization;
+    if (auth) {
+      const token = auth.split(' ')[1];
+      try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        req.userId = decoded.userId;
+        req.userRole = decoded.role;
+      } catch (e) {}
+    }
+    next();
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('GET donations list', () => {
-    it('should return donations array', async () => {
+  describe('GET /api/donations', () => {
+    it('should return donations list', async () => {
       const res = await request(app).get('/api/donations');
       expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('donations');
+    });
+
+    it('should filter by status', async () => {
+      const res = await request(app).get('/api/donations?status=available');
+      expect(res.status).toBe(200);
+    });
+
+    it('should filter by food_type', async () => {
+      const res = await request(app).get('/api/donations?food_type=cooked');
+      expect(res.status).toBe(200);
+    });
+  });
+
+  describe('GET /api/donations/:id', () => {
+    it('should return donation by id', async () => {
+      const res = await request(app).get('/api/donations/donation-1');
+      expect(res.status).toBe(200);
+      expect(res.body.donation).toBeDefined();
+    });
+
+    it('should return 404 for non-existent donation', async () => {
+      const res = await request(app).get('/api/donations/non-existent');
+      expect(res.status).toBe(404);
+      expect(res.body.messageKey).toBe('donation.not_found');
     });
   });
 
@@ -68,6 +126,111 @@ describe('Donations Routes', () => {
         .post('/api/donations')
         .send({ title: 'Test', food_type: 'cooked', pickup_address: '123 St' });
       expect(res.status).toBe(401);
+    });
+
+    it('should return 400 for missing required fields', async () => {
+      const token = createToken('user-1');
+      const res = await request(app)
+        .post('/api/donations')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ title: 'Test' });
+      expect(res.status).toBe(400);
+      expect(res.body.messageKey).toBe('validation.required_field');
+    });
+
+    it('should create donation with valid data', async () => {
+      const token = createToken('user-1');
+      const res = await request(app)
+        .post('/api/donations')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          title: 'New Donation',
+          food_type: 'cooked',
+          pickup_address: '123 Test St',
+          quantity: 5,
+        });
+      expect(res.status).toBe(201);
+      expect(res.body.messageKey).toBe('donation.created');
+    });
+  });
+
+  describe('POST /api/donations/:id/reserve', () => {
+    it('should return 404 for non-existent donation', async () => {
+      const token = createToken('user-2');
+      const res = await request(app)
+        .post('/api/donations/non-existent/reserve')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(404);
+    });
+
+    it('should reject if already reserved', async () => {
+      const token = createToken('user-3');
+      const res = await request(app)
+        .post('/api/donations/reserved-donation-1/reserve')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(400);
+      expect(res.body.messageKey).toBe('donation.not_available');
+    });
+
+    it('should reject self-reservation', async () => {
+      const token = createToken('user-1');
+      const res = await request(app)
+        .post('/api/donations/donation-1/reserve')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(400);
+      expect(res.body.messageKey).toBe('donation.cannot_reserve_own');
+    });
+
+    it('should reject when daily limit reached', async () => {
+      const token = createToken('user-at-limit');
+      const res = await request(app)
+        .post('/api/donations/donation-1/reserve')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(429);
+      expect(res.body.messageKey).toBe('donation.daily_limit_reached');
+    });
+
+    it('should reserve available donation', async () => {
+      const token = createToken('user-2');
+      const res = await request(app)
+        .post('/api/donations/donation-1/reserve')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(200);
+      expect(res.body.messageKey).toBe('donation.reserved');
+      expect(res.body).toHaveProperty('hash_code');
+    });
+  });
+
+  describe('POST /api/donations/:id/complete', () => {
+    it('should complete donation', async () => {
+      const token = createToken('user-1');
+      const res = await request(app)
+        .post('/api/donations/my-donation-1/complete')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(200);
+      expect(res.body.messageKey).toBe('donation.completed');
+    });
+  });
+
+  describe('POST /api/donations/:id/cancel-reservation', () => {
+    it('should cancel reservation', async () => {
+      const token = createToken('user-2');
+      const res = await request(app)
+        .post('/api/donations/reserved-donation-1/cancel-reservation')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(200);
+      expect(res.body.messageKey).toBe('donation.reservation_cancelled');
+    });
+  });
+
+  describe('DELETE /api/donations/:id', () => {
+    it('should delete donation', async () => {
+      const token = createToken('user-1');
+      const res = await request(app)
+        .delete('/api/donations/my-donation-1')
+        .set('Authorization', `Bearer ${token}`);
+      expect(res.status).toBe(200);
+      expect(res.body.messageKey).toBe('donation.deleted');
     });
   });
 
@@ -87,6 +250,12 @@ describe('Donations Routes', () => {
       expect(() => {
         jwt.verify('invalid-token', JWT_SECRET);
       }).toThrow();
+    });
+
+    it('should generate admin token', () => {
+      const token = createToken('admin-1', 'admin');
+      const decoded = jwt.verify(token, JWT_SECRET);
+      expect(decoded).toHaveProperty('role', 'admin');
     });
   });
 });
