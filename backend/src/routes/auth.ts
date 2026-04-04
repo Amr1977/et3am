@@ -25,7 +25,7 @@ router.post('/register', async (req: AuthRequest, res: Response) => {
     const hashedPassword = bcrypt.hashSync(password, 10);
     const lang = ['en', 'ar'].includes(preferred_language) ? preferred_language : (req as any).lang || 'en';
     
-    const userRole = ['donor', 'recipient', 'admin'].includes(role) ? role : 'user';
+    const userRole = ['donor', 'recipient', 'admin'].includes(role) ? role : 'donor';
 
     const user = await dbOps.users.create({
       id,
