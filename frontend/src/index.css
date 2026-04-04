@@ -1406,7 +1406,6 @@ body {
 
 @media (max-width: 768px) {
   .hero-map {
-    aspect-ratio: auto;
     height: 300px;
     width: 100%;
   }
@@ -3706,11 +3705,14 @@ body {
   }
 
   .hero-visual {
-    display: block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100%;
   }
 
   .hero-map {
+    width: 100%;
     height: 280px;
     max-width: 100%;
   }
