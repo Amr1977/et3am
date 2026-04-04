@@ -6,21 +6,34 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ],
     "headers": [
       {
-        "source": "**/*.@(jpg|jpeg|png|gif|webp|svg|ico)",
+        "source": "**/*.png",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=31536000"
+          },
+          {
+            "key": "Content-Type",
+            "value": "image/png"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(jpg|jpeg|gif|webp|svg|ico)",
         "headers": [
           {
             "key": "Cache-Control",
             "value": "max-age=31536000"
           }
         ]
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "!**/*.@(js|css|jpg|jpeg|png|gif|webp|svg|ico|json|xml|txt|woff|woff2|ttf|eot)",
+        "destination": "/index.html"
       }
     ]
   }
