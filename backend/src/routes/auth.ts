@@ -73,7 +73,10 @@ router.post('/login', async (req: AuthRequest, res: Response) => {
     }
 
     const user = await dbOps.users.findByEmail(email);
-    console.log('Login attempt:', email, 'user found:', !!user, 'password:', user?.password?.substring(0, 20));
+    console.log('Login attempt:', email);
+    console.log('User found:', !!user);
+    console.log('User object:', JSON.stringify(user).substring(0, 200));
+    console.log('Password in user:', user?.password?.substring(0, 30));
     if (!user || !user.password) {
       res.status(401).json({ messageKey: 'auth.invalid_credentials' });
       return;
