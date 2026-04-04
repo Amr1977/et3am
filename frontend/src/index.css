@@ -780,6 +780,80 @@ body {
   margin-top: 1rem;
 }
 
+.support-phone-section {
+  margin-bottom: 1.5rem;
+}
+
+.support-phone-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.support-phone-display {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--bg-card);
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1.25rem;
+}
+
+.support-phone-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  font-family: var(--font-mono, monospace);
+}
+
+.support-phone-display .copy-btn {
+  position: static;
+  transform: none;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  background: var(--primary-light);
+}
+
+.support-phone-display .copy-btn span {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.support-methods-list {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.support-method-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.support-method-badge svg {
+  width: 18px;
+  height: 18px;
+  color: var(--primary);
+}
+
 /* CTA Section */
 .cta-section {
   padding: 6rem 0;

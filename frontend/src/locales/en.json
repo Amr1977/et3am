@@ -34,7 +34,11 @@
     "support_desc": "\"And in their wealth there is a right due to the seeker and the deprived.\" — Surah Al-Zariyat 51:19",
     "support_dev": "Development Support",
     "support_donations": "Donations for Feeding",
-    "support_thanks": "JazakAllah Khair for your support! 🤲"
+    "support_thanks": "JazakAllah Khair for your support! 🤲",
+    "support_dev_title": "Support Our Mission",
+    "support_dev_desc": "Your generous contributions help us continue developing features that connect more people with surplus food to those in need.",
+    "support_phone": "Phone Number",
+    "support_copy": "Copy"
   },
   "hadith": {
     "feed_believer": "Whoever feeds a believer until they are satiated, Allah will admit them through a gate of Paradise.",
