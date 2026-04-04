@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { dbOps } from '../database';
 import { authenticate, optionalAuth, AuthRequest } from '../middleware/auth';
 import { emitDonationEvent, emitToUser } from '../config/socket';
+import { createDonationLimiter } from '../middleware/rateLimit';
 import logger from '../config/logger';
 
 function generateHashCode(): string {
@@ -235,7 +236,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
   }
 });
 
-router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
+router.post('/', createDonationLimiter, authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const { title, description, food_type, quantity, unit, expiry_date, pickup_address, pickup_date, latitude, longitude } = req.body;
 

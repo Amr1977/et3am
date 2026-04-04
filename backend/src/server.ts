@@ -19,8 +19,19 @@ import chatRoutes from './routes/chat';
 import supportRoutes from './routes/support';
 import reviewsRoutes from './routes/reviews';
 import adminRoutes from './routes/admin';
+import { 
+  helmetConfig, 
+  cookieParserMiddleware, 
+  strictCorsConfig, 
+  additionalSecurityHeaders, 
+  sanitizeRequest,
+  validateSecurityConfig 
+} from './middleware/security';
+import { authLimiter, apiLimiter, createDonationLimiter } from './middleware/rateLimit';
 
 import http from 'http';
+
+validateSecurityConfig();
 
 let firebaseInitialized = false;
 
@@ -41,31 +52,12 @@ if (serviceAccount?.privateKey) {
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Request logging middleware
-app.use((req, res, next) => {
-  const start = Date.now();
-  (logger as any).api(`REQUEST: ${req.method} ${req.originalUrl}`, {
-    method: req.method,
-    url: req.originalUrl,
-    ip: req.ip,
-    userAgent: req.get('User-Agent'),
-  });
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    const level = res.statusCode >= 400 ? 'warn' : 'http';
-    (logger as any).api(`RESPONSE: ${req.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`, {
-      method: req.method,
-      url: req.originalUrl,
-      statusCode: res.statusCode,
-      duration: `${duration}ms`,
-      ip: req.ip,
-    });
-  });
-  next();
-});
-
-app.use(cors());
-app.use(express.json());
+app.use(helmetConfig);
+app.use(cors(strictCorsConfig));
+app.use(cookieParserMiddleware);
+app.use(express.json({ limit: '10mb' }));
+app.use(sanitizeRequest);
+app.use(additionalSecurityHeaders);
 app.use(i18nMiddleware);
 app.use(passport.initialize());
 
@@ -129,14 +121,14 @@ app.get('/api/auth/google/callback',
   }
 );
 
-app.use('/api/auth', authRoutes);
-app.use('/api/donations', donationRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/maps', mapsRoutes);
-app.use('/api/chat', chatRoutes);
-app.use('/api/support', supportRoutes);
-app.use('/api/reviews', reviewsRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/donations', apiLimiter, donationRoutes);
+app.use('/api/users', apiLimiter, userRoutes);
+app.use('/api/maps', apiLimiter, mapsRoutes);
+app.use('/api/chat', apiLimiter, chatRoutes);
+app.use('/api/support', apiLimiter, supportRoutes);
+app.use('/api/reviews', apiLimiter, reviewsRoutes);
+app.use('/api/admin', apiLimiter, adminRoutes);
 
 app.get('/api/health', (_req, res) => {
   const healthyServers = getHealthyServers();

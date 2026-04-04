@@ -3,22 +3,27 @@ import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { dbOps, User } from '../database';
 import { authenticate, generateToken, AuthRequest } from '../middleware/auth';
+import { registerSchema, loginSchema } from '../utils/validators';
+import { sanitizeString, sanitizeEmail } from '../utils/sanitizers';
 import logger from '../config/logger';
 
 const router = Router();
 
 router.post('/register', async (req: AuthRequest, res: Response) => {
   try {
-    const { name, email, password, preferred_language, role } = req.body;
-
-    if (!name || !email || !password) {
-      res.status(400).json({ messageKey: 'validation.required_field' });
+    const validation = registerSchema.safeParse(req.body);
+    if (!validation.success) {
+      res.status(400).json({ messageKey: 'validation.invalid_input', errors: validation.error.errors });
       return;
     }
 
-    const existing = await dbOps.users.findByEmail(email);
+    const { name, email, password, preferred_language, role } = req.body;
+    const sanitizedEmail = sanitizeEmail(email);
+    const sanitizedName = sanitizeString(name, 255);
+
+    const existing = await dbOps.users.findByEmail(sanitizedEmail);
     if (existing) {
-      (logger as any).auth('Registration failed - email exists', { email });
+      (logger as any).auth('Registration failed - email exists', { email: sanitizedEmail });
       res.status(409).json({ messageKey: 'auth.email_exists' });
       return;
     }
@@ -29,12 +34,12 @@ router.post('/register', async (req: AuthRequest, res: Response) => {
     
     const userRole = ['donor', 'recipient', 'admin'].includes(role) ? role : 'donor';
 
-    (logger as any).auth('New user registration', { userId: id, email, role: userRole });
+    (logger as any).auth('New user registration', { userId: id, email: sanitizedEmail, role: userRole });
 
     const user = await dbOps.users.create({
       id,
-      name,
-      email,
+      name: sanitizedName,
+      email: sanitizedEmail,
       password: hashedPassword,
       role: userRole,
       can_donate: true,
@@ -55,7 +60,7 @@ router.post('/register', async (req: AuthRequest, res: Response) => {
     res.status(201).json({
       messageKey: 'auth.register_success',
       token,
-      user: { id, name, email, role: user.role, can_donate: user.can_donate, can_receive: user.can_receive, preferred_language: lang }
+      user: { id, name: sanitizedName, email: sanitizedEmail, role: user.role, can_donate: user.can_donate, can_receive: user.can_receive, preferred_language: lang }
     });
   } catch (err) {
     console.error('Register error:', err);
@@ -65,35 +70,23 @@ router.post('/register', async (req: AuthRequest, res: Response) => {
 
 router.post('/login', async (req: AuthRequest, res: Response) => {
   try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      res.status(400).json({ messageKey: 'validation.required_field' });
+    const validation = loginSchema.safeParse(req.body);
+    if (!validation.success) {
+      res.status(400).json({ messageKey: 'validation.invalid_input', errors: validation.error.errors });
       return;
     }
 
-    const user = await dbOps.users.findByEmail(email);
-    console.log('Login attempt:', email);
-    console.log('User found:', !!user);
-    console.log('User object:', JSON.stringify(user).substring(0, 200));
-    console.log('Password in user:', user?.password?.substring(0, 30));
+    const { email, password } = req.body;
+    const sanitizedEmail = sanitizeEmail(email);
+
+    const user = await dbOps.users.findByEmail(sanitizedEmail);
     if (!user || !user.password) {
       res.status(401).json({ messageKey: 'auth.invalid_credentials' });
       return;
     }
     
     const passwordValid = bcrypt.compareSync(password, user.password);
-    console.log('Password valid:', passwordValid);
-    console.log('Attempting bcrypt directly on user.password:');
-    console.log('  bcrypt.compareSync:', bcrypt.compareSync(password, user.password));
-    if (!passwordValid && user.password.startsWith('$2a$')) {
-      const newHash = user.password.replace('$2a$', '$2b$');
-      const newValid = bcrypt.compareSync(password, newHash);
-      if (!newValid) {
-        res.status(401).json({ messageKey: 'auth.invalid_credentials' });
-        return;
-      }
-    } else if (!passwordValid) {
+    if (!passwordValid) {
       res.status(401).json({ messageKey: 'auth.invalid_credentials' });
       return;
     }
