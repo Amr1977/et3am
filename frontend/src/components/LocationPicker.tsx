@@ -1,7 +1,8 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { getServerUrl } from '../services/api';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -27,11 +28,18 @@ function MapClickHandler({ onLocationChange }: { onLocationChange: (lat: number,
 }
 
 export default function LocationPicker({ latitude, longitude, onLocationChange, t }: LocationPickerProps) {
+  const [tileUrl, setTileUrl] = useState<string>('');
   const hasLocation = latitude && longitude;
   const [position, setPosition] = useState<[number, number] | null>(
     hasLocation ? [parseFloat(latitude), parseFloat(longitude)] : null
   );
   const [locating, setLocating] = useState(false);
+
+  useEffect(() => {
+    getServerUrl().then(url => {
+      setTileUrl(`${url}/api/maps/tiles/{z}/{x}/{y}.png`);
+    });
+  }, []);
 
   const handleMapClick = useCallback((lat: number, lng: number) => {
     setPosition([lat, lng]);
@@ -73,7 +81,7 @@ export default function LocationPicker({ latitude, longitude, onLocationChange, 
         <MapContainer center={center} zoom={position ? 15 : 6} style={{ height: '100%', width: '100%' }}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url={`${import.meta.env.VITE_API_URL || ''}/api/maps/tiles/{z}/{x}/{y}.png`}
+            url={tileUrl}
           />
           <MapClickHandler onLocationChange={handleMapClick} />
           {position && <Marker position={position} />}

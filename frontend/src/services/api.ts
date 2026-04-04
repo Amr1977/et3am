@@ -96,8 +96,14 @@ export function clearServerCache(): void {
   currentServer = null;
 }
 
-export async function refreshServerList(): Promise<void> {
-  serverCache = null;
-  cacheTimestamp = null;
-  await getServers();
+let cachedServerUrl: string | null = null;
+
+export async function getServerUrl(): Promise<string> {
+  if (cachedServerUrl) {
+    return cachedServerUrl;
+  }
+  
+  const servers = await getServers();
+  cachedServerUrl = servers.length > 0 ? servers[0].url : DEFAULT_SERVERS[0].url;
+  return cachedServerUrl;
 }
