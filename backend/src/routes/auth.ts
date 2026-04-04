@@ -306,9 +306,14 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
 
 export default router;
 
-router.post('/test-hash', async (req, res) => {
-  const { password } = req.body;
-  const hash = bcrypt.hashSync(password, 10);
-  const valid = bcrypt.compareSync(password, hash);
-  res.json({ password, hash, valid });
+router.post('/test-db-user', async (req, res) => {
+  const { email } = req.body;
+  const user = await dbOps.users.findByEmail(email);
+  res.json({ 
+    email, 
+    userFound: !!user, 
+    userId: user?.id,
+    dbPassword: user?.password,
+    localPassword: user?.password?.substring(0, 30) 
+  });
 });
