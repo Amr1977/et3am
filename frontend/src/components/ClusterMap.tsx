@@ -108,8 +108,11 @@ function MapEvents({ userLocation, donations, t, onReserve, isAuthenticated }: {
   }, [userLocation, donations, map]);
   
   useEffect(() => {
-    console.log('MapEvents useEffect:', { map: !!map, donations: donations.length, hasCluster: !!clusterGroupRef.current });
-    if (!map) return;
+    console.log('[ClusterMap] useEffect:', { map: !!map, donations: donations.length, hasCluster: !!clusterGroupRef.current });
+    if (!map) {
+      console.log('[ClusterMap] No map!');
+      return;
+    }
     
     let clusterGroup = clusterGroupRef.current;
     
@@ -241,6 +244,7 @@ declare global {
 }
 
 export default function ClusterMap({ donations, userLocation, t, onReserve, isAuthenticated }: ClusterMapProps) {
+  console.log('[ClusterMap] Render:', { donations: donations.length, hasGeo: donations.filter(d => d.latitude && d.longitude).length });
   const [tileUrl, setTileUrl] = useState<string>('');
   const geoDonations = donations.filter(d => d.latitude && d.longitude);
 
