@@ -3,8 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { fetchWithFailover } from '../services/api';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -38,12 +42,61 @@ const statusColors: Record<string, string> = {
   completed: '#3b82f6',
 };
 
-function createColoredIcon(color: string) {
+const foodIcons: Record<string, string> = {
+  'meat': '🥩',
+  'chicken': '🍗',
+  'fish': '🐟',
+  'vegetables': '🥬',
+  'fruits': '🍎',
+  'bread': '🍞',
+  'rice': '🍚',
+  'pasta': '🍝',
+  'soup': '🥣',
+  'dessert': '🍰',
+  'other': '🍽️',
+};
+
+function getFoodIcon(type: string): string {
+  const key = type.toLowerCase();
+  for (const [k, v] of Object.entries(foodIcons)) {
+    if (key.includes(k)) return v;
+  }
+  return foodIcons['other'];
+}
+
+function createMarkerIcon(color: string, foodType: string) {
+  const icon = getFoodIcon(foodType);
   return L.divIcon({
-    className: 'custom-marker',
-    html: `<div style="background:${color};width:20px;height:20px;border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>`,
-    iconSize: [20, 20],
-    iconAnchor: [10, 10],
+    className: 'custom-marker-container',
+    html: `
+      <div style="
+        background: ${color};
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 3px solid white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      ">${icon}</div>
+    `,
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
+  });
+}
+
+function createClusterIcon(cluster: any) {
+  const count = cluster.getChildCount();
+  let size = 'small';
+  if (count > 10) size = 'medium';
+  if (count > 50) size = 'large';
+  
+  return L.divIcon({
+    html: `<div class="cluster-marker cluster-${size}"><span>${count}</span></div>`,
+    className: 'marker-cluster-custom',
+    iconSize: L.point(40, 40),
   });
 }
 
@@ -69,7 +122,7 @@ export default function Home() {
       })
       .finally(() => setLoading(false));
 
-    fetchWithFailover('/api/donations?status=available&limit=20')
+    fetchWithFailover('/api/donations?status=available&limit=50')
       .then(res => res.ok ? res.json() : Promise.reject('Failed'))
       .then(data => setDonations(data.donations || []))
       .catch(err => console.error('Donations fetch error:', err));
@@ -117,19 +170,29 @@ export default function Home() {
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              {donations.filter(d => d.latitude && d.longitude).slice(0, 15).map(d => (
-                <Marker
-                  key={d.id}
-                  position={[d.latitude!, d.longitude!]}
-                  icon={createColoredIcon(statusColors[d.status] || '#6b7280')}
-                >
-                  <Popup>
-                    <strong>{d.title}</strong>
-                    <br />
-                    {d.food_type} - {d.quantity}
-                  </Popup>
-                </Marker>
-              ))}
+              <MarkerClusterGroup
+                chunkedLoading
+                spiderfyOnMaxZoom
+                showCoverageOnHover={false}
+                zoomToBoundsOnClick
+                maxClusterRadius={40}
+                disableClusteringAtZoom={15}
+                iconCreateFunction={createClusterIcon}
+              >
+                {donations.filter(d => d.latitude && d.longitude).slice(0, 50).map(d => (
+                  <Marker
+                    key={d.id}
+                    position={[d.latitude!, d.longitude!]}
+                    icon={createMarkerIcon(statusColors[d.status] || '#6b7280', d.food_type)}
+                  >
+                    <Popup>
+                      <strong>{d.title}</strong>
+                      <br />
+                      {d.food_type} - {d.quantity}
+                    </Popup>
+                  </Marker>
+                ))}
+              </MarkerClusterGroup>
             </MapContainer>
             <div className="hero-map-overlay">
               <div className="hero-map-badge">
@@ -150,24 +213,33 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="steps-grid">
-          <div className="step-card">
-            <div className="step-number">1</div>
-            <div className="step-icon">🍽️</div>
+        <div className="steps-flow">
+          <div className="step-flow-card donor">
+            <div className="step-flow-icon">🍽️</div>
+            <div className="step-flow-number">1</div>
             <h3>{t('home.step_1_title')}</h3>
             <p>{t('home.step_1_desc')}</p>
+            <span className="step-flow-role">{t('home.donor') || 'Donor'}</span>
           </div>
-          <div className="step-card">
-            <div className="step-number">2</div>
-            <div className="step-icon">🔍</div>
+          
+          <div className="step-flow-arrow">{t('home.arrow')}</div>
+          
+          <div className="step-flow-card receiver">
+            <div className="step-flow-icon">🔍</div>
+            <div className="step-flow-number">2</div>
             <h3>{t('home.step_2_title')}</h3>
             <p>{t('home.step_2_desc')}</p>
+            <span className="step-flow-role">{t('home.receiver') || 'Receiver'}</span>
           </div>
-          <div className="step-card">
-            <div className="step-number">3</div>
-            <div className="step-icon">🤲</div>
+          
+          <div className="step-flow-arrow">{t('home.arrow')}</div>
+          
+          <div className="step-flow-card pickup">
+            <div className="step-flow-icon">🤲</div>
+            <div className="step-flow-number">3</div>
             <h3>{t('home.step_3_title')}</h3>
             <p>{t('home.step_3_desc')}</p>
+            <span className="step-flow-role">{t('home.pickup') || 'Pickup'}</span>
           </div>
         </div>
       </section>
