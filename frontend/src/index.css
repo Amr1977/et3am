@@ -3144,6 +3144,22 @@ body {
   text-decoration: underline;
 }
 
+.forgot-password-link {
+  text-align: right;
+  margin-bottom: 1rem;
+}
+
+.forgot-password-link a {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.forgot-password-link a:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
 .loading-dots {
   animation: pulse 1s infinite;
 }

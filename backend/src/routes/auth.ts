@@ -299,6 +299,100 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
   }
 });
 
+// Password Reset - Request reset token
+router.post('/reset-password-request', async (req: AuthRequest, res: Response) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      res.status(400).json({ messageKey: 'validation.invalid_input' });
+      return;
+    }
+
+    const sanitizedEmail = sanitizeEmail(email);
+    const user = await dbOps.users.findByEmail(sanitizedEmail);
+
+    // Always return success to prevent email enumeration
+    if (!user) {
+      res.json({ messageKey: 'auth.reset_email_sent' });
+      return;
+    }
+
+    // Don't allow reset for Google OAuth users
+    if (user.google_id) {
+      res.json({ messageKey: 'auth.reset_email_sent' });
+      return;
+    }
+
+    // Generate reset token (valid for 1 hour)
+    const resetToken = uuidv4();
+    const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    await dbOps.users.update(user.id, {
+      reset_token: resetToken,
+      reset_token_expiry: resetTokenExpiry,
+    } as any);
+
+    (logger as any).auth('Password reset requested', { userId: user.id, email: sanitizedEmail });
+
+    // In production, send email with reset link
+    // For now, log the token (development only)
+    console.log(`🔐 Password reset for ${sanitizedEmail}: ${resetToken}`);
+
+    res.json({ messageKey: 'auth.reset_email_sent' });
+  } catch (err) {
+    console.error('Password reset request error:', err);
+    res.status(500).json({ messageKey: 'general.server_error' });
+  }
+});
+
+// Password Reset - Verify token and set new password
+router.post('/reset-password', async (req: AuthRequest, res: Response) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      res.status(400).json({ messageKey: 'validation.invalid_input' });
+      return;
+    }
+
+    // Validate password strength
+    if (newPassword.length < 6) {
+      res.status(400).json({ messageKey: 'auth.weak_password' });
+      return;
+    }
+
+    const user = await dbOps.users.findByResetToken(token);
+
+    if (!user) {
+      res.status(400).json({ messageKey: 'auth.invalid_reset_token' });
+      return;
+    }
+
+    // Check if token expired
+    if (user.reset_token_expiry && new Date(user.reset_token_expiry) < new Date()) {
+      res.status(400).json({ messageKey: 'auth.reset_token_expired' });
+      return;
+    }
+
+    // Hash new password and clear reset token
+    const hashedPassword = bcrypt.hashSync(newPassword, 10);
+
+    await dbOps.users.update(user.id, {
+      password: hashedPassword,
+      reset_token: null,
+      reset_token_expiry: null,
+    } as any);
+
+    (logger as any).auth('Password reset completed', { userId: user.id });
+
+    res.json({ messageKey: 'auth.password_reset_success' });
+  } catch (err) {
+    console.error('Password reset error:', err);
+    res.status(500).json({ messageKey: 'general.server_error' });
+  }
+});
+
 export default router;
 
 router.post('/test-db-user', async (req, res) => {

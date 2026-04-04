@@ -88,6 +88,10 @@ export const dbOps = {
       const { rows } = await pool.query('SELECT * FROM users WHERE google_id = $1', [googleId]);
       return rows[0] || null;
     },
+    async findByResetToken(token: string): Promise<User | null> {
+      const { rows } = await pool.query('SELECT * FROM users WHERE reset_token = $1', [token]);
+      return rows[0] || null;
+    },
     async create(user: Omit<User, 'created_at' | 'updated_at'>): Promise<User> {
       const { rows } = await pool.query(
         `INSERT INTO users (id, name, email, password, role, phone, address, latitude, longitude, location_city, location_area, preferred_language, google_id, avatar_url)
