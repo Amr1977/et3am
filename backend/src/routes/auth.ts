@@ -319,8 +319,8 @@ router.post('/test-db-user', async (req, res) => {
   const testResult2 = bcrypt.compareSync('TestPass123', '$2a$10$VamOWtj1Z2AQYOtEmTgrKezQwQIkqKsvXC0RIDLGDf6hrJE3Sid6m');
   
   // Manual comparison
-  const testResult3 = await new Promise((resolve) => {
-    bcrypt.compare('TestPass123', hashFromDb || '', (err, result) => {
+  const testResult3 = await new Promise<boolean>((resolve) => {
+    bcrypt.compare('TestPass123', hashFromDb || '', (err: Error | null, result: boolean) => {
       resolve(result);
     });
   });
