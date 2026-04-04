@@ -309,11 +309,13 @@ export default router;
 router.post('/test-db-user', async (req, res) => {
   const { email } = req.body;
   const user = await dbOps.users.findByEmail(email);
+  const hashFromDb = user?.password;
+  const valid = bcrypt.compareSync('Et3amAdmin2026!', hashFromDb || '');
   res.json({ 
     email, 
     userFound: !!user, 
-    userId: user?.id,
-    dbPassword: user?.password,
-    localPassword: user?.password?.substring(0, 30) 
+    hashFromDb: hashFromDb?.substring(0, 40),
+    bcryptValid: valid,
+    testHashValid: hashFromDb === '$2a$10$9CHGqCdG.YGfiPnSDLaNVuao.XppiIaTRc33jplZjy3xGdFxm7p.2'
   });
 });
