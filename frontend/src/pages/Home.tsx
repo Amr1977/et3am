@@ -2,6 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { fetchWithFailover } from '../services/api';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+});
 
 interface Stats {
   totalDonations: number;
@@ -11,9 +21,36 @@ interface Stats {
   totalReceivers: number;
 }
 
+interface Donation {
+  id: string;
+  title: string;
+  pickup_address: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  status: string;
+  food_type: string;
+  quantity: number;
+}
+
+const statusColors: Record<string, string> = {
+  available: '#22c55e',
+  reserved: '#f59e0b',
+  completed: '#3b82f6',
+};
+
+function createColoredIcon(color: string) {
+  return L.divIcon({
+    className: 'custom-marker',
+    html: `<div style="background:${color};width:20px;height:20px;border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+  });
+}
+
 export default function Home() {
   const { t } = useTranslation();
   const [stats, setStats] = useState<Stats | null>(null);
+  const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,6 +68,11 @@ export default function Home() {
         setStats(null);
       })
       .finally(() => setLoading(false));
+
+    fetchWithFailover('/api/donations?status=available&limit=20')
+      .then(res => res.ok ? res.json() : Promise.reject('Failed'))
+      .then(data => setDonations(data.donations || []))
+      .catch(err => console.error('Donations fetch error:', err));
   }, []);
 
   const formatNumber = (num: number) => {
@@ -64,41 +106,35 @@ export default function Home() {
         </div>
 
         <div className="hero-visual">
-          <div className="hero-illustration">
-            <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="200" cy="200" r="180" fill="url(#heroGrad)" />
-              <circle cx="200" cy="200" r="140" fill="var(--bg-card)" opacity="0.9" />
-              <circle cx="200" cy="200" r="100" fill="var(--primary)" opacity="0.15" />
-              <text x="200" y="205" textAnchor="middle" fontSize="72">🤲</text>
-              <defs>
-                <radialGradient id="heroGrad" cx="0%" cy="0%" r="100%">
-                  <stop offset="0%" stopColor="var(--secondary-light)" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.1" />
-                </radialGradient>
-              </defs>
-            </svg>
-
-            <div className="floating-card c1">
-              <div className="floating-card-icon food">🍽️</div>
-              <div>
-                <div className="floating-card-text">{t('home.step_1_title')}</div>
-                <div className="floating-card-sub">{t('home.step_1_desc').slice(0, 25)}...</div>
-              </div>
-            </div>
-
-            <div className="floating-card c2">
-              <div className="floating-card-icon heart">❤️</div>
-              <div>
-                <div className="floating-card-text">{t('home.step_3_title')}</div>
-                <div className="floating-card-sub">{t('home.sadaqah_jariyah')}</div>
-              </div>
-            </div>
-
-            <div className="floating-card c3">
-              <div className="floating-card-icon hands">🤝</div>
-              <div>
-                <div className="floating-card-text">{t('home.step_2_title')}</div>
-                <div className="floating-card-sub">{t('home.step_2_desc').slice(0, 25)}...</div>
+          <div className="hero-map">
+            <MapContainer 
+              center={[30.0444, 31.2357]} 
+              zoom={11} 
+              style={{ height: '100%', width: '100%' }}
+              zoomControl={false}
+              attributionControl={false}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              {donations.filter(d => d.latitude && d.longitude).slice(0, 15).map(d => (
+                <Marker
+                  key={d.id}
+                  position={[d.latitude!, d.longitude!]}
+                  icon={createColoredIcon(statusColors[d.status] || '#6b7280')}
+                >
+                  <Popup>
+                    <strong>{d.title}</strong>
+                    <br />
+                    {d.food_type} - {d.quantity}
+                  </Popup>
+                </Marker>
+              ))}
+            </MapContainer>
+            <div className="hero-map-overlay">
+              <div className="hero-map-badge">
+                <span>🗺️</span>
+                <span>{donations.length} {t('nav.donations')}</span>
               </div>
             </div>
           </div>

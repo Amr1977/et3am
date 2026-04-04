@@ -15,13 +15,15 @@ export default function Navbar() {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme');
       if (saved) return saved as 'light' | 'dark';
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      return 'dark';
     }
-    return 'light';
+    return 'dark';
   });
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    document.body.style.background = theme === 'dark' ? '#0F1419' : '#FDFCF8';
+    document.body.style.color = theme === 'dark' ? '#F1F5F9' : '#1A1A1A';
     localStorage.setItem('theme', theme);
   }, [theme]);
 
@@ -67,7 +69,11 @@ export default function Navbar() {
         </div>
 
         <div className="navbar-actions">
-          <button onClick={toggleTheme} className="theme-toggle" title="Toggle theme">
+          <button 
+            onClick={toggleTheme} 
+            className="theme-toggle" 
+            title="Toggle theme"
+          >
             {theme === 'light' ? '🌙' : '☀️'}
           </button>
 
