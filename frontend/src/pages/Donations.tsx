@@ -117,7 +117,11 @@ export default function Donations() {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) fetchDonations();
+      if (res.ok) {
+        // After reserving, switch to 'reserved' filter to see the reservation
+        setFilter('reserved');
+        fetchDonations();
+      }
     } catch (err) {
       console.error('Failed to reserve donation');
     }

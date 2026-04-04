@@ -417,6 +417,11 @@ router.post('/:id/cancel-reservation', authenticate, async (req: AuthRequest, re
       return;
     }
 
+    // Release daily reservation slot so user can reserve again
+    if (donation.reserved_by) {
+      await dbOps.dailyReservations.delete(donation.reserved_by, req.params.id);
+    }
+
     const updated = await dbOps.donations.update(req.params.id, {
       status: 'available',
       reserved_by: null,
