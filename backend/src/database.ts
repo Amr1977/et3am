@@ -29,11 +29,11 @@ export interface User {
   preferred_language: 'en' | 'ar';
   google_id: string | null;
   avatar_url: string | null;
-  reputation_score: number;
-  total_donations: number;
-  total_received: number;
-  sound_enabled: boolean;
-  notifications_enabled: boolean;
+  reputation_score?: number;
+  total_donations?: number;
+  total_received?: number;
+  sound_enabled?: boolean;
+  notifications_enabled?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -225,6 +225,12 @@ export const dbOps = {
         [userId]
       );
       return rows;
+    },
+    async delete(userId: string, donationId: string): Promise<void> {
+      await pool.query(
+        'DELETE FROM daily_reservations WHERE user_id = $1 AND donation_id = $2',
+        [userId, donationId]
+      );
     },
   },
   chat: {
