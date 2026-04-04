@@ -17,7 +17,7 @@ interface Donation {
   food_type: string;
   quantity: number;
   unit: string;
-  pickup_address: string;
+  pickup_address?: string;
   latitude: number;
   longitude: number;
   pickup_date: string;
@@ -25,8 +25,8 @@ interface Donation {
   status: string;
   donor_id: string;
   donor_name: string;
-  reserved_by: string;
-  hash_code: string;
+  reserved_by?: string;
+  hash_code?: string;
 }
 
 const userLocationIcon = new L.Icon({
@@ -237,7 +237,7 @@ export default function MealDetails() {
           )}
           <div className="info-row">
             <span className="label">{t('donations.pickup_address')}:</span>
-            <span className="value">{donation.pickup_address}</span>
+            <span className="value">{donation.pickup_address || 'Address not available'}</span>
           </div>
           {donation.hash_code && (
             <div className="hash-section">

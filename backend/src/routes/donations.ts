@@ -211,6 +211,8 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       pickup_date: donation.pickup_date,
       status: donation.status,
       created_at: donation.created_at,
+      donor_id: donation.donor_id,
+      reserved_by: donation.reserved_by,
     };
 
     if (!req.userId) {
