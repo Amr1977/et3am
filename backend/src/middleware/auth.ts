@@ -1,8 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { dbOps } from '../database';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'et3am-secret-key-2024';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
 
 export interface AuthRequest extends Request {
   userId?: string;
@@ -19,7 +23,7 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
 
   const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; role: string };
+    const decoded = jwt.verify(token, JWT_SECRET!) as JwtPayload & { userId: string; role: string };
     req.userId = decoded.userId;
     req.userRole = decoded.role;
 
@@ -45,22 +49,20 @@ export function requireRole(role: string) {
 }
 
 export function generateToken(userId: string, role: string): string {
-  return jwt.sign({ userId, role }, JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign({ userId, role }, JWT_SECRET!, { expiresIn: '7d' });
 }
 
-// Optional auth - continues even without token (req.userId will be undefined if no valid token)
 export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization;
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    // No token - continue as unauthenticated
     next();
     return;
   }
 
   const token = authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; role: string };
+    const decoded = jwt.verify(token, JWT_SECRET!) as JwtPayload & { userId: string; role: string };
     req.userId = decoded.userId;
     req.userRole = decoded.role;
 
@@ -71,7 +73,6 @@ export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction
       next();
     }).catch(() => next());
   } catch (error) {
-    // Invalid token - continue as unauthenticated (don't block request)
     next();
   }
 }
