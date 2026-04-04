@@ -51,7 +51,7 @@ export interface Donation {
   latitude: number | null;
   longitude: number | null;
   pickup_date: string | null;
-  status: 'available' | 'reserved' | 'completed' | 'expired';
+  status: 'available' | 'reserved' | 'received' | 'completed' | 'expired';
   reserved_by: string | null;
   hash_code: string | null;
   created_at: string;
