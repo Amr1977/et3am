@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { dbOps } from '../database';
-import { authenticate, AuthRequest } from '../middleware/auth';
+import { authenticate, optionalAuth, AuthRequest } from '../middleware/auth';
 import { emitDonationEvent, emitToUser } from '../config/socket';
 
 function generateHashCode(): string {
@@ -10,7 +10,8 @@ function generateHashCode(): string {
 
 const router = Router();
 
-router.get('/', async (req: AuthRequest, res: Response) => {
+// Get all donations (public) or user's reserved/completed (authenticated)
+router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
   try {
     const { status, food_type, page = '1', limit = '10', filter } = req.query;
     
