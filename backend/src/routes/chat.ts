@@ -47,6 +47,10 @@ router.post('/:donationId', authenticate, async (req: AuthRequest, res: Response
     }
 
     const receiverId = donation.donor_id === req.userId ? donation.reserved_by : donation.donor_id;
+    if (!receiverId) {
+      res.status(400).json({ messageKey: 'donation.no_receiver' });
+      return;
+    }
     const savedMessage = await dbOps.chat.create(req.params.donationId, req.userId!, receiverId, message);
     const user = await dbOps.users.findById(req.userId!);
     
