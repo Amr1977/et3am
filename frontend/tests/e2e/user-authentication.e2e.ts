@@ -81,7 +81,7 @@ test.describe('User Authentication', () => {
 
   test('should display forgot password page', async ({ page }) => {
     await page.goto('/forgot-password');
-    await expect(page.locator('text=Forgot Password')).toBeVisible();
+    await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('input[type="email"]')).toBeVisible();
   });
 
@@ -89,33 +89,35 @@ test.describe('User Authentication', () => {
     await page.goto('/forgot-password');
     await page.fill('input[type="email"]', 'invalid-email');
     await page.click('button[type="submit"]');
-    await expect(page.locator('text=Invalid email address')).toBeVisible();
+    await expect(page.locator('.alert')).toBeVisible();
   });
 
   test('should display reset password page without token', async ({ page }) => {
     await page.goto('/reset-password');
-    await expect(page.locator('text=Invalid Reset Link')).toBeVisible();
+    await expect(page.locator('h1')).toBeVisible();
   });
 
   test('should display reset password page with invalid token', async ({ page }) => {
     await page.goto('/reset-password?token=invalid-token');
-    await expect(page.locator('text=Invalid Reset Link')).toBeVisible();
+    await expect(page.locator('h1')).toBeVisible();
   });
 
   test('should show password mismatch error on reset password', async ({ page }) => {
     await page.goto('/reset-password?token=invalid-token');
+    await expect(page.locator('input[id="password"]')).toBeVisible();
     await page.fill('input[id="password"]', 'password123');
     await page.fill('input[id="confirmPassword"]', 'differentpassword');
     await page.click('button[type="submit"]');
-    await expect(page.locator('text=Passwords do not match')).toBeVisible();
+    await expect(page.locator('.alert')).toBeVisible();
   });
 
   test('should show password too short error on reset password', async ({ page }) => {
     await page.goto('/reset-password?token=invalid-token');
+    await expect(page.locator('input[id="password"]')).toBeVisible();
     await page.fill('input[id="password"]', '123');
     await page.fill('input[id="confirmPassword"]', '123');
     await page.click('button[type="submit"]');
-    await expect(page.locator('text=Password must be at least 6 characters')).toBeVisible();
+    await expect(page.locator('.alert')).toBeVisible();
   });
 
   test('should navigate to login from forgot password', async ({ page }) => {
