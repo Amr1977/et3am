@@ -43,13 +43,57 @@ deploy_frontend() {
     
     cd "$FRONTEND_DIR"
     
-    # Build frontend
+    COMMIT_HASH=$(git rev-parse HEAD)
+    echo "Current commit: $COMMIT_HASH"
+    
+    echo "Checking if frontend already deployed..."
+    LAST_COMMIT=$(node -e "
+        const { initializeApp } = require('firebase/app');
+        const { getFirestore, doc, getDoc } = require('firebase/firestore');
+        const config = {
+          apiKey: 'AIzaSyD6L3_dHbWGYi6S_OOAitj69PLvdx2jjsI',
+          authDomain: 'et3am26.firebaseapp.com',
+          projectId: 'et3am26',
+          storageBucket: 'et3am26.firebasestorage.app',
+          messagingSenderId: '119582207501',
+          appId: '1:119582207501:web:38dc0c5e6af37acd092f44',
+        };
+        const app = initializeApp(config);
+        const db = getFirestore(app);
+        getDoc(doc(db, 'deployments', 'frontend')).then(snap => {
+          if (snap.exists()) console.log(snap.data().commit || '');
+          else console.log('');
+        }).catch(() => console.log(''));
+    " 2>/dev/null || echo "")
+    
+    if [ "$LAST_COMMIT" = "$COMMIT_HASH" ]; then
+        echo -e "${GREEN}Frontend already deployed at commit: $COMMIT_HASH${NC}"
+        cd ..
+        return 0
+    fi
+    
     echo "Building frontend..."
     npm run build
     
-    # Deploy to Firebase
     echo "Deploying to Firebase Hosting..."
     npx firebase deploy --only hosting --project et3am26
+    
+    echo "Updating deployment record..."
+    node -e "
+        const { initializeApp } = require('firebase/app');
+        const { getFirestore, doc, setDoc } = require('firebase/firestore');
+        const config = {
+          apiKey: 'AIzaSyD6L3_dHbWGYi6S_OOAitj69PLvdx2jjsI',
+          authDomain: 'et3am26.firebaseapp.com',
+          projectId: 'et3am26',
+          storageBucket: 'et3am26.firebasestorage.app',
+          messagingSenderId: '119582207501',
+          appId: '1:119582207501:web:38dc0c5e6af37acd092f44',
+        };
+        const app = initializeApp(config);
+        const db = getFirestore(app);
+        setDoc(doc(db, 'deployments', 'frontend'), { commit: '$COMMIT_HASH', deployedAt: Date.now() }, { merge: true }).catch(() => {});
+    "
     
     cd ..
     

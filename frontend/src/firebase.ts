@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyD6L3_dHbWGYi6S_OOAitj69PLvdx2jjsI",
@@ -13,6 +13,34 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+const DEPLOYMENTS_COLLECTION = 'deployments';
+const FRONTEND_DOC_ID = 'frontend';
+
+export async function getFrontendDeployCommit(): Promise<string | null> {
+  try {
+    const docRef = doc(db, DEPLOYMENTS_COLLECTION, FRONTEND_DOC_ID);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data().commit || null;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function setFrontendDeployCommit(commit: string): Promise<void> {
+  try {
+    const docRef = doc(db, DEPLOYMENTS_COLLECTION, FRONTEND_DOC_ID);
+    await setDoc(docRef, {
+      commit,
+      deployedAt: Date.now(),
+    }, { merge: true });
+  } catch (err) {
+    console.error('Failed to set frontend deploy commit:', err);
+  }
+}
 
 export { db };
 export default firebaseConfig;

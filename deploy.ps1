@@ -33,15 +33,58 @@ Write-Host "Server URL: $serverUrl" -ForegroundColor Yellow
 function Deploy-Frontend {
     Write-Host "`n=== Deploying Frontend to Firebase ===" -ForegroundColor Yellow
     
+    $commitHash = git rev-parse HEAD
+    Write-Host "Current commit: $commitHash" -ForegroundColor Cyan
+    
+    Write-Host "Checking if frontend already deployed..."
+    $lastCommit = node -e "
+        const { initializeApp } = require('firebase/app');
+        const { getFirestore, doc, getDoc } = require('firebase/firestore');
+        const config = {
+          apiKey: 'AIzaSyD6L3_dHbWGYi6S_OOAitj69PLvdx2jjsI',
+          authDomain: 'et3am26.firebaseapp.com',
+          projectId: 'et3am26',
+          storageBucket: 'et3am26.firebasestorage.app',
+          messagingSenderId: '119582207501',
+          appId: '1:119582207501:web:38dc0c5e6af37acd092f44',
+        };
+        const app = initializeApp(config);
+        const db = getFirestore(app);
+        getDoc(doc(db, 'deployments', 'frontend')).then(snap => {
+          if (snap.exists()) console.log(snap.data().commit || '');
+          else console.log('');
+        }).catch(() => console.log(''));
+    " 2>$null
+    
+    if ($lastCommit -eq $commitHash) {
+        Write-Host "Frontend already deployed at commit: $commitHash" -ForegroundColor Green
+        return
+    }
+    
     Push-Location $FrontendDir
     
-    # Build frontend
     Write-Host "Building frontend..."
     npm run build
     
-    # Deploy to Firebase
     Write-Host "Deploying to Firebase Hosting..."
     npx firebase deploy --only hosting --project et3am26
+    
+    Write-Host "Updating deployment record..."
+    node -e "
+        const { initializeApp } = require('firebase/app');
+        const { getFirestore, doc, setDoc } = require('firebase/firestore');
+        const config = {
+          apiKey: 'AIzaSyD6L3_dHbWGYi6S_OOAitj69PLvdx2jjsI',
+          authDomain: 'et3am26.firebaseapp.com',
+          projectId: 'et3am26',
+          storageBucket: 'et3am26.firebasestorage.app',
+          messagingSenderId: '119582207501',
+          appId: '1:119582207501:web:38dc0c5e6af37acd092f44',
+        };
+        const app = initializeApp(config);
+        const db = getFirestore(app);
+        setDoc(doc(db, 'deployments', 'frontend'), { commit: '$commitHash', deployedAt: Date.now() }, { merge: true }).catch(() => {});
+    "
     
     Pop-Location
     
