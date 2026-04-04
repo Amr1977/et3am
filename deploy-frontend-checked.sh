@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# [DEPRECATED] Use npm run deploy from frontend/ directory instead
+# This script is kept for reference only - all Firebase deployments must be manual
+
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
