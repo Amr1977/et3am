@@ -8,7 +8,7 @@ const router = Router();
 
 router.post('/register', async (req: AuthRequest, res: Response) => {
   try {
-    const { name, email, password, preferred_language } = req.body;
+    const { name, email, password, preferred_language, role } = req.body;
 
     if (!name || !email || !password) {
       res.status(400).json({ messageKey: 'validation.required_field' });
@@ -24,13 +24,15 @@ router.post('/register', async (req: AuthRequest, res: Response) => {
     const id = uuidv4();
     const hashedPassword = bcrypt.hashSync(password, 10);
     const lang = ['en', 'ar'].includes(preferred_language) ? preferred_language : (req as any).lang || 'en';
+    
+    const userRole = ['donor', 'recipient', 'admin'].includes(role) ? role : 'user';
 
     const user = await dbOps.users.create({
       id,
       name,
       email,
       password: hashedPassword,
-      role: 'user',
+      role: userRole,
       can_donate: true,
       can_receive: true,
       phone: null,
