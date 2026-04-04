@@ -108,6 +108,7 @@ function MapEvents({ userLocation, donations, t, onReserve, isAuthenticated }: {
   }, [userLocation, donations, map]);
   
   useEffect(() => {
+    console.log('MapEvents useEffect:', { map: !!map, donations: donations.length, hasCluster: !!clusterGroupRef.current });
     if (!map) return;
     
     let clusterGroup = clusterGroupRef.current;
@@ -142,6 +143,7 @@ function MapEvents({ userLocation, donations, t, onReserve, isAuthenticated }: {
     clusterGroupAny.clearLayers();
     
     donations.forEach(d => {
+      console.log('Processing donation:', d.id, d.latitude, d.longitude, d.title);
       if (!d.latitude || !d.longitude) return;
       
       const color = statusColors[d.status] || '#6b7280';
