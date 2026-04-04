@@ -28,13 +28,15 @@ function OAuthCallbackHandler() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { loginWithToken } = useAuth();
+  const token = searchParams.get('token');
 
   useEffect(() => {
-    const token = searchParams.get('token');
     if (token) {
       loginWithToken(token).then(() => navigate('/dashboard'));
     }
-  }, [searchParams]);
+  }, [searchParams, loginWithToken, navigate, token]);
+
+  if (!token) return null;
 
   return <div className="loading-page">Signing in...</div>;
 }
