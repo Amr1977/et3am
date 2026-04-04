@@ -312,12 +312,25 @@ router.post('/test-db-user', async (req, res) => {
   const { email } = req.body;
   const user = await dbOps.users.findByEmail(email);
   const hashFromDb = user?.password;
-  const valid = bcrypt.compareSync('Et3amAdmin2026!', hashFromDb || '');
+  
+  // Test bcryptjs directly in the endpoint
+  const bcrypt = require('bcryptjs');
+  const testResult1 = bcrypt.compareSync('TestPass123', hashFromDb || '');
+  const testResult2 = bcrypt.compareSync('TestPass123', '$2a$10$VamOWtj1Z2AQYOtEmTgrKezQwQIkqKsvXC0RIDLGDf6hrJE3Sid6m');
+  
+  // Manual comparison
+  const testResult3 = await new Promise((resolve) => {
+    bcrypt.compare('TestPass123', hashFromDb || '', (err, result) => {
+      resolve(result);
+    });
+  });
+  
   res.json({ 
     email, 
     userFound: !!user, 
     hashFromDb: hashFromDb?.substring(0, 40),
-    bcryptValid: valid,
-    testHashValid: hashFromDb === '$2a$10$9CHGqCdG.YGfiPnSDLaNVuao.XppiIaTRc33jplZjy3xGdFxm7p.2'
+    bcryptAsyncValid: testResult3,
+    bcryptSyncValid: testResult1,
+    knownHashValid: testResult2
   });
 });
