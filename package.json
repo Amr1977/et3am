@@ -17,6 +17,7 @@
     "test:watch": "npm run test:frontend -- --watch & npm run test:backend -- --watch"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "concurrently": "^8.2.2",
     "firebase-tools": "^15.12.0"
   }

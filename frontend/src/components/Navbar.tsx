@@ -11,6 +11,7 @@ export default function Navbar() {
   const { soundEnabled, setSoundEnabled } = useSound();
   const { isRTL } = useRTL();
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme');
@@ -45,26 +46,51 @@ export default function Navbar() {
     setSoundEnabled(!soundEnabled);
   };
 
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link to="/" className="navbar-brand">
+        <button className="hamburger" onClick={toggleMobileMenu} aria-label="Menu">
+          <span className={`hamburger-line ${mobileMenuOpen ? 'open' : ''}`}></span>
+          <span className={`hamburger-line ${mobileMenuOpen ? 'open' : ''}`}></span>
+          <span className={`hamburger-line ${mobileMenuOpen ? 'open' : ''}`}></span>
+        </button>
+
+        <Link to="/" className="navbar-brand" onClick={closeMobileMenu}>
           <span className="brand-icon">🤲</span>
           <span className="brand-text">{t('app.name')}</span>
         </Link>
 
-        <div className="navbar-links">
-          <Link to="/" className="nav-link">{t('nav.home')}</Link>
-          <Link to="/donations" className="nav-link">{t('nav.donations')}</Link>
+        <div className={`navbar-links ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+          <Link to="/" className="nav-link" onClick={closeMobileMenu}>{t('nav.home')}</Link>
+          <Link to="/donations" className="nav-link" onClick={closeMobileMenu}>{t('nav.donations')}</Link>
           {isAuthenticated && (
             <>
-              <Link to="/dashboard" className="nav-link">{t('nav.dashboard')}</Link>
-              <Link to="/support" className="nav-link">{t('support.title')}</Link>
-              <Link to="/settings" className="nav-link">⚙️</Link>
+              <Link to="/dashboard" className="nav-link" onClick={closeMobileMenu}>{t('nav.dashboard')}</Link>
+              <Link to="/support" className="nav-link" onClick={closeMobileMenu}>{t('support.title')}</Link>
+              <Link to="/settings" className="nav-link" onClick={closeMobileMenu}>⚙️ {t('nav.settings')}</Link>
               {user?.role === 'admin' && (
-                <Link to="/admin" className="nav-link">{t('admin.tabs.dashboard')}</Link>
+                <Link to="/admin" className="nav-link admin-link" onClick={closeMobileMenu}>🔧 {t('admin.tabs.dashboard')}</Link>
               )}
+              <div className="sidemenu-user-section">
+                <button onClick={() => { handleLogout(); closeMobileMenu(); }} className="nav-link logout-link">
+                  🚪 {t('nav.logout')}
+                </button>
+              </div>
             </>
+          )}
+          {!isAuthenticated && (
+            <div className="sidemenu-auth-section">
+              <Link to="/login" className="nav-link" onClick={closeMobileMenu}>{t('nav.login')}</Link>
+              <Link to="/register" className="nav-link btn btn-primary" onClick={closeMobileMenu}>{t('nav.register')}</Link>
+            </div>
           )}
         </div>
 
@@ -105,6 +131,8 @@ export default function Navbar() {
           )}
         </div>
       </div>
+      
+      {mobileMenuOpen && <div className="mobile-menu-overlay" onClick={closeMobileMenu}></div>}
     </nav>
   );
 }

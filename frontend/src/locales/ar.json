@@ -11,7 +11,8 @@
     "login": "دخول",
     "register": "تسجيل",
     "logout": "خروج",
-    "profile": "ملفي"
+    "profile": "ملفي",
+    "settings": "الإعدادات"
   },
   "home": {
     "hero_title": "إطعام",

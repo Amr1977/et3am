@@ -1,0 +1,1 @@
+[log] Stats loaded: {totalDonations: 5, completedDonations: 1, totalUsers: 6, totalDonors: 3, totalReceivers: 2}

@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import { SoundProvider } from './context/SoundContext';
 import { useRTL } from './hooks/useRTL';
+import { logError } from './utils/logger';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import LocationPrompt from './components/LocationPrompt';
