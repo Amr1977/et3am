@@ -2286,6 +2286,8 @@ body {
   margin-bottom: 1.5rem;
   overflow-x: auto;
   padding-bottom: 0.5rem;
+  position: relative;
+  z-index: 10;
 }
 
 .filter-tab {
@@ -2518,6 +2520,8 @@ body {
   border-radius: var(--radius-xl);
   overflow: hidden;
   border: 1px solid var(--border);
+  position: relative;
+  z-index: 1;
 }
 
 .map-container .leaflet-container {
@@ -3508,7 +3512,7 @@ body {
     flex-direction: column;
     padding: 1rem 1.25rem 2rem;
     gap: 0.5rem;
-    z-index: 1001;
+    z-index: 1003;
     box-shadow: var(--shadow-xl);
     overflow-y: auto;
     animation: slideInRight 0.3s ease;
