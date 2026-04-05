@@ -261,6 +261,13 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
 
     let decodedToken;
     try {
+      (logger as any).auth('Google auth - pre-verify state check', {
+        requestId,
+        clientIp,
+        adminAppsLength: admin.apps.length,
+        appProjectId: admin.app()?.options?.projectId || 'N/A'
+      });
+      
       decodedToken = await admin.auth().verifyIdToken(idToken);
       (logger as any).auth('Google auth - token verified successfully', {
         requestId,
