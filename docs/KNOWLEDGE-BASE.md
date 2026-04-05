@@ -1,5 +1,13 @@
 # Project Knowledge Base
 
+## Task Management
+
+- **Always visible task stack**: Maintain todo list that is always visible during work
+- **Never leave task incomplete**: Every task must be either done or explicitly cancelled
+- **Use todo tool**: Track progress with `todowrite` for all ongoing work
+- **Priority levels**: high, medium, low
+- **Status values**: pending, in_progress, completed, cancelled
+
 ## AI Agent Roles & Capabilities
 
 This project is maintained by an AI agent with multiple expert roles:
