@@ -92,10 +92,11 @@
     "signup_with_google": "Continue with Google",
     "or": "or",
     "login": "Login",
+    "reset_email_sent": "Check Your Email",
+    "reset_email_sent_desc": "We've sent a password reset link to your email if it exists in our system",
     "invalid_reset_token": "Invalid or Expired Link",
     "invalid_reset_token_desc": "The password reset link is invalid or has expired. Please request a new one.",
-    "reset_failed": "Failed to reset password",
-    "reset_email_sent_key": "auth.reset_email_sent"
+    "reset_failed": "Failed to reset password"
   },
   "donations": {
     "title": "Donations",
@@ -144,7 +145,11 @@
     "donations_found": "donations found",
     "donation_found": "donation found",
     "address_hidden": "Address hidden",
-    "login_to_see": "Login to see address"
+    "login_to_see": "Login to see address",
+    "mark_received": "Mark as Received",
+    "hash_code": "Pickup Code",
+    "hash_hint": "Share this code when meeting",
+    "view_on_map": "View on Map"
   },
   "food_types": {
     "meat": "Meat",

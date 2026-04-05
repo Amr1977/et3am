@@ -47,6 +47,11 @@
     "support_phone": "رقم الجوال",
     "support_copy": "نسخ"
   },
+  "hadith": {
+    "feed_believer": "من أشبع مؤمناً حتى يَشْبَعَهAllah سيُدخله من باب من أبواب الجنة",
+    "neighbor": "والله ما آمن والله ما آمن والله ما آمن قيل: من ذلك يا رسول الله؟ قال: \"جائعٌ بجانبه جاره\"",
+    "peace_food": "يا أيها الناس أفشوا السلام وأطعموا الطعام وصلوا بالليل والناس نائمون تدخلون السلام"
+  },
   "auth": {
     "login_title": "مرحباً بك",
     "login_title_ar": "أهلاً بعودتك",
@@ -139,7 +144,14 @@
     "donations_found": "تبرعات موجودة",
     "donation_found": "تبرع واحد",
     "address_hidden": "العنوان مخفي",
-    "login_to_see": "سجل دخول لرؤية العنوان"
+    "login_to_see": "سجل دخول لرؤية العنوان",
+    "edit_title": "تعديل التبرع",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "no_donations": "لا توجد تبرعات حالياً",
+    "filter_all": "الكل",
+    "map": "خريطة",
+    "expired": "منتهي"
   },
   "food_types": {
     "meat": "لحوم",
@@ -218,7 +230,27 @@
     "kg": "كيلو",
     "items": "قطعة",
     "use_current_location": "موقعي الحالي",
-    "click_map_to_set": "انقر على الخريطة لتحديد الموقع"
+    "click_map_to_set": "انقر على الخريطة لتحديد الموقع",
+    "edit_title": "تعديل التبرع",
+    "pickup_location": "موقع الاستلام",
+    "expired": "منتهي",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "no_donations": "لا توجد تبرعات حالياً",
+    "filter_all": "الكل",
+    "map": "خريطة",
+    "your_location": "موقعك",
+    "enable_location": "تفعيل الموقع",
+    "location_permission_title": "تفعيل موقعك",
+    "location_permission_desc": "تفعيل الموقع للعثور على الطعام المتاح بالقرب منك والحصول على توصيات مخصصة",
+    "geolocation_not_supported": "الموقع الجغرافي غير مدعوم في متصفحك",
+    "location_timeout": "انتهت مهلة طلب الموقع",
+    "location_error": "فشل في الحصول على الموقع",
+    "view_card": "عرض التفاصيل",
+    "donations_found": "تبرعات موجودة",
+    "donation_found": "تبرع واحد",
+    "address_hidden": "العنوان مخفي",
+    "login_to_see": "سجل دخول لرؤية العنوان"
   },
   "common": {
     "loading": "جاري التحميل...",
