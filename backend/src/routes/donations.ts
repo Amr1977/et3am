@@ -15,7 +15,7 @@ const router = Router();
 // Get all donations (public) or user's reserved/completed (authenticated)
 router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
   try {
-    const { status, food_type, page = '1', limit = '10', filter } = req.query;
+    const { status, food_type, page = '1', limit = '10', filter, lat, lng } = req.query;
     
     // Handle filter parameter: 'available', 'reserved', 'completed', 'all'
     // For unauthenticated users, always show available
@@ -76,7 +76,9 @@ router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
     const { donations, total } = await dbOps.donations.findAll(
       { status: statusFilter, food_type: food_type as string },
       parseInt(page as string),
-      parseInt(limit as string)
+      50,
+      lat ? parseFloat(lat as string) : null,
+      lng ? parseFloat(lng as string) : null
     );
 
     const isAuthenticated = !!req.userId;

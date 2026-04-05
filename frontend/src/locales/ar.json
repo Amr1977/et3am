@@ -84,6 +84,10 @@
     "password_reset_success_desc": "تم إعادة تعيين كلمة المرور. جاري التوجيه لتسجيل الدخول...",
     "passwords_not_match": "كلمات المرور غير متطابقة",
     "weak_password": "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+    "login_with_google": "دخول باستخدام Google",
+    "signup_with_google": "تسجيل باستخدام Google",
+    "or": "أو",
+    "login": "دخول",
     "invalid_reset_token": "رابط غير صالح أو منتهي",
     "invalid_reset_token_desc": "رابط إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية. يرجى طلب رابط جديد.",
     "reset_failed": "فشل إعادة تعيين كلمة المرور"
@@ -129,7 +133,25 @@
     "location_permission_title": "تفعيل موقعك",
     "location_permission_desc": "تفعيل الموقع للعثور على الطعام المتاح بالقرب منك والحصول على توصيات مخصصة",
     "geolocation_not_supported": "الموقع الجغرافي غير مدعوم في متصفحك",
-    "view_card": "عرض التفاصيل"
+    "view_card": "عرض التفاصيل",
+    "donations_found": "تبرعات موجودة",
+    "donation_found": "تبرع واحد",
+    "address_hidden": "العنوان مخفي",
+    "login_to_see": "سجل دخول لرؤية العنوان"
+  },
+  "food_types": {
+    "meat": "لحوم",
+    "chicken": "دجاج",
+    "fish": "سمك",
+    "vegetables": "خضروات",
+    "fruits": "فواكة",
+    "bread": "خبز",
+    "rice": "أرز",
+    "pasta": "معكرونة",
+    "soup": "شوربة",
+    "dessert": "حلويات",
+    "other": "أخرى",
+    "select_type": "اختر النوع..."
   },
   "dashboard": {
     "title": "لوحة التحكم",
@@ -187,7 +209,14 @@
     "hash_hint": "مشارك هذا الرمز عند اللقاء",
     "delete": "حذف",
     "edit": "تعديل",
-    "view_on_map": "عرض على الخريطة"
+    "view_on_map": "عرض على الخريطة",
+    "view_grid": "عرض البطاقات",
+    "view_map": "عرض الخريطة",
+    "portions": "حصة",
+    "kg": "كيلو",
+    "items": "قطعة",
+    "use_current_location": "موقعي الحالي",
+    "click_map_to_set": "انقر على الخريطة لتحديد الموقع"
   },
   "common": {
     "loading": "جاري التحميل...",
@@ -196,10 +225,20 @@
     "submit": "إرسال",
     "back": "رجوع",
     "next": "التالي",
+    "previous": "السابق",
     "search": "بحث",
     "filter": "تصفية",
     "sort": "ترتيب",
-    "actions": "الإجراءات"
+    "actions": "الإجراءات",
+    "back_to_donations": "العودة للتبرعات"
+  },
+  "theme": {
+    "light": "الوضع الفاتح",
+    "dark": "الوضع الداكن"
+  },
+  "sound": {
+    "on": "تشغيل الصوت",
+    "off": "إيقاف الصوت"
   },
   "chat": {
     "title": "المحادثة",

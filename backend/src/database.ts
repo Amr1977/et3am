@@ -125,7 +125,7 @@ export const dbOps = {
     },
   },
   donations: {
-    async findAll(filters?: { status?: string; food_type?: string }, page = 1, limit = 10): Promise<{ donations: Donation[]; total: number }> {
+    async findAll(filters?: { status?: string; food_type?: string }, page = 1, limit = 10, userLat?: number | null, userLng?: number | null): Promise<{ donations: Donation[]; total: number }> {
       let where = 'WHERE 1=1';
       const params: any[] = [];
       let idx = 1;
@@ -144,8 +144,18 @@ export const dbOps = {
 
       params.push(limit);
       params.push((page - 1) * limit);
+
+      let orderBy = 'ORDER BY created_at DESC';
+      if (userLat != null && userLng != null) {
+        orderBy = `ORDER BY 
+          CASE WHEN latitude IS NULL OR longitude IS NULL THEN 1 ELSE 0 END,
+          (latitude::float - $${idx})^2 + (longitude::float - $${idx + 1})^2 ASC`;
+        params.push(userLat, userLng);
+        idx += 2;
+      }
+
       const { rows } = await pool.query(
-        `SELECT * FROM donations ${where} ORDER BY created_at DESC LIMIT $${idx++} OFFSET $${idx}`,
+        `SELECT * FROM donations ${where} ${orderBy} LIMIT $${idx++} OFFSET $${idx}`,
         params
       );
       return { donations: rows, total };
