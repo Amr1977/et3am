@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 
@@ -10,9 +10,8 @@ export default function LocationPrompt({ onComplete }: LocationPromptProps) {
   const { t } = useTranslation();
   const { user, updateLocation } = useAuth();
   const [showPrompt, setShowPrompt] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [dismissed, setDismissed] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const processingRef = useRef(false);
 
   useEffect(() => {
     const askedBefore = localStorage.getItem('locationPromptDismissed');
@@ -23,49 +22,29 @@ export default function LocationPrompt({ onComplete }: LocationPromptProps) {
     }
   }, [user]);
 
-  const handleEnableLocation = async () => {
+  const handleEnableLocation = () => {
     if (!navigator.geolocation) {
       alert(t('donations.geolocation_not_supported') || 'Geolocation is not supported by your browser');
       return;
     }
 
-    setLoading(true);
-    setError(null);
+    setShowPrompt(false);
+    localStorage.setItem('locationPromptDismissed', 'true');
+    onComplete?.();
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
-        
         try {
           await updateLocation(latitude, longitude);
-          setShowPrompt(false);
-          localStorage.setItem('locationPromptDismissed', 'true');
-          onComplete?.();
         } catch (err) {
           console.error('Failed to update location:', err);
-          setError('Failed to save location');
-        } finally {
-          setLoading(false);
         }
       },
       (err) => {
         console.error('Geolocation error:', err);
-        setLoading(false);
-        
-        if (err.code === err.PERMISSION_DENIED) {
-          setDismissed(true);
-          localStorage.setItem('locationPromptDismissed', 'true');
-        } else if (err.code === err.TIMEOUT) {
-          setError(t('donations.location_timeout') || 'Location request timed out');
-        } else {
-          setError(t('donations.location_error') || 'Failed to get location');
-        }
       },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 0,
-      }
+      { timeout: 10000, maximumAge: 300000 }
     );
   };
 
@@ -80,30 +59,22 @@ export default function LocationPrompt({ onComplete }: LocationPromptProps) {
   }
 
   return (
-    <div className="location-prompt-overlay">
-      <div className="location-prompt-card">
+    <div className="location-prompt-overlay" onClick={handleDismiss}>
+      <div className="location-prompt-card" onClick={(e) => e.stopPropagation()}>
         <div className="location-prompt-icon">📍</div>
         <h2>{t('donations.location_permission_title')}</h2>
         <p>{t('donations.location_permission_desc')}</p>
-        
-        {error && (
-          <div className="location-prompt-error" style={{ color: 'var(--danger)', marginBottom: '1rem' }}>
-            {error}
-          </div>
-        )}
         
         <div className="location-prompt-buttons">
           <button 
             className="btn btn-primary" 
             onClick={handleEnableLocation}
-            disabled={loading}
           >
-            {loading ? t('common.loading') : t('donations.enable_location')}
+            {t('donations.enable_location')}
           </button>
           <button 
             className="btn btn-ghost" 
             onClick={handleDismiss}
-            disabled={loading}
           >
             {t('common.cancel')}
           </button>

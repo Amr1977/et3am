@@ -204,7 +204,9 @@
     "filter": "Filter",
     "sort": "Sort",
     "actions": "Actions",
-    "back_to_donations": "Back to Donations"
+    "back_to_donations": "Back to Donations",
+    "retry": "Retry",
+    "cancel": "Cancel"
   },
   "theme": {
     "light": "Light Mode",
