@@ -12,6 +12,7 @@ export default function LocationPrompt({ onComplete }: LocationPromptProps) {
   const [showPrompt, setShowPrompt] = useState(false);
   const [loading, setLoading] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const askedBefore = localStorage.getItem('locationPromptDismissed');
@@ -29,6 +30,7 @@ export default function LocationPrompt({ onComplete }: LocationPromptProps) {
     }
 
     setLoading(true);
+    setError(null);
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
@@ -39,24 +41,30 @@ export default function LocationPrompt({ onComplete }: LocationPromptProps) {
           setShowPrompt(false);
           localStorage.setItem('locationPromptDismissed', 'true');
           onComplete?.();
-        } catch (error) {
-          console.error('Failed to update location:', error);
+        } catch (err) {
+          console.error('Failed to update location:', err);
+          setError('Failed to save location');
         } finally {
           setLoading(false);
         }
       },
-      (error) => {
-        console.error('Geolocation error:', error);
+      (err) => {
+        console.error('Geolocation error:', err);
         setLoading(false);
-        if (error.code === error.PERMISSION_DENIED) {
+        
+        if (err.code === err.PERMISSION_DENIED) {
           setDismissed(true);
           localStorage.setItem('locationPromptDismissed', 'true');
+        } else if (err.code === err.TIMEOUT) {
+          setError(t('donations.location_timeout') || 'Location request timed out');
+        } else {
+          setError(t('donations.location_error') || 'Failed to get location');
         }
       },
       {
         enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000,
+        timeout: 15000,
+        maximumAge: 0,
       }
     );
   };
@@ -78,13 +86,19 @@ export default function LocationPrompt({ onComplete }: LocationPromptProps) {
         <h2>{t('donations.location_permission_title')}</h2>
         <p>{t('donations.location_permission_desc')}</p>
         
+        {error && (
+          <div className="location-prompt-error" style={{ color: 'var(--danger)', marginBottom: '1rem' }}>
+            {error}
+          </div>
+        )}
+        
         <div className="location-prompt-buttons">
           <button 
             className="btn btn-primary" 
             onClick={handleEnableLocation}
             disabled={loading}
           >
-            {loading ? '...' : t('donations.enable_location')}
+            {loading ? t('common.loading') : t('donations.enable_location')}
           </button>
           <button 
             className="btn btn-ghost" 

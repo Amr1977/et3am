@@ -138,6 +138,8 @@
     "location_permission_title": "Enable Your Location",
     "location_permission_desc": "Enable location to find meals near you and get personalized recommendations",
     "geolocation_not_supported": "Geolocation is not supported by your browser",
+    "location_timeout": "Location request timed out",
+    "location_error": "Failed to get location",
     "view_card": "View Details",
     "donations_found": "donations found",
     "donation_found": "donation found",
