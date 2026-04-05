@@ -3,13 +3,13 @@ import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD6L3_dHbWGYi6S_OOAitj69PLvdx2jjsI",
-  authDomain: "et3am26.firebaseapp.com",
-  projectId: "et3am26",
-  storageBucket: "et3am26.firebasestorage.app",
-  messagingSenderId: "119582207501",
-  appId: "1:119582207501:web:38dc0c5e6af37acd092f44",
-  measurementId: "G-VNPG7VYC44"
+  apiKey: "AIzaSyBLY_brAiwgZx8Z2NOKNvGNN05l3hIoaXQ",
+  authDomain: "foodshare777.firebaseapp.com",
+  projectId: "foodshare777",
+  storageBucket: "foodshare777.firebasestorage.app",
+  messagingSenderId: "275086967374",
+  appId: "1:275086967374:web:e21931c54d3b1b199e791f",
+  measurementId: "G-YY5QP2X2XP"
 };
 
 const app = initializeApp(firebaseConfig);
