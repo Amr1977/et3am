@@ -30,17 +30,26 @@ Both servers host **multiple projects**. Always verify the correct project path 
 
 ## Deployment Commands
 
-Deploy to both servers:
+### Quick Deploy (using script)
+```bash
+# Requires build (npm run build) before restart
+./deploy-backend.sh
+```
+**Note:** The script runs `npm install --omit=dev && npm run build && pm2 restart et3am-backend` on both servers.
+
+### Manual Deploy (command line)
 ```bash
 # Push code first
 git push origin master
 
-# Server 1 - Et3am ONLY
-ssh ubuntu@api.et3am.com "cd /home/ubuntu/et3am && git fetch origin master && git reset --hard origin/master && cd backend && npm install --omit=dev && pm2 restart et3am-backend"
+# Server 1 - Et3am ONLY (includes build)
+ssh ubuntu@api.et3am.com "cd /home/ubuntu/et3am && git fetch origin master && git reset --hard origin/master && cd backend && npm install --omit=dev && npm run build && pm2 restart et3am-backend"
 
-# Server 2 - Et3am ONLY
-ssh amr_lotfy_othman@matrix-delivery-api-gc.mywire.org "cd /home/amr_lotfy_othman/et3am && git fetch origin master && git reset --hard origin/master && cd backend && npm install --omit=dev && pm2 restart et3am-backend"
+# Server 2 - Et3am ONLY (includes build)
+ssh amr_lotfy_othman@matrix-delivery-api-gc.mywire.org "cd /home/amr_lotfy_othman/et3am && git fetch origin master && git reset --hard origin/master && cd backend && npm install --omit=dev && npm run build && pm2 restart et3am-backend"
 ```
+
+**Important:** Backend is TypeScript and requires `npm run build` before running. Do not skip the build step.
 
 ### Check running processes before deploying:
 ```bash
