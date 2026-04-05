@@ -143,7 +143,10 @@ export default function Navbar() {
               <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
             </svg>
           </div>
-          <span className="brand-text">{t('app.name')}</span>
+          <div className="brand-content">
+            <span className="brand-text">{t('app.name')}</span>
+            <span className="brand-version">v{gitInfo.commit?.slice(0, 7)}</span>
+          </div>
         </Link>
 
         <div 
@@ -307,11 +310,6 @@ export default function Navbar() {
               )}
             </button>
           )}
-
-          <div className="version-badge" title={`v${gitInfo.commit} • ${new Date(gitInfo.buildTime).toLocaleString()}`}>
-            <span className="version-dot"></span>
-            <span className="version-text">v{gitInfo.commit?.slice(0, 7)}</span>
-          </div>
 
           {isAuthenticated ? (
             <div className="user-menu-container" ref={userMenuRef}>
