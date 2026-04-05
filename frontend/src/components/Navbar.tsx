@@ -115,6 +115,37 @@ export default function Navbar() {
         </Link>
 
         <div className={`navbar-links ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+          {mobileMenuOpen && (
+            <div className="mobile-menu-header">
+              <Link to="/" className="mobile-menu-brand" onClick={() => setMobileMenuOpen(false)}>
+                <div className="brand-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                  </svg>
+                </div>
+                <span className="brand-text">{t('app.name')}</span>
+              </Link>
+              <button className="mobile-menu-close" onClick={() => setMobileMenuOpen(false)} aria-label="Close menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+          )}
+
+          {isAuthenticated && mobileMenuOpen && (
+            <div className="mobile-user-section">
+              <div className="mobile-user-avatar">
+                {user?.name?.charAt(0).toUpperCase() || '👤'}
+              </div>
+              <div className="mobile-user-info">
+                <div className="mobile-user-name">{user?.name}</div>
+                <div className="mobile-user-email">{user?.email}</div>
+              </div>
+            </div>
+          )}
+
           <div className="nav-section">
             <span className="nav-section-title">{t('nav.home')}</span>
             {navItems.slice(0, 2).map(item => (
@@ -122,6 +153,7 @@ export default function Navbar() {
                 key={item.path} 
                 to={item.path} 
                 className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
               >
                 <span className="nav-icon">{item.icon}</span>
                 <span className="nav-label">{item.label}</span>
