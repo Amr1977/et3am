@@ -95,25 +95,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const loginWithGoogle = async () => {
+    console.log('[AUTH] Starting Google login...');
+    console.log('[AUTH] Firebase config projectId:', firebaseConfig.projectId);
+    
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({
       prompt: 'select_account'
     });
     provider.addScope('profile');
     provider.addScope('email');
-    const result = await signInWithPopup(auth, provider);
-    const idToken = await result.user.getIdToken();
     
+    console.log('[AUTH] Opening sign-in popup...');
+    const result = await signInWithPopup(auth, provider);
+    console.log('[AUTH] User signed in:', result.user.email);
+    console.log('[AUTH] User UID:', result.user.uid);
+    
+    const idToken = await result.user.getIdToken();
+    console.log('[AUTH] ID Token received, length:', idToken.length);
+    console.log('[AUTH] ID Token header:', idToken.split('.')[0]);
+    
+    // Decode and log token details
+    try {
+      const tokenParts = idToken.split('.');
+      const payload = JSON.parse(atob(tokenParts[1]));
+      console.log('[AUTH] Token payload:', JSON.stringify({
+        aud: payload.aud,
+        iss: payload.iss,
+        sub: payload.sub,
+        auth_time: payload.auth_time
+      }, null, 2));
+    } catch (e) {
+      console.error('[AUTH] Failed to decode token:', e);
+    }
+    
+    console.log('[AUTH] Sending token to backend...');
     const res = await fetchWithFailover(`${API_ENDPOINT}/auth/google`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ idToken }),
     });
+    
+    console.log('[AUTH] Backend response status:', res.status);
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Google login failed');
+    console.log('[AUTH] Backend response:', data);
+    
+    if (!res.ok) {
+      console.error('[AUTH] Login failed:', data.message);
+      throw new Error(data.message || 'Google login failed');
+    }
     localStorage.setItem('token', data.token);
     setToken(data.token);
     setUser(data.user);
+    console.log('[AUTH] Login successful!');
   };
 
   const loginWithToken = async (newToken: string) => {

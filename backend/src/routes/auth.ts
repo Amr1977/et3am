@@ -247,8 +247,26 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
       requestId, 
       clientIp,
       tokenLength: idToken.length,
-      tokenPrefix: idToken.substring(0, 20)
+      tokenPrefix: idToken.substring(0, 50),
+      tokenHeader: idToken.split('.')[0]
     });
+    
+    // Decode and log token details from frontend
+    try {
+      const tokenParts = idToken.split('.');
+      const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
+      (logger as any).auth('Frontend token payload', {
+        requestId,
+        aud: payload.aud,
+        iss: payload.iss,
+        sub: payload.sub,
+        auth_time: payload.auth_time,
+        email: payload.email,
+        email_verified: payload.email_verified
+      });
+    } catch (e: any) {
+      (logger as any).auth('Failed to decode frontend token', { requestId, error: e.message });
+    }
 
     if (!firebaseInitialized || !admin.apps.length) {
       (logger as any).auth('Google auth failed - Firebase not initialized', { 
