@@ -6,7 +6,7 @@ import { authenticate, generateToken, AuthRequest } from '../middleware/auth';
 import { registerSchema, loginSchema } from '../utils/validators';
 import { sanitizeString, sanitizeEmail } from '../utils/sanitizers';
 import logger from '../config/logger';
-import { admin, firebaseInitialized } from '../firebase-admin';
+import { admin, firebaseInitialized, serviceAccount } from '../firebase-admin';
 
 const router = Router();
 
@@ -225,7 +225,9 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
     requestId, 
     clientIp,
     hasIdToken: !!req.body.idToken,
-    userAgent: req.headers['user-agent']
+    userAgent: req.headers['user-agent'],
+    contentType: req.headers['content-type'],
+    fullBody: JSON.stringify(req.body).substring(0, 500)
   });
 
   try {
@@ -253,7 +255,10 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
         requestId, 
         clientIp,
         firebaseInitialized,
-        adminAppsLength: admin.apps.length
+        adminAppsLength: admin.apps.length,
+        firebaseAdminApps: admin.apps.map(a => a?.options?.projectId || 'unknown'),
+        serviceAccountLoaded: !!serviceAccount,
+        serviceAccountProjectId: serviceAccount?.project_id || 'N/A'
       });
       res.status(503).json({ messageKey: 'auth.google_not_available' });
       return;
@@ -282,7 +287,11 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
         error: verifyErr.message,
         stack: verifyErr.stack,
         code: verifyErr.code,
-        kind: verifyErr.kind
+        kind: verifyErr.kind,
+        fullError: JSON.stringify(verifyErr),
+        firebaseInitialized,
+        adminAppsLength: admin.apps.length,
+        appProjectId: admin.app()?.options?.projectId
       });
       res.status(401).json({ messageKey: 'auth.invalid_token' });
       return;
