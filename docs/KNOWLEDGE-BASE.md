@@ -18,6 +18,17 @@ A comprehensive food donation platform with multi-language support (English/Arab
 - **Firebase Project**: foodshare777 (switched from et3am26 on 2026-04-05)
 - **Testing**: Vitest (backend), Playwright (E2E)
 
+#### Deployment Scripts
+```bash
+# Deploy frontend (Firebase)
+./deploy-frontend.sh
+
+# Deploy backend (AWS + GCP)
+./deploy-backend.sh
+```
+- **deploy-frontend.sh**: Builds React/Vite app and deploys to Firebase (foodshare777)
+- **deploy-backend.sh**: Pulls latest code, builds TypeScript, restarts PM2 on both AWS and GCP servers
+
 #### Project Structure
 ```
 et3am/
