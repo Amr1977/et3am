@@ -6,6 +6,7 @@ import { authenticate, generateToken, AuthRequest } from '../middleware/auth';
 import { registerSchema, loginSchema } from '../utils/validators';
 import { sanitizeString, sanitizeEmail } from '../utils/sanitizers';
 import logger from '../config/logger';
+import { admin, firebaseInitialized } from '../firebase-admin';
 
 const router = Router();
 
@@ -225,15 +226,7 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    let admin;
-    try {
-      admin = require('firebase-admin');
-    } catch {
-      res.status(503).json({ messageKey: 'auth.google_not_available' });
-      return;
-    }
-
-    if (!admin.apps.length) {
+    if (!firebaseInitialized || !admin.apps.length) {
       res.status(503).json({ messageKey: 'auth.google_not_available' });
       return;
     }
