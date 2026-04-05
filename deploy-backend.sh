@@ -7,6 +7,12 @@ set -e
 
 echo "🚀 Deploying Et3am Backend to production servers..."
 
+# Auto-bump version before deploy
+echo "📝 Bumping version..."
+source ./version-bump.sh
+git add VERSION
+git commit -m "release: bump version to $NEW_MAJOR.$NEW_MINOR.$NEW_PATCH" || true
+
 # Server 1: AWS (api.et3am.com)
 echo "📦 Deploying to AWS (api.et3am.com)..."
 ssh ubuntu@api.et3am.com "cd /home/ubuntu/et3am && git fetch origin master && git reset --hard origin/master && cd backend && npm install && npm run build && pm2 restart et3am-backend"
