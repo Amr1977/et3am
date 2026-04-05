@@ -1,40 +1,28 @@
-import admin from 'firebase-admin';
-import fs from 'fs';
-import path from 'path';
+import * as admin from 'firebase-admin';
+import * as path from 'path';
 
-const credPath = path.join(__dirname, '../et3am26-firebase-adminsdk-fbsvc-23c302e167.json');
-
-let fileCreds: any = null;
-if (fs.existsSync(credPath)) {
-  try {
-    fileCreds = JSON.parse(fs.readFileSync(credPath, 'utf8'));
-  } catch (e) {
-    console.warn('Failed to parse Firebase credentials file');
-  }
+let serviceAccount: any = null;
+try {
+  serviceAccount = require('../et3am26-firebase-adminsdk-fbsvc-23c302e167.json');
+  console.log('Service account loaded successfully');
+} catch (err) {
+  console.error('Failed to load service account:', err);
 }
 
-export const serviceAccount = {
-  projectId: process.env.FIREBASE_PROJECT_ID || fileCreds?.project_id || 'et3am26',
-  privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n') || fileCreds?.private_key,
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL || fileCreds?.client_email || 'firebase-adminsdk-fbsvc@et3am26.iam.gserviceaccount.com',
-};
+const firebaseInitialized = admin.apps.length > 0;
 
-let firebaseInitialized = false;
-
-if (serviceAccount?.privateKey) {
-  try {
-    if (!admin.apps.length) {
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
-      });
-    }
-    firebaseInitialized = true;
-    console.log('Firebase Admin initialized');
-  } catch (err) {
-    console.warn('Firebase Admin initialization failed:', err);
-  }
+if (!firebaseInitialized && serviceAccount) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+    projectId: "et3am26"
+  });
+  console.log('Firebase Admin initialized with projectId: et3am26');
+  console.log("🔥 ADMIN PROJECT:", admin.app().options.projectId);
+} else if (firebaseInitialized) {
+  console.log("Firebase already initialized");
+  console.log("🔥 ADMIN PROJECT:", admin.app().options.projectId);
 } else {
-  console.warn('Firebase private key not configured - Google auth via Firebase will be disabled');
+  console.error("Firebase private key not configured - Google auth will be disabled");
 }
 
-export { admin, firebaseInitialized };
+export { admin, firebaseInitialized, serviceAccount };

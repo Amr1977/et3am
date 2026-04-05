@@ -12,20 +12,22 @@ export function initFirestore(): admin.firestore.Firestore | null {
     return null;
   }
 
-  try {
-    if (!admin.apps.length) {
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount as any),
-      });
-    }
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount as any),
+      projectId: "et3am26"
+    });
+  }
+  
+  if (admin.apps.length > 0) {
     db = admin.firestore();
     firestoreInitialized = true;
     console.log('Firestore initialized');
     return db;
-  } catch (err) {
-    console.warn('Firestore initialization failed:', err);
-    return null;
   }
+  
+  console.warn('Firestore initialization failed - no Firebase app');
+  return null;
 }
 
 export function isFirestoreInitialized(): boolean {
