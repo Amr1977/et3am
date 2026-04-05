@@ -7,6 +7,12 @@ set -e
 
 echo "🚀 Building and deploying Et3am Frontend to Firebase..."
 
+# Auto-bump version before deploy
+echo "📝 Bumping version..."
+source ./version-bump.sh
+git add VERSION
+git commit -m "release: bump version to $NEW_MAJOR.$NEW_MINOR.$NEW_PATCH" || true
+
 cd frontend
 
 echo "📦 Installing dependencies..."
