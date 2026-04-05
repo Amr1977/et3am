@@ -715,6 +715,14 @@ For any component touched, always verify:
    - [ ] Label shows character of **current** language, not the other
    - Example: When in Arabic, show "ع" not "EN"
 
+### Side Menu / Drawer Rules
+- [ ] **Top z-index**: Menu should be highest z-index (9999), overlay one below (9998)
+- [ ] **Full screen overlay**: Background covers entire screen with semi-transparent overlay
+- [ ] **Touch outside to dismiss**: Clicking/tapping overlay closes menu
+- [ ] **Swipe to open**: Swipe from screen edge opens menu
+- [ ] **Swipe to dismiss**: Swipe menu toward edge dismisses it
+- [ ] **RTL support**: Menu opens from correct side (right for RTL, left for LTR)
+
 ### TypeScript Usage
 - Strict type checking enabled
 - Interface definitions for request/response

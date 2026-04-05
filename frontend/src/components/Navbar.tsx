@@ -22,6 +22,8 @@ export default function Navbar() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const touchStartRef = useRef<number | null>(null);
+  const [touchDelta, setTouchDelta] = useState(0);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme');
@@ -54,6 +56,31 @@ export default function Navbar() {
     setMobileMenuOpen(false);
     setUserMenuOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const handleTouchStart = (e: TouchEvent) => {
+      if (mobileMenuOpen) return;
+      const touchX = e.touches[0].clientX;
+      if ((!isRTL && touchX < 20) || (isRTL && touchX > window.innerWidth - 20)) {
+        touchStartRef.current = e.touches[0].clientX;
+      }
+    };
+    const handleTouchMove = (e: TouchEvent) => {
+      if (touchStartRef.current === null) return;
+      const currentX = e.touches[0].clientX;
+      const delta = isRTL ? touchStartRef.current - currentX : currentX - touchStartRef.current;
+      if (delta > 50 && !mobileMenuOpen) {
+        setMobileMenuOpen(true);
+        touchStartRef.current = null;
+      }
+    };
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, [mobileMenuOpen, isRTL]);
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
@@ -93,6 +120,10 @@ export default function Navbar() {
 
   return (
     <nav className="navbar">
+      <div 
+        className={`mobile-menu-overlay ${mobileMenuOpen ? 'active' : ''}`}
+        onClick={() => setMobileMenuOpen(false)}
+      />
       <div className="navbar-container">
         <button 
           className={`hamburger ${mobileMenuOpen ? 'active' : ''}`} 
@@ -114,7 +145,26 @@ export default function Navbar() {
           <span className="brand-text">{t('app.name')}</span>
         </Link>
 
-        <div className={`navbar-links ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+        <div 
+          className={`navbar-links ${mobileMenuOpen ? 'mobile-open' : ''}`}
+          onTouchStart={(e) => {
+            touchStartRef.current = e.touches[0].clientX;
+          }}
+          onTouchMove={(e) => {
+            if (touchStartRef.current === null) return;
+            const currentX = e.touches[0].clientX;
+            const delta = isRTL ? touchStartRef.current - currentX : currentX - touchStartRef.current;
+            setTouchDelta(delta);
+          }}
+          onTouchEnd={() => {
+            if (touchStartRef.current === null) return;
+            if (isRTL ? touchDelta > 75 : touchDelta > 75) {
+              setMobileMenuOpen(false);
+            }
+            touchStartRef.current = null;
+            setTouchDelta(0);
+          }}
+        >
           {mobileMenuOpen && (
             <div className="mobile-menu-header">
               <Link to="/" className="mobile-menu-brand" onClick={() => setMobileMenuOpen(false)}>
