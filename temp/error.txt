@@ -1,0 +1,42 @@
+9|et3am-backend  | [et3am-aws] Running health check...
+9|et3am-backend  | [et3am-aws] Failed to update health in Firestore: Error: 16 UNAUTHENTICATED: Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+9|et3am-backend  |     at callErrorFromStatus (/home/ubuntu/et3am/backend/node_modules/@grpc/grpc-js/build/src/call.js:32:19)
+9|et3am-backend  |     at Object.onReceiveStatus (/home/ubuntu/et3am/backend/node_modules/@grpc/grpc-js/build/src/client.js:193:76)
+9|et3am-backend  |     at Object.onReceiveStatus (/home/ubuntu/et3am/backend/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:367:141)
+9|et3am-backend  |     at Object.onReceiveStatus (/home/ubuntu/et3am/backend/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:327:181)
+9|et3am-backend  |     at /home/ubuntu/et3am/backend/node_modules/@grpc/grpc-js/build/src/resolving-call.js:135:78
+9|et3am-backend  |     at process.processTicksAndRejections (node:internal/process/task_queues:85:11)
+9|et3am-backend  | for call at
+9|et3am-backend  |     at ServiceClientImpl.makeUnaryRequest (/home/ubuntu/et3am/backend/node_modules/@grpc/grpc-js/build/src/client.js:161:32)
+9|et3am-backend  |     at ServiceClientImpl.<anonymous> (/home/ubuntu/et3am/backend/node_modules/@grpc/grpc-js/build/src/make-client.js:105:19)
+9|et3am-backend  |     at /home/ubuntu/et3am/backend/node_modules/@google-cloud/firestore/build/src/v1/firestore_client.js:242:33
+9|et3am-backend  |     at /home/ubuntu/et3am/backend/node_modules/google-gax/build/src/normalCalls/timeout.js:44:16
+9|et3am-backend  |     at repeat (/home/ubuntu/et3am/backend/node_modules/google-gax/build/src/normalCalls/retries.js:82:25)
+9|et3am-backend  |     at /home/ubuntu/et3am/backend/node_modules/google-gax/build/src/normalCalls/retries.js:125:13
+9|et3am-backend  |     at OngoingCallPromise.call (/home/ubuntu/et3am/backend/node_modules/google-gax/build/src/call.js:67:27)
+9|et3am-backend  |     at NormalApiCaller.call (/home/ubuntu/et3am/backend/node_modules/google-gax/build/src/normalCalls/normalApiCaller.js:34:19)
+9|et3am-backend  |     at /home/ubuntu/et3am/backend/node_modules/google-gax/build/src/createApiCall.js:112:30
+9|et3am-backend  |     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+9|et3am-backend  | Caused by: Error
+9|et3am-backend  |     at _firestore._traceUtil.startActiveSpan (/home/ubuntu/et3am/backend/node_modules/@google-cloud/firestore/build/src/write-batch.js:438:27)
+9|et3am-backend  |     at /home/ubuntu/et3am/backend/node_modules/@google-cloud/firestore/build/src/telemetry/enabled-trace-util.js:110:30
+9|et3am-backend  |     at NoopContextManager.with (/home/ubuntu/et3am/backend/node_modules/@opentelemetry/api/build/src/context/NoopContextManager.js:14:19)
+9|et3am-backend  |     at ContextAPI.with (/home/ubuntu/et3am/backend/node_modules/@opentelemetry/api/build/src/api/context.js:51:46)
+9|et3am-backend  |     at NoopTracer.startActiveSpan (/home/ubuntu/et3am/backend/node_modules/@opentelemetry/api/build/src/trace/NoopTracer.js:54:31)
+9|et3am-backend  |     at ProxyTracer.startActiveSpan (/home/ubuntu/et3am/backend/node_modules/@opentelemetry/api/build/src/trace/ProxyTracer.js:27:24)
+9|et3am-backend  |     at EnabledTraceUtil.startActiveSpan (/home/ubuntu/et3am/backend/node_modules/@google-cloud/firestore/build/src/telemetry/enabled-trace-util.js:102:28)
+9|et3am-backend  |     at WriteBatch.commit (/home/ubuntu/et3am/backend/node_modules/@google-cloud/firestore/build/src/write-batch.js:436:43)
+9|et3am-backend  |     at /home/ubuntu/et3am/backend/node_modules/@google-cloud/firestore/build/src/reference/document-reference.js:350:31
+9|et3am-backend  |     at /home/ubuntu/et3am/backend/node_modules/@google-cloud/firestore/build/src/telemetry/enabled-trace-util.js:110:30 {
+9|et3am-backend  |   code: 16,
+9|et3am-backend  |   details: 'Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.',
+9|et3am-backend  |   metadata: Metadata {
+9|et3am-backend  |     internalRepr: Map(2) {
+9|et3am-backend  |       'www-authenticate' => [Array],
+9|et3am-backend  |       'x-debug-tracking-id' => [Array]
+9|et3am-backend  |     },
+9|et3am-backend  |     opaqueData: Map(0) {},
+9|et3am-backend  |     options: {}
+9|et3am-backend  |   },
+9|et3am-backend  |   note: 'Exception occurred in retry method that was not classified as transient'
+9|et3am-backend  | }
