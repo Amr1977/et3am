@@ -19,9 +19,11 @@ ALTER TABLE donations ADD COLUMN IF NOT EXISTS delivery_verified BOOLEAN DEFAULT
 -- =====================================================
 -- DAILY RESERVATIONS (Daily Limit Tracking)
 -- =====================================================
+DROP TABLE IF EXISTS daily_reservations;
+
 CREATE TABLE IF NOT EXISTS daily_reservations (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL,
     donation_id TEXT REFERENCES donations(id) ON DELETE SET NULL,
     action_type VARCHAR(20) NOT NULL CHECK (action_type IN ('reserve', 'receive')),
     reservation_date DATE DEFAULT CURRENT_DATE,
