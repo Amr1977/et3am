@@ -22,7 +22,7 @@ if (admin.apps.length === 0 && serviceAccount) {
     credential: admin.credential.cert(serviceAccount),
     projectId: "foodshare777"
   });
-  console.log('Firebase Admin initialized with projectId: et3am26');
+  console.log('Firebase Admin initialized with projectId: ' + serviceAccount.projectId);
   console.log("🔥 ADMIN PROJECT:", admin.app().options.projectId);
 } else if (admin.apps.length > 0) {
   console.log("Firebase already initialized");
