@@ -1831,7 +1831,7 @@ body {
 .step-flow-number {
   position: absolute;
   top: -12px;
-  left: -12px;
+  left: 16px;
   width: 32px;
   height: 32px;
   background: var(--primary);
@@ -1841,8 +1841,14 @@ body {
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 0.9rem;
-  box-shadow: var(--shadow);
+  font-size: 0.875rem;
+  border: 3px solid var(--bg);
+  box-shadow: var(--shadow-md);
+}
+
+html[dir="rtl"] .step-flow-number {
+  left: auto;
+  right: 16px;
 }
 
 .step-flow-icon {
@@ -3824,13 +3830,13 @@ body {
   }
 
   html[dir="rtl"] .mobile-menu-overlay {
-    right: auto;
-    left: 0;
+    right: auto !important;
+    left: 0 !important;
   }
 
   html[dir="rtl"] .navbar-links.mobile-open {
-    right: auto;
-    left: 0;
+    right: auto !important;
+    left: 0 !important;
     animation: slideInLeft 0.3s ease;
   }
 
@@ -4009,14 +4015,25 @@ body {
   }
 
   html[dir="rtl"] .navbar-links.mobile-open {
-    right: auto;
-    left: 0;
+    right: auto !important;
+    left: 0 !important;
     animation: slideInLeft 0.3s ease;
   }
 
   html[dir="rtl"] .mobile-menu-overlay {
-    right: auto;
-    left: 0;
+    right: auto !important;
+    left: 0 !important;
+  }
+
+  html[dir="rtl"] .navbar-links.mobile-open {
+    right: auto !important;
+    left: 0 !important;
+    animation: slideInLeft 0.3s ease;
+  }
+
+  html[dir="rtl"] .mobile-menu-overlay {
+    right: auto !important;
+    left: 0 !important;
   }
 
   @keyframes slideInLeft {
