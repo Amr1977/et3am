@@ -3962,6 +3962,21 @@ body {
     z-index: 1001;
   }
 
+  html[dir="rtl"] .hamburger {
+    order: 2;
+  }
+
+  html[dir="rtl"] .navbar-links.mobile-open {
+    right: auto;
+    left: 0;
+    animation: slideInLeft 0.3s ease;
+  }
+
+  @keyframes slideInLeft {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+  }
+
   .navbar-actions .auth-buttons {
     display: none;
   }
