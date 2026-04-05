@@ -24,6 +24,14 @@ This catches missing translations early and prevents broken UIs.
 - **Status values**: pending, in_progress, completed, cancelled
 - **Max 7 tasks**: Keep task queue max 7 items to maintain focus and visibility
 
+## Technology Rules
+
+### TTS (Text-to-Speech) for Notifications
+- [ ] **Always use TTS**: Replace MP3 sound files with browser's SpeechSynthesis API
+- [ ] **Localization**: Use appropriate language (ar-SA for Arabic, en-US for English)
+- [ ] **Events to announce**: New meal available, reservation, delivery, messages, cancellations
+- [ ] **Respect user preference**: Only speak if user has enabled sound in settings
+
 ## AI Agent Roles & Capabilities
 
 This project is maintained by an AI agent with multiple expert roles:
@@ -723,6 +731,29 @@ For any component touched, always verify:
 - [ ] **Swipe to open**: Swipe from screen edge opens menu
 - [ ] **Swipe to dismiss**: Swipe menu toward edge dismisses it
 - [ ] **RTL support**: Menu opens from correct side (right for RTL, left for LTR)
+
+### Map Rules
+- [ ] **Center on user**: Map always centers on current user location
+- [ ] **Animated user marker**: Show live animated marker that moves as user moves
+- [ ] **Initial zoom**: Circle diameter of 7km around user marker
+- [ ] **Real-time tracking**: Update marker position as user moves
+
+### Navbar Organization Rules
+**Keep in Navbar** (essential, always visible):
+- Logo/Brand - Identity
+- Hamburger Menu - Mobile navigation trigger
+- Theme Toggle - Frequent use
+- Language Switcher - Frequent use
+- Version Badge - Nice to have, small footprint
+- User Avatar (if logged in) - Access to profile/auth state
+
+**Move to Side Menu**:
+- Sound toggle - Not used frequently
+
+**Move to Settings Page**:
+- Sound effects settings
+- Notification preferences
+- Full language settings
 
 ### TypeScript Usage
 - Strict type checking enabled

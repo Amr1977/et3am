@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
+import { useRTL } from '../hooks/useRTL';
 
 interface SoundContextType {
   soundEnabled: boolean;
@@ -9,12 +10,27 @@ interface SoundContextType {
 
 type SoundType = 'new_meal' | 'reserved' | 'delivered' | 'message' | 'cancelled';
 
-const soundUrls: Record<SoundType, string> = {
-  new_meal: '/sounds/new_meal.mp3',
-  reserved: '/sounds/reserved.mp3',
-  delivered: '/sounds/delivered.mp3',
-  message: '/sounds/message.mp3',
-  cancelled: '/sounds/cancelled.mp3',
+const soundMessages: Record<SoundType, { en: string; ar: string }> = {
+  new_meal: {
+    en: 'New meal available!',
+    ar: 'وجبة جديدة متاحة!',
+  },
+  reserved: {
+    en: 'Your donation has been reserved!',
+    ar: 'تم حجز تبرعك!',
+  },
+  delivered: {
+    en: 'Meal has been delivered!',
+    ar: 'تم تسليم الوجبة!',
+  },
+  message: {
+    en: 'New message received!',
+    ar: 'رسالة جديدة_received!',
+  },
+  cancelled: {
+    en: 'Reservation cancelled!',
+    ar: 'تم إلغاء الحجز!',
+  },
 };
 
 const SoundContext = createContext<SoundContextType | null>(null);
@@ -25,13 +41,12 @@ interface SoundProviderProps {
 
 export function SoundProvider({ children }: SoundProviderProps) {
   const { user, token, isAuthenticated } = useAuth();
+  const { isRTL } = useRTL();
   const [soundEnabled, setSoundEnabled] = useState(false);
-  const [audioCache, setAudioCache] = useState<Record<SoundType, HTMLAudioElement>>({} as any);
 
   useEffect(() => {
     if (!isAuthenticated || !token) return;
 
-    // Load user's sound preference
     fetch(`/api/users/me`, {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -44,31 +59,26 @@ export function SoundProvider({ children }: SoundProviderProps) {
       .catch(console.error);
   }, [isAuthenticated, token]);
 
-  useEffect(() => {
-    const cache: Record<SoundType, HTMLAudioElement> = {} as any;
-    for (const [type, url] of Object.entries(soundUrls)) {
-      const audio = new Audio(url);
-      audio.preload = 'auto';
-      cache[type as SoundType] = audio;
-    }
-    setAudioCache(cache);
-
-    return () => {
-      for (const audio of Object.values(cache)) {
-        audio.pause();
-        audio.src = '';
-      }
-    };
-  }, []);
+  const speak = (text: string) => {
+    if (!window.speechSynthesis) return;
+    
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = isRTL ? 'ar-SA' : 'en-US';
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    
+    window.speechSynthesis.speak(utterance);
+  };
 
   const playSound = (soundType: SoundType) => {
     if (!soundEnabled) return;
     
-    const audio = audioCache[soundType];
-    if (audio) {
-      audio.currentTime = 0;
-      audio.play().catch(console.error);
-    }
+    const messages = soundMessages[soundType];
+    const text = isRTL ? messages.ar : messages.en;
+    speak(text);
   };
 
   const handleSetSoundEnabled = async (enabled: boolean) => {
