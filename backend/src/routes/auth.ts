@@ -258,7 +258,7 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
         adminAppsLength: admin.apps.length,
         firebaseAdminApps: admin.apps.map(a => a?.options?.projectId || 'unknown'),
         serviceAccountLoaded: !!serviceAccount,
-        serviceAccountProjectId: serviceAccount?.project_id || 'N/A'
+        serviceAccountProjectId: (serviceAccount as any)?.project_id || 'N/A'
       });
       res.status(503).json({ messageKey: 'auth.google_not_available' });
       return;
