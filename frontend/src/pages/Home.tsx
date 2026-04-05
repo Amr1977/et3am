@@ -275,7 +275,7 @@ export default function Home() {
             ) : (
               <div className="stat-number">{formatNumber(stats?.totalReceivers || 0)}</div>
             )}
-            <div className="stat-label">{t('home.total_receivers')}</div>
+            <div className="stat-label">{t('home.total_members')}</div>
           </div>
         </div>
       </section>
