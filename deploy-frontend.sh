@@ -13,6 +13,7 @@ echo "📦 Installing dependencies..."
 npm install
 
 echo "🏗️ Building frontend..."
+export NODE_OPTIONS="--max-old-space-size=4096"
 npm run build
 
 echo "🔥 Deploying to Firebase (foodshare777)..."

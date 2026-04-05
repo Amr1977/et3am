@@ -133,6 +133,8 @@
     "location_permission_title": "تفعيل موقعك",
     "location_permission_desc": "تفعيل الموقع للعثور على الطعام المتاح بالقرب منك والحصول على توصيات مخصصة",
     "geolocation_not_supported": "الموقع الجغرافي غير مدعوم في متصفحك",
+    "location_timeout": "انتهت مهلة طلب الموقع",
+    "location_error": "فشل في الحصول على الموقع",
     "view_card": "عرض التفاصيل",
     "donations_found": "تبرعات موجودة",
     "donation_found": "تبرع واحد",
