@@ -15,6 +15,7 @@ A comprehensive food donation platform with multi-language support (English/Arab
 - **Real-time**: Socket.io
 - **Authentication**: JWT + Google OAuth20
 - **Deployment**: Firebase (frontend), PM2 (backend)
+- **Firebase Project**: foodshare777 (switched from et3am26 on 2026-04-05)
 - **Testing**: Vitest (backend), Playwright (E2E)
 
 #### Project Structure
