@@ -111,28 +111,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('[AUTH] User UID:', result.user.uid);
     
     const idToken = await result.user.getIdToken();
-    console.log('[AUTH] ID Token received, length:', idToken.length);
-    console.log('[AUTH] ID Token header:', idToken.split('.')[0]);
     
-    // Decode and log token details
+    // Log raw token details
+    console.log('[AUTH] ========== RAW TOKEN ==========');
+    console.log('[AUTH] Token length:', idToken.length);
+    console.log('[AUTH] Token hash (MD5):', await md5(idToken));
+    console.log('[AUTH] Token hash (SHA256):', await sha256(idToken));
+    console.log('[AUTH] First 100 chars:', idToken.substring(0, 100));
+    console.log('[AUTH] Last 100 chars:', idToken.substring(idToken.length - 100));
+    console.log('[AUTH] =================================');
+    
+    // Decode and log token parts
+    const tokenParts = idToken.split('.');
+    console.log('[AUTH] Token has', tokenParts.length, 'parts');
+    
+    // Header
     try {
-      const tokenParts = idToken.split('.');
-      const payload = JSON.parse(atob(tokenParts[1]));
-      console.log('[AUTH] Token payload:', JSON.stringify({
-        aud: payload.aud,
-        iss: payload.iss,
-        sub: payload.sub,
-        auth_time: payload.auth_time
-      }, null, 2));
+      const header = JSON.parse(atob(tokenParts[0]));
+      console.log('[AUTH] ===== TOKEN HEADER =====');
+      console.log('[AUTH] alg:', header.alg);
+      console.log('[AUTH] kid:', header.kid);
+      console.log('[AUTH] typ:', header.typ);
+      console.log('[AUTH] Raw header base64:', tokenParts[0]);
     } catch (e) {
-      console.error('[AUTH] Failed to decode token:', e);
+      console.error('[AUTH] Failed to decode header:', e);
     }
+    
+    // Payload
+    try {
+      const payload = JSON.parse(atob(tokenParts[1]));
+      console.log('[AUTH] ===== TOKEN PAYLOAD =====');
+      console.log('[AUTH] aud:', payload.aud);
+      console.log('[AUTH] iss:', payload.iss);
+      console.log('[AUTH] sub:', payload.sub);
+      console.log('[AUTH] auth_time:', payload.auth_time);
+      console.log('[AUTH] email:', payload.email);
+      console.log('[AUTH] email_verified:', payload.email_verified);
+      console.log('[AUTH] iat:', payload.iat);
+      console.log('[AUTH] exp:', payload.exp);
+    } catch (e) {
+      console.error('[AUTH] Failed to decode payload:', e);
+    }
+    
+    // Signature (part 3)
+    console.log('[AUTH] ===== TOKEN SIGNATURE =====');
+    console.log('[AUTH] Signature base64:', tokenParts[2]);
+    console.log('[AUTH] Signature length:', tokenParts[2].length);
     
     console.log('[AUTH] Sending token to backend...');
     const res = await fetchWithFailover(`${API_ENDPOINT}/auth/google`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ idToken }),
+      body: JSON.stringify({ idToken, _debug: { length: idToken.length, hash: await sha256(idToken) } }),
     });
     
     console.log('[AUTH] Backend response status:', res.status);
@@ -148,6 +178,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
     console.log('[AUTH] Login successful!');
   };
+
+// Helper functions for hashing
+async function md5(str: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function sha256(str: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
   const loginWithToken = async (newToken: string) => {
     localStorage.setItem('token', newToken);

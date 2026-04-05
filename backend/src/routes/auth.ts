@@ -251,23 +251,52 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
       tokenHeader: idToken.split('.')[0]
     });
     
+    // Hash for comparison
+    const crypto = require('crypto');
+    const tokenHash = crypto.createHash('sha256').update(idToken).digest('hex');
+    const tokenMd5 = crypto.createHash('md5').update(idToken).digest('hex');
+    
+    console.log('[AUTH] ========== BACKEND RAW TOKEN ==========');
+    console.log('[AUTH] Token length:', idToken.length);
+    console.log('[AUTH] Token hash SHA256:', tokenHash);
+    console.log('[AUTH] Token hash MD5:', tokenMd5);
+    console.log('[AUTH] First 100 chars:', idToken.substring(0, 100));
+    console.log('[AUTH] Last 100 chars:', idToken.substring(idToken.length - 100));
+    console.log('[AUTH] ======================================');
+    
     // Decode and log token details from frontend
     try {
       const tokenParts = idToken.split('.');
+      console.log('[AUTH] Token has', tokenParts.length, 'parts');
+      
+      // Header
+      const header = JSON.parse(Buffer.from(tokenParts[0], 'base64').toString());
+      console.log('[AUTH] ===== BACKEND TOKEN HEADER =====');
+      console.log('[AUTH] alg:', header.alg);
+      console.log('[AUTH] kid:', header.kid);
+      console.log('[AUTH] typ:', header.typ);
+      console.log('[AUTH] Raw header base64:', tokenParts[0]);
+      
+      // Payload
       const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
-      (logger as any).auth('Frontend token payload', {
-        requestId,
-        aud: payload.aud,
-        iss: payload.iss,
-        sub: payload.sub,
-        auth_time: payload.auth_time,
-        email: payload.email,
-        email_verified: payload.email_verified
-      });
+      console.log('[AUTH] ===== BACKEND TOKEN PAYLOAD =====');
+      console.log('[AUTH] aud:', payload.aud);
+      console.log('[AUTH] iss:', payload.iss);
+      console.log('[AUTH] sub:', payload.sub);
+      console.log('[AUTH] auth_time:', payload.auth_time);
+      console.log('[AUTH] email:', payload.email);
+      console.log('[AUTH] email_verified:', payload.email_verified);
+      console.log('[AUTH] iat:', payload.iat);
+      console.log('[AUTH] exp:', payload.exp);
+      
+      // Signature
+      console.log('[AUTH] ===== BACKEND TOKEN SIGNATURE =====');
+      console.log('[AUTH] Signature base64:', tokenParts[2]);
+      console.log('[AUTH] Signature length:', tokenParts[2].length);
     } catch (e: any) {
-      (logger as any).auth('Failed to decode frontend token', { requestId, error: e.message });
+      console.log('[AUTH] Failed to decode token:', e.message);
     }
-
+    
     if (!firebaseInitialized || !admin.apps.length) {
       (logger as any).auth('Google auth failed - Firebase not initialized', { 
         requestId, 
