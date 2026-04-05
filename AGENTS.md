@@ -97,3 +97,29 @@ Maintain `CHANGELOG.md` with sections:
 - Always use `git pull --rebase` to avoid merge commits
 - Keep commits atomic and focused
 - Reference issues in commit footer when applicable: `Closes #123`
+
+## Knowledge Base
+
+**Critical**: AI agents must record learnings to the shared knowledge base.
+
+### Process
+1. After completing any non-trivial task, identify what was learned
+2. Add to `docs/kb/deployment/` for deployment/devops learnings
+3. Add to appropriate folder in `docs/kb/` for other topics
+4. Commit with message: `docs: add learnings to shared KB`
+
+### What to Record
+- New patterns or techniques discovered
+- Workarounds for bugs or limitations
+- Configuration insights
+- Any lesson that could help future work
+- Errors encountered and how they were resolved
+
+### Submodule Usage
+The shared KB is at `docs/kb/` as a git submodule. To update:
+```bash
+cd docs/kb
+git add -A && git commit -m "learnings" && git push
+cd ../..
+git add docs/kb && git commit -m "docs: update shared KB"
+```
