@@ -17,7 +17,7 @@ if (fs.existsSync(serviceAccountPath)) {
   console.error('Service account file not found at:', serviceAccountPath);
 }
 
-const projectId = serviceAccount?.project_id || serviceAccount?.projectId || 'foodshare777';
+const projectId = serviceAccount?.projectId || 'foodshare777';
 
 if (admin.apps.length === 0 && serviceAccount) {
   admin.initializeApp({
