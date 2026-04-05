@@ -56,7 +56,7 @@ When ready to release:
 ### Frontend (Vite + Firebase)
 - Location: `frontend/`
 - Deploy command: `npm run deploy` (builds & deploys to Firebase hosting)
-- Current project: foodshare777
+- Firebase project: **foodshare777** (switched from et3am26 on 2026-04-05)
 - URL: https://foodshare777.web.app
 
 ### Backend

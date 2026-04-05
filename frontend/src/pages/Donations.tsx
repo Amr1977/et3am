@@ -72,11 +72,30 @@ export default function Donations() {
     longitude: '',
   });
   const [createError, setCreateError] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 12;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter]);
+
+  const paginatedDonations = React.useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return donations.slice(start, start + ITEMS_PER_PAGE);
+  }, [donations, currentPage]);
+
+  const totalPages = Math.ceil(donations.length / ITEMS_PER_PAGE);
 
   const fetchDonations = useCallback(async () => {
     try {
       console.log('Fetching donations, filter:', filter);
       const params = new URLSearchParams();
+      
+      // Pass user location for distance sorting
+      if (user?.latitude && user?.longitude) {
+        params.set('lat', user.latitude.toString());
+        params.set('lng', user.longitude.toString());
+      }
       
       // Use filter parameter - 'available', 'reserved', 'completed'
       // For unauthenticated users, only 'available' works
@@ -239,7 +258,7 @@ export default function Donations() {
         <div className="donations-title-section">
           <h1>{t('donations.title')}</h1>
           <p className="donations-count">
-            {donations.length} {donations.length === 1 ? 'donation' : 'donations'} found
+            {donations.length} {donations.length === 1 ? t('donations.donation_found') : t('donations.donations_found')}
           </p>
         </div>
         
@@ -292,18 +311,18 @@ export default function Donations() {
                 <div className="form-group">
                   <label>{t('donations.food_type')} *</label>
                   <select name="food_type" value={formData.food_type} onChange={handleChange} required className="form-input">
-                    <option value="">Select type...</option>
-                    <option value="meat">🥩 Meat</option>
-                    <option value="chicken">🍗 Chicken</option>
-                    <option value="fish">🐟 Fish</option>
-                    <option value="vegetables">🥬 Vegetables</option>
-                    <option value="fruits">🍎 Fruits</option>
-                    <option value="bread">🍞 Bread</option>
-                    <option value="rice">🍚 Rice</option>
-                    <option value="pasta">🍝 Pasta</option>
-                    <option value="soup">🥣 Soup</option>
-                    <option value="dessert">🍰 Dessert</option>
-                    <option value="other">🍽️ Other</option>
+                    <option value="">{t('food_types.select_type')}</option>
+                    <option value="meat">🥩 {t('food_types.meat')}</option>
+                    <option value="chicken">🍗 {t('food_types.chicken')}</option>
+                    <option value="fish">🐟 {t('food_types.fish')}</option>
+                    <option value="vegetables">🥬 {t('food_types.vegetables')}</option>
+                    <option value="fruits">🍎 {t('food_types.fruits')}</option>
+                    <option value="bread">🍞 {t('food_types.bread')}</option>
+                    <option value="rice">🍚 {t('food_types.rice')}</option>
+                    <option value="pasta">🍝 {t('food_types.pasta')}</option>
+                    <option value="soup">🥣 {t('food_types.soup')}</option>
+                    <option value="dessert">🍰 {t('food_types.dessert')}</option>
+                    <option value="other">🍽️ {t('food_types.other')}</option>
                   </select>
                 </div>
               </div>
@@ -448,7 +467,7 @@ export default function Donations() {
         )
       ) : (
         <>
-          {donations.length === 0 ? (
+          {paginatedDonations.length === 0 ? (
             <div className="empty-state-container">
               <div className="empty-state-icon">🍽️</div>
               <h3>{t('donations.no_donations')}</h3>
@@ -461,7 +480,7 @@ export default function Donations() {
             </div>
           ) : (
             <div className="donations-grid">
-              {donations.map((donation) => (
+              {paginatedDonations.map((donation) => (
                 <div 
                   key={donation.id} 
                   className={`donation-card-new ${donation.status}`}
@@ -502,7 +521,7 @@ export default function Donations() {
                     <span className="address-text">
                       {isAuthenticated && (donation.donor_id === user?.id || donation.reserved_by === user?.id)
                         ? donation.pickup_address || 'No address'
-                        : (isAuthenticated ? 'Address hidden' : 'Login to see address')}
+                        : (isAuthenticated ? t('donations.address_hidden') : t('donations.login_to_see'))}
                     </span>
                   </div>
                   
@@ -540,6 +559,28 @@ export default function Donations() {
               ))}
             </div>
           )}
+
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button 
+                className="btn btn-outline btn-sm" 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                ← {t('common.previous') || 'Previous'}
+              </button>
+              <span className="page-info">
+                {currentPage} / {totalPages}
+              </span>
+              <button 
+                className="btn btn-outline btn-sm" 
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                {t('common.next') || 'Next'} →
+              </button>
+            </div>
+          )}
         </>
       )}
 
@@ -575,7 +616,7 @@ export default function Donations() {
               </div>
               <div className="modal-info">
                 <span className="info-label">{t('donations.food_type')}</span>
-                <span className="info-value">{selectedDonation.food_type}</span>
+                <span className="info-value">{getFoodIcon(selectedDonation.food_type)} {t(`food_types.${selectedDonation.food_type}`)}</span>
               </div>
               {selectedDonation.donor_name && selectedDonation.donor_id !== user?.id && (
                 <div className="modal-info">

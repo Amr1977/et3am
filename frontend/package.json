@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
-    "deploy": "npm run build && firebase deploy --only hosting --project et3am26"
+    "deploy": "npm run build && firebase deploy --only hosting --project foodshare777"
   },
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^5.1.0",

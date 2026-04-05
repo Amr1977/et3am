@@ -43,7 +43,7 @@ Removed the entire frontend deployment section from `deploy-auto.sh`. The script
 **Process**:
 1. Generate git-info.json (commit hash + date)
 2. `npm run build` creates dist folder
-3. `npm run deploy` → `firebase deploy --only hosting --project et3am26`
+3. `npm run deploy` → `firebase deploy --only hosting --project foodshare777`
 4. Update Firestore `deployments/frontend` with commit hash (via frontend/src/firebase.ts)
 
 **Status**: ✅ Manual - Full developer control  

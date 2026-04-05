@@ -88,6 +88,10 @@
     "password_reset_success_desc": "Your password has been reset. Redirecting to login...",
     "passwords_not_match": "Passwords do not match",
     "weak_password": "Password must be at least 6 characters",
+    "login_with_google": "Continue with Google",
+    "signup_with_google": "Continue with Google",
+    "or": "or",
+    "login": "Login",
     "invalid_reset_token": "Invalid or Expired Link",
     "invalid_reset_token_desc": "The password reset link is invalid or has expired. Please request a new one.",
     "reset_failed": "Failed to reset password",
@@ -134,7 +138,25 @@
     "location_permission_title": "Enable Your Location",
     "location_permission_desc": "Enable location to find meals near you and get personalized recommendations",
     "geolocation_not_supported": "Geolocation is not supported by your browser",
-    "view_card": "View Details"
+    "view_card": "View Details",
+    "donations_found": "donations found",
+    "donation_found": "donation found",
+    "address_hidden": "Address hidden",
+    "login_to_see": "Login to see address"
+  },
+  "food_types": {
+    "meat": "Meat",
+    "chicken": "Chicken",
+    "fish": "Fish",
+    "vegetables": "Vegetables",
+    "fruits": "Fruits",
+    "bread": "Bread",
+    "rice": "Rice",
+    "pasta": "Pasta",
+    "soup": "Soup",
+    "dessert": "Dessert",
+    "other": "Other",
+    "select_type": "Select type..."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -168,32 +190,6 @@
     "use_map_directions": "Use the map to get directions to the pickup location",
     "no_coordinates": "No map coordinates available for this donation"
   },
-  "donations": {
-    "title": "Food Donations",
-    "create_title": "Add Donation",
-    "food_type": "Food Type",
-    "quantity": "Quantity",
-    "unit": "Unit",
-    "description": "Description",
-    "pickup_address": "Pickup Address",
-    "pickup_date": "Pickup Date",
-    "expiry_date": "Expiry Date",
-    "status": "Status",
-    "available": "Available",
-    "reserved": "Reserved",
-    "completed": "Completed",
-    "donated_by": "Donated by",
-    "reserved_by": "Reserved by",
-    "reserve": "Reserve",
-    "cancel_reservation": "Cancel",
-    "complete": "Confirm Pickup",
-    "mark_received": "Mark as Received",
-    "hash_code": "Pickup Code",
-    "hash_hint": "Share this code when you meet",
-    "delete": "Delete",
-    "edit": "Edit",
-    "view_on_map": "View on Map"
-  },
   "common": {
     "loading": "Loading...",
     "error": "An error occurred",
@@ -201,10 +197,20 @@
     "submit": "Submit",
     "back": "Back",
     "next": "Next",
+    "previous": "Previous",
     "search": "Search",
     "filter": "Filter",
     "sort": "Sort",
-    "actions": "Actions"
+    "actions": "Actions",
+    "back_to_donations": "Back to Donations"
+  },
+  "theme": {
+    "light": "Light Mode",
+    "dark": "Dark Mode"
+  },
+  "sound": {
+    "on": "Sound On",
+    "off": "Sound Off"
   },
   "chat": {
     "title": "Chat",
