@@ -3,11 +3,10 @@ import cors from 'cors';
 import passport from 'passport';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import { v4 as uuidv4 } from 'uuid';
-import admin from 'firebase-admin';
 import { initDb, dbOps, warmupDatabase, pool, runMigrations } from './database';
 import { i18nMiddleware } from './middleware/i18n';
 import { generateToken } from './middleware/auth';
-import { serviceAccount } from './firebase-admin';
+import { serviceAccount, firebaseInitialized } from './firebase-admin';
 import { SERVER_ID, startServerRegistry, getHealthyServers } from './services/serverRegistry';
 import { initSocket } from './config/socket';
 import logger from './config/logger';
@@ -33,24 +32,10 @@ import http from 'http';
 
 validateSecurityConfig();
 
-let firebaseInitialized = false;
-
-if (serviceAccount?.privateKey) {
-  try {
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount as any),
-    });
-    firebaseInitialized = true;
-    console.log('Firebase Admin initialized');
-  } catch (err) {
-    console.warn('Firebase Admin initialization failed:', err);
-  }
-} else {
-  console.warn('Firebase private key not configured - Google auth via Firebase will be disabled');
-}
-
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+app.set('trust proxy', 1);
 
 app.use(helmetConfig);
 app.use(cors(strictCorsConfig));

@@ -13,7 +13,7 @@ if (fs.existsSync(credPath)) {
   }
 }
 
-const serviceAccount = {
+export const serviceAccount = {
   projectId: process.env.FIREBASE_PROJECT_ID || fileCreds?.project_id || 'et3am26',
   privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n') || fileCreds?.private_key,
   clientEmail: process.env.FIREBASE_CLIENT_EMAIL || fileCreds?.client_email || 'firebase-adminsdk-fbsvc@et3am26.iam.gserviceaccount.com',
@@ -37,4 +37,4 @@ if (serviceAccount?.privateKey) {
   console.warn('Firebase private key not configured - Google auth via Firebase will be disabled');
 }
 
-export { admin, serviceAccount, firebaseInitialized };
+export { admin, firebaseInitialized };
