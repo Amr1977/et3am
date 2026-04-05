@@ -218,35 +218,118 @@ router.put('/location', authenticate, async (req: AuthRequest, res: Response) =>
 });
 
 router.post('/google', async (req: AuthRequest, res: Response) => {
+  const clientIp = req.ip || req.socket?.remoteAddress || 'unknown';
+  const requestId = uuidv4().substring(0, 8);
+  
+  (logger as any).auth('Google auth request started', { 
+    requestId, 
+    clientIp,
+    hasIdToken: !!req.body.idToken,
+    userAgent: req.headers['user-agent']
+  });
+
   try {
     const { idToken } = req.body;
 
     if (!idToken) {
+      (logger as any).auth('Google auth failed - missing idToken', { 
+        requestId, 
+        clientIp,
+        body: JSON.stringify(req.body).substring(0, 200)
+      });
       res.status(400).json({ messageKey: 'validation.required_field' });
       return;
     }
 
+    (logger as any).auth('Google auth - verifying Firebase token', { 
+      requestId, 
+      clientIp,
+      tokenLength: idToken.length,
+      tokenPrefix: idToken.substring(0, 20)
+    });
+
     if (!firebaseInitialized || !admin.apps.length) {
+      (logger as any).auth('Google auth failed - Firebase not initialized', { 
+        requestId, 
+        clientIp,
+        firebaseInitialized,
+        adminAppsLength: admin.apps.length
+      });
       res.status(503).json({ messageKey: 'auth.google_not_available' });
       return;
     }
 
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    let decodedToken;
+    try {
+      decodedToken = await admin.auth().verifyIdToken(idToken);
+      (logger as any).auth('Google auth - token verified successfully', {
+        requestId,
+        clientIp,
+        uid: decodedToken.uid,
+        email: decodedToken.email
+      });
+    } catch (verifyErr: any) {
+      (logger as any).error('Google auth - token verification FAILED', {
+        requestId,
+        clientIp,
+        error: verifyErr.message,
+        stack: verifyErr.stack,
+        code: verifyErr.code,
+        kind: verifyErr.kind
+      });
+      res.status(401).json({ messageKey: 'auth.invalid_token' });
+      return;
+    }
+
     const { uid, email, name, picture } = decodedToken;
+    (logger as any).auth('Google auth - decoded token details', {
+      requestId,
+      clientIp,
+      uid,
+      email,
+      name,
+      hasPicture: !!picture
+    });
 
     let user = await dbOps.users.findByGoogleId(uid);
+    (logger as any).auth('Google auth - looked up by google_id', {
+      requestId,
+      clientIp,
+      uid,
+      foundByGoogleId: !!user
+    });
 
     if (!user) {
       user = await dbOps.users.findByEmail(email!);
+      (logger as any).auth('Google auth - looked up by email', {
+        requestId,
+        clientIp,
+        email,
+        foundByEmail: !!user
+      });
       if (user) {
         await dbOps.users.update(user.id, { google_id: uid });
         user.google_id = uid;
+        (logger as any).auth('Google auth - linked existing user to Google account', {
+          requestId,
+          clientIp,
+          userId: user.id,
+          email
+        });
       }
     }
 
     if (!user) {
       const id = uuidv4();
       const lang = (req as any).lang || 'en';
+
+      (logger as any).auth('Google auth - creating new user', {
+        requestId,
+        clientIp,
+        newUserId: id,
+        email,
+        name: name || email?.split('@')[0] || 'User'
+      });
 
       user = await dbOps.users.create({
         id,
@@ -266,9 +349,22 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
         google_id: uid,
         avatar_url: picture || null,
       });
+
+      (logger as any).auth('Google auth - new user created successfully', {
+        requestId,
+        clientIp,
+        userId: user.id,
+        email
+      });
     }
 
     const token = generateToken(user.id, user.role);
+    (logger as any).auth('Google auth - login successful', {
+      requestId,
+      clientIp,
+      userId: user.id,
+      role: user.role
+    });
 
     res.json({
       messageKey: 'auth.login_success',
@@ -286,8 +382,16 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
         avatar_url: user.avatar_url,
       }
     });
-  } catch (err) {
-    console.error('Google auth error:', err);
+  } catch (err: any) {
+    (logger as any).error('Google auth - UNHANDLED ERROR', {
+      requestId,
+      clientIp,
+      error: err.message,
+      stack: err.stack,
+      code: err.code,
+      kind: err.kind,
+      details: err.toString()
+    });
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
