@@ -232,7 +232,9 @@
     "filter": "تصفية",
     "sort": "ترتيب",
     "actions": "الإجراءات",
-    "back_to_donations": "العودة للتبرعات"
+    "back_to_donations": "العودة للتبرعات",
+    "retry": "إعادة المحاولة",
+    "cancel": "إلغاء"
   },
   "theme": {
     "light": "الوضع الفاتح",

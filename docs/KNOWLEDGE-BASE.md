@@ -1,5 +1,43 @@
 # Project Knowledge Base
 
+## AI Agent Roles & Capabilities
+
+This project is maintained by an AI agent with multiple expert roles:
+
+- **World Top Class Senior Cyber Security Engineer** - Security audits, vulnerability assessment, penetration testing, secure code review, threat modeling
+- **World Top Class Senior Software Architect** - System design, architecture patterns, scalability planning, technology selection
+- **World Top Class Senior Software Engineer** - Full-stack development, code quality, performance optimization, debugging
+- **World Top Class Full Stack Developer** - Frontend (React, Vite, TypeScript), backend (Node.js, Express), database (PostgreSQL)
+- **World Top Class Senior Project Manager** - Sprint planning, task estimation, risk management, delivery coordination
+- **World Top Class Marketing Engineer** - SEO, growth hacking, user acquisition strategies, analytics
+- **World Top Class Senior UI/UX Designer** - User research, design systems, accessibility, responsive design
+- **World Top Class Senior Quality Assurance Engineer** - Test strategy, quality metrics, bug tracking, test coverage analysis
+- **World Top Class Senior Test Automation Engineer** - E2E automation (Playwright), test frameworks, CI/CD integration, regression testing
+
+### Testing Organization
+
+```
+tests/
+├── e2e/
+│   ├── scenarios/          # Happy path user flows
+│   │   ├── fixtures.ts
+│   │   ├── donation-flow.spec.ts
+│   │   └── user-flow.spec.ts
+│   ├── bugs/              # Regression tests for fixed bugs
+│   │   └── geolocation-bugs.spec.ts
+│   └── README.md
+├── api/                   # Backend API tests (future)
+└── integration/          # Integration tests (future)
+```
+
+**Test Commands:**
+- `npm run test:e2e` - Run all E2E tests
+- `npm run test:e2e:ui` - Open Playwright UI
+- `npm run test:e2e:scenarios` - Run user flows only
+- `npm run test:e2e:bugs` - Run bug regression only
+
+---
+
 ## Projects Overview
 
 ### 1. **Et3am** - Food Donation Platform
@@ -35,6 +73,23 @@ A comprehensive food donation platform with multi-language support (English/Arab
 - **Deployment**: Always use `npm install` (not `--omit=dev`) for TypeScript compilation to get type definitions
 - **Build memory**: Large frontend builds may need `NODE_OPTIONS="--max-old-space-size=4096"`
 - **Firebase migrations**: When switching Firebase projects, update package.json deploy script, AGENTS.md, and all docs
+
+#### Bug: Geolocation Modal Hanging
+**Issue**: Location prompt modal blocked user interaction, showing loading spinner indefinitely on timeout (error code 3).
+
+**Root Cause**: Modal waited for geolocation to complete before dismissing, with no timeout on the operation.
+
+**Fix**:
+1. Dismiss modal immediately on user action (Enable/Cancel/Overlay click)
+2. Process location retrieval async in background after dismissal
+3. Add timeout option to prevent hanging: `{ timeout: 10000, maximumAge: 300000 }`
+4. Never block UI flow - user experience comes first
+
+**Lessons**:
+- Never hang on async operations in modals
+- UI should respond immediately to user action
+- Handle async side-effects after dismissing blocking UI
+- Add timeouts to all browser APIs that can hang
 
 #### Project Structure
 ```
@@ -601,6 +656,37 @@ Recommended: Adopt express-validator + Joi pattern
 ---
 
 ## Code Quality Standards (from both projects)
+
+### Component Development Checklist
+
+For any component touched, always verify:
+
+1. **Localization (i18n)**
+   - [ ] All user-facing text uses `t('key')` translation function
+   - [ ] Keys exist in both `en.json` and `ar.json`
+   - [ ] No hardcoded strings in JSX
+   - [ ] RTL support verified (test in Arabic)
+
+2. **UI/UX Consistency**
+   - [ ] Uses design system tokens (CSS variables)
+   - [ ] Follows existing component patterns
+   - [ ] Consistent spacing/typography
+   - [ ] Matches color scheme
+   - [ ] Icons/typography consistent with codebase
+
+3. **Responsive Design**
+   - [ ] Mobile-first approach
+   - [ ] Breakpoints: mobile (<640px), tablet (640-1024px), desktop (>1024px)
+   - [ ] Touch targets min 44px
+   - [ ] No horizontal scroll
+   - [ ] Text readable on mobile
+   - [ ] Forms usable on mobile
+
+4. **Accessibility**
+   - [ ] Proper ARIA labels
+   - [ ] Keyboard navigation works
+   - [ ] Focus states visible
+   - [ ] Color contrast adequate
 
 ### TypeScript Usage
 - Strict type checking enabled
