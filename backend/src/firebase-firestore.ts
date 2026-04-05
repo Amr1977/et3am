@@ -7,7 +7,7 @@ let db: admin.firestore.Firestore | null = null;
 export function initFirestore(): admin.firestore.Firestore | null {
   if (db) return db;
   
-  if (!serviceAccount?.privateKey) {
+  if (!serviceAccount?.private_key) {
     console.warn('Firebase private key not configured - Firestore will be disabled');
     return null;
   }
