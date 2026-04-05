@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { dbOps, User } from '../database';
 import { authenticate, generateToken, AuthRequest } from '../middleware/auth';
 import { registerSchema, loginSchema } from '../utils/validators';
-import { sanitizeString, sanitizeEmail } from '../utils/sanitizers';
+import { sanitizeString, sanitizeEmail, validateJWTStructure, validateTokenIntegrity } from '../utils/sanitizers';
 import logger from '../config/logger';
 import { admin, firebaseInitialized, serviceAccount } from '../firebase-admin';
 
@@ -240,6 +240,19 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
         body: JSON.stringify(req.body).substring(0, 200)
       });
       res.status(400).json({ messageKey: 'validation.required_field' });
+      return;
+    }
+
+    try {
+      validateTokenIntegrity(idToken, 'Google OAuth');
+    } catch (validationError: any) {
+      (logger as any).auth('Google auth failed - token validation error', {
+        requestId,
+        clientIp,
+        error: validationError.message,
+        tokenLength: idToken.length
+      });
+      res.status(400).json({ messageKey: 'auth.invalid_token' });
       return;
     }
 
