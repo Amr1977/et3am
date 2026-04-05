@@ -265,8 +265,7 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
         requestId,
         clientIp,
         adminAppsLength: admin.apps.length,
-        appProjectId: admin.app()?.options?.projectId || 'N/A',
-        serviceAccountEmail: admin.app()?.options?.credential?._serviceAccount?.client_email || 'N/A'
+        appProjectId: admin.app()?.options?.projectId || 'N/A'
       });
       
       decodedToken = await admin.auth().verifyIdToken(idToken);
