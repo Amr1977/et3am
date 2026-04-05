@@ -1,17 +1,25 @@
 import * as admin from 'firebase-admin';
+import * as fs from 'fs';
 import * as path from 'path';
 
-let serviceAccount: any = null;
-try {
-  serviceAccount = require('../et3am26-firebase-adminsdk-fbsvc-7af0882bd6.json');
-  console.log('Service account loaded successfully');
-} catch (err) {
-  console.error('Failed to load service account:', err);
+const serviceAccountPath = path.join(__dirname, '..', 'et3am26-firebase-adminsdk-fbsvc-7af0882bd6.json');
+let serviceAccount: admin.ServiceAccount | null = null;
+
+if (fs.existsSync(serviceAccountPath)) {
+  try {
+    const serviceAccountFile = fs.readFileSync(serviceAccountPath, 'utf8');
+    serviceAccount = JSON.parse(serviceAccountFile);
+    console.log('Service account loaded successfully');
+  } catch (err) {
+    console.error('Failed to parse service account JSON:', err);
+  }
+} else {
+  console.error('Service account file not found at:', serviceAccountPath);
 }
 
 if (admin.apps.length === 0 && serviceAccount) {
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+    credential: admin.credential.cert(serviceAccount),
     projectId: "et3am26"
   });
   console.log('Firebase Admin initialized with projectId: et3am26');
