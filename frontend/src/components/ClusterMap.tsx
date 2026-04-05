@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import { getServerUrl } from '../services/api';
@@ -13,6 +13,18 @@ L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+});
+
+const userLocationIcon = L.divIcon({
+  className: 'user-marker-container',
+  html: `
+    <div class="user-marker-pulse"></div>
+    <div class="user-marker-dot">
+      <div class="user-marker-inner"></div>
+    </div>
+  `,
+  iconSize: [32, 32],
+  iconAnchor: [16, 16],
 });
 
 interface Donation {
