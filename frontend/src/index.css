@@ -4004,12 +4004,19 @@ body {
 
   html[dir="rtl"] .hamburger {
     order: 2;
+    margin-left: 0;
+    margin-right: auto;
   }
 
   html[dir="rtl"] .navbar-links.mobile-open {
     right: auto;
     left: 0;
     animation: slideInLeft 0.3s ease;
+  }
+
+  html[dir="rtl"] .mobile-menu-overlay {
+    right: auto;
+    left: 0;
   }
 
   @keyframes slideInLeft {
