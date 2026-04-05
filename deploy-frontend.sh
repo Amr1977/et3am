@@ -9,7 +9,10 @@ echo "🚀 Building and deploying Et3am Frontend to Firebase..."
 
 cd frontend
 
-echo "📦 Building frontend..."
+echo "📦 Installing dependencies..."
+npm install
+
+echo "🏗️ Building frontend..."
 npm run build
 
 echo "🔥 Deploying to Firebase (foodshare777)..."
