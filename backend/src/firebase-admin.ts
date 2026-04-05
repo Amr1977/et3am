@@ -3,7 +3,7 @@ import * as path from 'path';
 
 let serviceAccount: any = null;
 try {
-  serviceAccount = require('../et3am26-firebase-adminsdk-fbsvc-23c302e167.json');
+  serviceAccount = require('../et3am26-firebase-adminsdk-fbsvc-7af0882bd6.json');
   console.log('Service account loaded successfully');
 } catch (err) {
   console.error('Failed to load service account:', err);
