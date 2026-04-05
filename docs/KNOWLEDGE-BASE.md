@@ -22,6 +22,7 @@ This catches missing translations early and prevents broken UIs.
 - **Use todo tool**: Track progress with `todowrite` for all ongoing work
 - **Priority levels**: high, medium, low
 - **Status values**: pending, in_progress, completed, cancelled
+- **Max 7 tasks**: Keep task queue max 7 items to maintain focus and visibility
 
 ## AI Agent Roles & Capabilities
 
