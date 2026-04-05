@@ -1,0 +1,3 @@
+[submodule "docs/kb"]
+	path = docs/kb
+	url = git@github.com:Amr1977/shared-knowledge-base.git
