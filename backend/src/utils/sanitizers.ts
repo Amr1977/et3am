@@ -1,3 +1,37 @@
+const RAW_FIELDS = ['token', 'idToken', 'accessToken', 'refreshToken', 'authorization', 'password', 'resetToken'];
+
+export const validateJWTStructure = (token: string): void => {
+  const parts = token.split('.');
+  if (parts.length !== 3) {
+    throw new Error('Malformed JWT: invalid structure - must have 3 parts');
+  }
+  if (token.length < 1000) {
+    console.warn('Suspicious token: too short (< 1000 chars), may have been truncated');
+  }
+  if (token.length > 20000) {
+    throw new Error('Suspicious token: too long (> 20000 chars)');
+  }
+};
+
+export const validateTokenIntegrity = (token: string, context: string): void => {
+  const parts = token.split('.');
+  if (parts.length !== 3) {
+    throw new Error(`${context}: Malformed JWT - invalid structure`);
+  }
+
+  const header = parts[0];
+  const payload = parts[1];
+  const signature = parts[2];
+
+  if (header.length < 10 || payload.length < 10 || signature.length < 10) {
+    throw new Error(`${context}: Malformed JWT - parts too short`);
+  }
+
+  if (token.length < 1000) {
+    console.warn(`${context}: Abnormal token length (${token.length}), possible truncation`);
+  }
+};
+
 const sanitizeString = (str: unknown, maxLength = 10000): string => {
   if (typeof str !== 'string') return '';
   return str.trim().substring(0, maxLength).replace(/[<>"'&]/g, '');
@@ -30,6 +64,11 @@ export const sanitizeInput = (body: Record<string, unknown>): Record<string, unk
   const sanitized: Record<string, unknown> = {};
   
   for (const [key, value] of Object.entries(body)) {
+    if (RAW_FIELDS.includes(key)) {
+      sanitized[key] = value;
+      continue;
+    }
+    
     if (value === null || value === undefined) {
       sanitized[key] = null;
       continue;
