@@ -1,4 +1,4 @@
-const sanitizeString = (str: unknown, maxLength = 1000): string => {
+const sanitizeString = (str: unknown, maxLength = 10000): string => {
   if (typeof str !== 'string') return '';
   return str.trim().substring(0, maxLength).replace(/[<>"'&]/g, '');
 };
