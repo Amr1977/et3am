@@ -49,7 +49,7 @@ ssh ubuntu@api.et3am.com "cd /home/ubuntu/et3am && git fetch origin master && gi
 ssh amr_lotfy_othman@matrix-delivery-api-gc.mywire.org "cd /home/amr_lotfy_othman/et3am && git fetch origin master && git reset --hard origin/master && cd backend && npm install --omit=dev && npm run build && pm2 restart et3am-backend"
 ```
 
-**Important:** Backend is TypeScript and requires `npm run build` before running. Do not skip the build step.
+**Important:** Backend is TypeScript and requires `npm install && npm run build` before running. Do not skip the install step (needed for dev dependencies like type definitions).
 
 ### Check running processes before deploying:
 ```bash
