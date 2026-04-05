@@ -2,7 +2,7 @@ import * as admin from 'firebase-admin';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const serviceAccountPath = path.join(__dirname, '..', 'et3am26-01b27877596a.json');
+const serviceAccountPath = path.join(__dirname, '..', 'foodshare777-firebase-adminsdk-fbsvc-593c5b2f3c.json');
 let serviceAccount: admin.ServiceAccount | null = null;
 
 if (fs.existsSync(serviceAccountPath)) {
@@ -20,7 +20,7 @@ if (fs.existsSync(serviceAccountPath)) {
 if (admin.apps.length === 0 && serviceAccount) {
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    projectId: "et3am26"
+    projectId: "foodshare777"
   });
   console.log('Firebase Admin initialized with projectId: et3am26');
   console.log("🔥 ADMIN PROJECT:", admin.app().options.projectId);
