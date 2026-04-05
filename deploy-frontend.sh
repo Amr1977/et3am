@@ -16,7 +16,7 @@ git commit -m "release: bump version to $NEW_MAJOR.$NEW_MINOR.$NEW_PATCH" || tru
 cd frontend
 
 echo "📦 Installing dependencies..."
-npm install
+npm install --legacy-peer-deps
 
 echo "🏗️ Building frontend..."
 export NODE_OPTIONS="--max-old-space-size=4096"

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useSound } from '../context/SoundContext';
 import { useRTL } from '../hooks/useRTL';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import gitInfo from '../git-info.json';
 
 interface NavItem {
   label: string;
@@ -306,6 +307,11 @@ export default function Navbar() {
               )}
             </button>
           )}
+
+          <div className="version-badge" title={`v${gitInfo.commit} • ${new Date(gitInfo.buildTime).toLocaleString()}`}>
+            <span className="version-dot"></span>
+            <span className="version-text">v{gitInfo.commit?.slice(0, 7)}</span>
+          </div>
 
           {isAuthenticated ? (
             <div className="user-menu-container" ref={userMenuRef}>
