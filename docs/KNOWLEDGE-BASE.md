@@ -1,5 +1,20 @@
 # Project Knowledge Base
 
+## Adding Automated i18n Validation
+
+Create a validation script that runs before deploy:
+
+```bash
+# scripts/validate-i18n.sh
+# Compares all translation keys between en.json and ar.json
+# Fails if any key is missing in either language
+
+npm run validate:i18n      # Run validation manually
+npm run predeploy          # Runs automatically before deploy
+```
+
+This catches missing translations early and prevents broken UIs.
+
 ## Task Management
 
 - **Always visible task stack**: Maintain todo list that is always visible during work
