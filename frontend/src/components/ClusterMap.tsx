@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
+import React, { useEffect, useState, useRef } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMap, useMapEvents } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import { getServerUrl } from '../services/api';
@@ -133,6 +133,18 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
     }
   };
 
+  function MapController() {
+    const map = useMap();
+    
+    useEffect(() => {
+      if (userLocation) {
+        map.setView([userLocation.lat, userLocation.lng], 13);
+      }
+    }, [userLocation, map]);
+    
+    return null;
+  }
+
   return (
     <div className="map-container">
       <MapContainer
@@ -140,14 +152,31 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
         zoom={userLocation ? 13 : 10}
         style={{ height: '100%', width: '100%' }}
       >
+        <MapController />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url={tileUrl}
         />
         {userLocation && (
-          <Marker position={[userLocation.lat, userLocation.lng]}>
-            <Popup>{t('donations.your_location') || 'Your Location'}</Popup>
-          </Marker>
+          <>
+            <Marker 
+              position={[userLocation.lat, userLocation.lng]}
+              icon={userLocationIcon}
+            >
+              <Popup>{t('donations.your_location') || 'Your Location'}</Popup>
+            </Marker>
+            <Circle
+              center={[userLocation.lat, userLocation.lng]}
+              radius={3500}
+              pathOptions={{
+                color: '#3b82f6',
+                fillColor: '#3b82f6',
+                fillOpacity: 0.1,
+                weight: 2,
+                dashArray: '5, 10'
+              }}
+            />
+          </>
         )}
         <MarkerClusterGroup
           chunkedLoading

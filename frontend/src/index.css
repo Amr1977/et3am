@@ -204,6 +204,50 @@ body {
   transform: scale(1.05);
 }
 
+/* User Location Marker */
+.user-marker-container {
+  background: transparent !important;
+  border: none !important;
+}
+
+.user-marker-pulse {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.3);
+  animation: userPulse 2s infinite;
+  left: -8px;
+  top: -8px;
+}
+
+@keyframes userPulse {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.user-marker-dot {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: #3b82f6;
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  left: 6px;
+  top: 6px;
+}
+
+.user-marker-inner {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  left: 3px;
+  top: 3px;
+}
+
 .brand-icon:hover {
   transform: rotate(10deg) scale(1.05);
   box-shadow: var(--shadow-lg), 0 6px 20px color-mix(in srgb, var(--primary) 50%, transparent);
