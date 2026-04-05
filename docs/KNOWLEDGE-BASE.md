@@ -27,7 +27,14 @@ A comprehensive food donation platform with multi-language support (English/Arab
 ./deploy-backend.sh
 ```
 - **deploy-frontend.sh**: Builds React/Vite app and deploys to Firebase (foodshare777)
+  - Note: Requires `NODE_OPTIONS="--max-old-space-size=4096"` for build due to large bundle
 - **deploy-backend.sh**: Pulls latest code, builds TypeScript, restarts PM2 on both AWS and GCP servers
+
+#### Best Practices & Lessons Learned
+- **Record everything**: Any lesson learned, technique, or workaround must be added to KNOWLEDGE-BASE.md
+- **Deployment**: Always use `npm install` (not `--omit=dev`) for TypeScript compilation to get type definitions
+- **Build memory**: Large frontend builds may need `NODE_OPTIONS="--max-old-space-size=4096"`
+- **Firebase migrations**: When switching Firebase projects, update package.json deploy script, AGENTS.md, and all docs
 
 #### Project Structure
 ```
