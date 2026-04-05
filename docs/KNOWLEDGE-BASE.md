@@ -711,6 +711,10 @@ For any component touched, always verify:
    - [ ] Focus states visible
    - [ ] Color contrast adequate
 
+5. **Language Switcher**
+   - [ ] Label shows character of **current** language, not the other
+   - Example: When in Arabic, show "ع" not "EN"
+
 ### TypeScript Usage
 - Strict type checking enabled
 - Interface definitions for request/response
