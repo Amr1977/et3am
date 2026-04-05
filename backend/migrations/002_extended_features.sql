@@ -24,7 +24,7 @@ DROP TABLE IF EXISTS daily_reservations;
 CREATE TABLE IF NOT EXISTS daily_reservations (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id TEXT NOT NULL,
-    donation_id TEXT REFERENCES donations(id) ON DELETE SET NULL,
+    donation_id TEXT,
     action_type VARCHAR(20) NOT NULL CHECK (action_type IN ('reserve', 'receive')),
     reservation_date DATE DEFAULT CURRENT_DATE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -37,9 +37,9 @@ CREATE INDEX IF NOT EXISTS idx_daily_reservations_user_date ON daily_reservation
 -- =====================================================
 CREATE TABLE IF NOT EXISTS chat_messages (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    donation_id TEXT NOT NULL REFERENCES donations(id) ON DELETE CASCADE,
-    sender_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    receiver_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    donation_id TEXT NOT NULL,
+    sender_id TEXT NOT NULL,
+    receiver_id TEXT NOT NULL,
     message TEXT NOT NULL,
     is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -53,9 +53,9 @@ CREATE INDEX IF NOT EXISTS idx_chat_messages_receiver ON chat_messages(receiver_
 -- =====================================================
 CREATE TABLE IF NOT EXISTS user_reviews (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    reviewer_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    reviewed_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    donation_id TEXT REFERENCES donations(id) ON DELETE SET NULL,
+    reviewer_id TEXT NOT NULL,
+    reviewed_id TEXT NOT NULL,
+    donation_id TEXT,
     rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
     comment TEXT,
     review_type VARCHAR(30) NOT NULL CHECK (review_type IN ('donor_to_receiver', 'receiver_to_donor')),
@@ -71,13 +71,13 @@ CREATE INDEX IF NOT EXISTS idx_user_reviews_donation ON user_reviews(donation_id
 -- =====================================================
 CREATE TABLE IF NOT EXISTS support_tickets (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id TEXT NOT NULL,
     type VARCHAR(20) NOT NULL CHECK (type IN ('bug', 'feature', 'support')),
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     status VARCHAR(20) DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'resolved', 'closed')),
     priority VARCHAR(20) DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high')),
-    assigned_to TEXT REFERENCES users(id) ON DELETE SET NULL,
+    assigned_to TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -90,7 +90,7 @@ CREATE INDEX IF NOT EXISTS idx_support_tickets_status ON support_tickets(status)
 -- =====================================================
 CREATE TABLE IF NOT EXISTS admin_audit_log (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    admin_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    admin_id TEXT NOT NULL,
     action VARCHAR(100) NOT NULL,
     target_type VARCHAR(50) NOT NULL,
     target_id TEXT,
