@@ -15,7 +15,7 @@ export function initFirestore(): admin.firestore.Firestore | null {
   if (!admin.apps.length) {
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount as any),
-      projectId: "et3am26"
+      projectId: serviceAccount.project_id || serviceAccount.projectId
     });
   }
   
