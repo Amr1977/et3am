@@ -58,20 +58,20 @@
 - [x] Chat crash
 - [x] home page stats show incorrect numbers
 - [x] Admin panel users tab crashing
+- [x] donation page address doesnt provide edit action button
+- [x] own donation card: some do not show edit button.
+- [x] hash codes are not shown anywhere, each meal receiver/donor should be given a hashcode for each meal to preserve privacy and ensure correct pickup.
+- [x] Availability time (start, end) is critical to show, currently missing in meal/donation page and grid
+- [x] Owner unable to edit his donation
+- [x] meal page: no data/time shown
+- [x] donations grid: no start/end time shown
 - [ ] donation time entried should be in user time zone, currently they are UTC
 - [ ] donation description formatting dropped, allow same user formatting, do not drop user formatting
 - [ ] donations description text direction disordered when mixing arabic/english numbers and arabic text
 - [ ] donation page address shows "Address not available"
-- [ ] donation page address doesnt provide edit action button
-- [ ] own donation card: some do not show edit button.
-- [ ] hash codes are not shown anywhere, each meal receiver/donor should be given a hashcode for each meal to preserve privacy and ensure correct pickup.
-- [ ] Availability time (start, end) is critical to show, currently missing in meal/donation page and grid
 - [ ] number of total users in home page stats not equal to number of users in admin panel
 - [ ] Donations page: map: mouse pointer flikering and op clicking a marker no action occures
 - [ ] Donations page: map: on interacting with map and after it expands found that it doesnt expand to cover all the view port, it should expand even over the footer and navigation bar
 - [ ] Home page: interacting with map: expected map to auto expand to be full screen, found: no map expand occured
-- [ ] Owner unable to edit his donation
-- [ ] meal page: no data/time shown
-- [ ] donations grid: no start/end time shown
 - [ ] user avatar is still existing in navbar, we need to completely remove it, accessing uer profile should be in side menu
 - [ ] CORS errors when FE tries to failover on GCP server
