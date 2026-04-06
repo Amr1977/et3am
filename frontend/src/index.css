@@ -4727,6 +4727,157 @@ html[dir="rtl"] .step-flow-number {
   outline-offset: 2px;
 }
 
+/* Crash logs styles */
+.admin-crashes {
+  padding: 1rem;
+}
+
+.crash-stats-bar {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.crash-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.crash-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.crash-stat-label {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.crash-filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.crash-filters select {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text);
+  font-size: 0.875rem;
+}
+
+.crash-logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.crash-card {
+  padding: 1rem;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--text-muted);
+}
+
+.crash-card.frontend { border-left-color: #3B82F6; }
+.crash-card.backend { border-left-color: #EF4444; }
+.crash-card.critical { border-left-color: #7C3AED; }
+.crash-card.error { border-left-color: #EF4444; }
+.crash-card.warning { border-left-color: #F59E0B; }
+.crash-card.resolved { opacity: 0.6; }
+
+.crash-header {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.crash-type-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.crash-type-badge.frontend { background: #DBEAFE; color: #1D4ED8; }
+.crash-type-badge.backend { background: #FEE2E2; color: #DC2626; }
+
+.crash-severity-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.crash-severity-badge.critical { background: #F3E8FF; color: #7C3AED; }
+.crash-severity-badge.error { background: #FEE2E2; color: #DC2626; }
+.crash-severity-badge.warning { background: #FEF3C7; color: #D97706; }
+.crash-severity-badge.info { background: #E0F2FE; color: #0369A1; }
+
+.crash-resolved-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  background: #D1FAE5;
+  color: #065F46;
+}
+
+.crash-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.crash-message {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.crash-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.crash-stack {
+  margin-top: 0.5rem;
+}
+
+.crash-stack summary {
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.crash-stack pre {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  overflow-x: auto;
+  max-height: 200px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
 /* Print */
 @media print {
   .navbar,

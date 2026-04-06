@@ -1,7 +1,6 @@
 import { useCallback, useRef } from 'react';
 
 interface CrashReport {
-  crash_type: 'frontend';
   severity: 'info' | 'warning' | 'error' | 'critical';
   title: string;
   message?: string;
@@ -10,7 +9,14 @@ interface CrashReport {
   metadata?: Record<string, unknown>;
 }
 
-interface CrashWithContext extends CrashReport {
+interface CrashWithContext {
+  crash_type: 'frontend';
+  severity: 'info' | 'warning' | 'error' | 'critical';
+  title: string;
+  message?: string;
+  stack_trace?: string;
+  url?: string;
+  metadata?: Record<string, unknown>;
   user_id?: string;
   session_id: string;
   user_agent: string;
@@ -106,18 +112,18 @@ export function initializeGlobalErrorHandlers(crashLogger: ReturnType<typeof use
       colno,
     });
     if (originalOnerror) {
-      return originalOnerror(message, source, lineno, colno, error);
+      return originalOnerror.call(window, message, source, lineno, colno, error);
     }
     return false;
   };
 
   const originalOnunhandledrejection = window.onunhandledrejection;
-  window.onunhandledrejection = (event) => {
+  window.onunhandledrejection = (event: PromiseRejectionEvent) => {
     crashLogger.logError('Unhandled Promise Rejection', event.reason, {
       promise: event.promise,
     });
     if (originalOnunhandledrejection) {
-      return originalOnunhandledrejection(event);
+      return originalOnunhandledrejection.call(window, event);
     }
     return false;
   };

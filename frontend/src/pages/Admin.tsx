@@ -227,6 +227,60 @@ export default function Admin() {
     if (tabId === 'donations' && donations.length === 0) fetchDonations();
     if (tabId === 'tickets' && tickets.length === 0) fetchTickets();
     if (tabId === 'reports' && reports.length === 0) fetchReports();
+    if (tabId === 'crashes') {
+      fetchCrashLogs();
+      fetchCrashStats();
+    }
+  };
+
+  const fetchCrashLogs = async () => {
+    setCrashLogsLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (crashFilter.type) params.append('crash_type', crashFilter.type);
+      if (crashFilter.resolved !== undefined) params.append('resolved', String(crashFilter.resolved));
+      
+      const res = await fetchWithFailover(`/api/crash/crash?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCrashLogs(data.logs || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch crash logs:', err);
+    } finally {
+      setCrashLogsLoading(false);
+    }
+  };
+
+  const fetchCrashStats = async () => {
+    try {
+      const res = await fetchWithFailover('/api/crash/crash/stats', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCrashStats(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch crash stats:', err);
+    }
+  };
+
+  const handleCrashResolve = async (crashId: string) => {
+    try {
+      const res = await fetchWithFailover(`/api/crash/crash/${crashId}/resolve`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        fetchCrashLogs();
+        fetchCrashStats();
+      }
+    } catch (err) {
+      console.error('Failed to resolve crash:', err);
+    }
   };
 
   const handleUserRoleChange = async (userId: string, newRole: string) => {
@@ -343,6 +397,7 @@ export default function Admin() {
     { id: 'donations', label: t('admin.tabs.donations'), icon: '🎁', parent: 'manage' },
     { id: 'tickets', label: t('admin.tabs.tickets'), icon: '🎫', parent: 'support' },
     { id: 'reports', label: t('admin.tabs.reports') || 'Reports', icon: '🚩', parent: 'support' },
+    { id: 'crashes', label: 'Crashes', icon: '💥', parent: 'support' },
   ];
 
   const tabGroups = [
@@ -716,6 +771,85 @@ export default function Admin() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'crashes' && (
+          <div className="admin-crashes">
+            <div className="crash-stats-bar">
+              <div className="crash-stat">
+                <span className="crash-stat-value">{crashStats.frontend}</span>
+                <span className="crash-stat-label">Frontend</span>
+              </div>
+              <div className="crash-stat">
+                <span className="crash-stat-value">{crashStats.backend}</span>
+                <span className="crash-stat-label">Backend</span>
+              </div>
+              <div className="crash-stat">
+                <span className="crash-stat-value">{crashStats.unresolved}</span>
+                <span className="crash-stat-label">Unresolved</span>
+              </div>
+            </div>
+            
+            <div className="crash-filters">
+              <select 
+                value={crashFilter.type || ''} 
+                onChange={(e) => { setCrashFilter({ ...crashFilter, type: e.target.value || undefined }); fetchCrashLogs(); }}
+              >
+                <option value="">All Types</option>
+                <option value="frontend">Frontend</option>
+                <option value="backend">Backend</option>
+              </select>
+              <select 
+                value={crashFilter.resolved === undefined ? '' : crashFilter.resolved ? 'true' : 'false'}
+                onChange={(e) => { 
+                  const val = e.target.value;
+                  setCrashFilter({ ...crashFilter, resolved: val === '' ? undefined : val === 'true' });
+                  fetchCrashLogs();
+                }}
+              >
+                <option value="">All Status</option>
+                <option value="false">Unresolved</option>
+                <option value="true">Resolved</option>
+              </select>
+            </div>
+
+            {crashLogsLoading ? (
+              <div className="loading-spinner"></div>
+            ) : crashLogs.length === 0 ? (
+              <p className="empty-state">No crash logs found</p>
+            ) : (
+              <div className="crash-logs-list">
+                {crashLogs.map(crash => (
+                  <div key={crash.id} className={`crash-card ${crash.crash_type} ${crash.severity} ${crash.resolved ? 'resolved' : ''}`}>
+                    <div className="crash-header">
+                      <span className={`crash-type-badge ${crash.crash_type}`}>{crash.crash_type}</span>
+                      <span className={`crash-severity-badge ${crash.severity}`}>{crash.severity}</span>
+                      {crash.resolved && <span className="crash-resolved-badge">Resolved</span>}
+                    </div>
+                    <h4 className="crash-title">{crash.title}</h4>
+                    {crash.message && <p className="crash-message">{crash.message}</p>}
+                    <div className="crash-meta">
+                      {crash.user_name && <span>User: {crash.user_name}</span>}
+                      {crash.session_id && <span>Session: {crash.session_id.substring(0, 20)}...</span>}
+                      {crash.url && <span>URL: {crash.url}</span>}
+                      <span>Created: {new Date(crash.created_at).toLocaleString()}</span>
+                    </div>
+                    {crash.stack_trace && (
+                      <details className="crash-stack">
+                        <summary>Stack Trace</summary>
+                        <pre>{crash.stack_trace}</pre>
+                      </details>
+                    )}
+                    {!crash.resolved && (
+                      <button onClick={() => handleCrashResolve(crash.id)} className="btn btn-sm btn-success">
+                        Mark Resolved
+                      </button>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>
