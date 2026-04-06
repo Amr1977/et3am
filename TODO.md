@@ -42,8 +42,8 @@
 - [ ] Re-Design Admin panel Donations tab
 - [ ] Admin Panel: Design: use secondary side menu or use two level item in main side menu for admin panel and its tab (allow items/sub-items)
 - [x] Add confirmation dialog on users actions (reserve donation, delete donations, save edited donation, mark donation as completed, etc) 
-- [ ] Add submitting clients/frontend logs to backend, support rotation, auto detect crashes/errors and create crash report for each crash pattern, make a table in database for crashes, each crash entry should contain full context/session/request information in order to be able to reproduce and fix the bug, send admin notification with the crash entry id and add a tab in admin panel to view crash entries and download all/selected crash entries, tag it as frontend crash for filtering
-- [ ] Handle backend crashes same as client crashes (store in database and notify admin and include in admin panel tab, etc) and tag it as backend crash for filtering
+- [x] Add submitting clients/frontend logs to backend, support rotation, auto detect crashes/errors and create crash report for each crash pattern, make a table in database for crashes, each crash entry should contain full context/session/request information in order to be able to reproduce and fix the bug, send admin notification with the crash entry id and add a tab in admin panel to view crash entries and download all/selected crash entries, tag it as frontend crash for filtering
+- [x] Handle backend crashes same as client crashes (store in database and notify admin and include in admin panel tab, etc) and tag it as backend crash for filtering
 - [ ] meal baloon on map: tapping it should navigate user to meal page 
 - [ ] meal baloon: own meal actions should be cancel, delivered, no reserve action button should show, and address and time should show up to signed in users
 - [ ] My reservations page: on user cancelling a reservation do not navigate to donation page.
