@@ -83,6 +83,9 @@ export default function Settings() {
         if (settings.preferred_language !== user?.preferred_language) {
           updateLanguage(settings.preferred_language);
         }
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        console.error('Failed to save settings:', res.status, errorData);
       }
     } catch (err) {
       console.error('Failed to save settings:', err);
