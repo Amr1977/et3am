@@ -2290,22 +2290,34 @@ html[dir="rtl"] .step-flow-number {
 }
 
 .map-container-wrapper.fullscreen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 100vh;
-  z-index: 9999;
-  border-radius: 0;
-  cursor: default;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  height: 100vh !important;
+  width: 100vw !important;
+  z-index: 99999 !important;
+  border-radius: 0 !important;
+  cursor: default !important;
+  background: #fff;
+}
+
+.map-container-wrapper.fullscreen .map-container {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.map-container-wrapper.fullscreen .leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
 }
 
 .map-fullscreen-close {
   position: fixed;
   top: 20px;
   right: 20px;
-  z-index: 10000;
+  z-index: 100000;
   background: rgba(0, 0, 0, 0.7);
   color: white;
   border: none;
@@ -3145,6 +3157,17 @@ html[dir="rtl"] .step-flow-number {
 
 .leaflet-popup-content-wrapper {
   cursor: default !important;
+}
+
+/* Prevent popup flickering */
+.leaflet-popup {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.leaflet-popup-close-button + .leaflet-popup-content {
+  margin-top: 12px;
 }
 
 /* Leaflet Popup Styles */

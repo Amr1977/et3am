@@ -18,6 +18,7 @@
 - prioritize tasks in trello backlog lane order so that top priority are at the top of the lane and give them priority labels/tags
 - categorize trello tickets by labels/tags 
 - after finishing a task: commit and push and deploy FE BE and FE and update KB local and remote
+- TO avoid sharing violation on TODO.md file: use it as read only untiil I tell you to check it and update its
 
 
 
@@ -47,6 +48,7 @@
 - [ ] meal baloon on map: tapping it should navigate user to meal page 
 - [ ] meal baloon: own meal actions should be cancel, delivered, no reserve action button should show, and address and time should show up to signed in users
 - [ ] My reservations page: on user cancelling a reservation do not navigate to donation page.
+- [ ] My donations page: show have grid view and map view with this donor specific donations (available/reserved)
 
 
 
@@ -68,3 +70,7 @@
 - [ ] Donations page: map: mouse pointer flikering and op clicking a marker no action occures
 - [ ] Donations page: map: on interacting with map and after it expands found that it doesnt expand to cover all the view port, it should expand even over the footer and navigation bar
 - [ ] Home page: interacting with map: expected map to auto expand to be full screen, found: no map expand occured
+- [ ] Owner unable to edit his donation
+- [ ] meal page: no data/time shown
+- [ ] donations grid: no start/end time shown
+- [ ] user avatar is still existing in navbar, we need to completely remove it, accessing uer profile should be in side menu
