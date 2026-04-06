@@ -178,6 +178,8 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
         center={defaultCenter}
         zoom={userLocation ? 13 : 10}
         style={{ height: '100%', width: '100%' }}
+        closePopupOnClick={false}
+        autoPan={false}
       >
         <BoundsTracker />
         <MapController />
@@ -254,7 +256,7 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
                       </button>
                     )}
                     <a
-                      href={`/donations#${d.id}`}
+                      href={`/donations/${d.id}`}
                       style={{
                         display: 'block',
                         textAlign: 'center',
