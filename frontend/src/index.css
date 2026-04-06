@@ -3144,14 +3144,22 @@ html[dir="rtl"] .step-flow-number {
 
 .custom-marker-container .marker-icon {
   cursor: pointer !important;
+  pointer-events: auto !important;
 }
 
 .leaflet-marker-icon {
   cursor: pointer !important;
+  pointer-events: auto !important;
+  z-index: 1000 !important;
+}
+
+.leaflet-marker-icon.leaflet-interactive {
+  pointer-events: auto !important;
 }
 
 .leaflet-marker-icon:hover {
   transform: scale(1.1);
+  z-index: 1001 !important;
 }
 
 .leaflet-popup-close-button {
@@ -3161,6 +3169,10 @@ html[dir="rtl"] .step-flow-number {
 
 .leaflet-popup-content-wrapper {
   cursor: default !important;
+}
+
+.leaflet-popup {
+  z-index: 1000 !important;
 }
 
 /* Prevent popup flickering */
