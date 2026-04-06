@@ -125,7 +125,7 @@ export const dbOps = {
     },
   },
   donations: {
-    async findAll(filters?: { status?: string; food_type?: string }, page = 1, limit = 10, userLat?: number | null, userLng?: number | null): Promise<{ donations: Donation[]; total: number }> {
+    async findAll(filters?: { status?: string; food_type?: string }, page = 1, limit = 10): Promise<{ donations: Donation[]; total: number }> {
       let where = 'WHERE 1=1';
       const params: any[] = [];
       let idx = 1;
@@ -144,18 +144,8 @@ export const dbOps = {
 
       params.push(limit);
       params.push((page - 1) * limit);
-
-      let orderBy = 'ORDER BY created_at DESC';
-      if (userLat != null && userLng != null) {
-        orderBy = `ORDER BY 
-          CASE WHEN latitude IS NULL OR longitude IS NULL THEN 1 ELSE 0 END,
-          (latitude::float - $${idx})^2 + (longitude::float - $${idx + 1})^2 ASC`;
-        params.push(userLat, userLng);
-        idx += 2;
-      }
-
       const { rows } = await pool.query(
-        `SELECT * FROM donations ${where} ${orderBy} LIMIT $${idx++} OFFSET $${idx}`,
+        `SELECT * FROM donations ${where} ORDER BY created_at DESC LIMIT $${idx++} OFFSET $${idx}`,
         params
       );
       return { donations: rows, total };
@@ -258,7 +248,7 @@ export const dbOps = {
         `SELECT cm.*, u.name as sender_name, u.avatar_url as sender_avatar
          FROM chat_messages cm
          JOIN users u ON cm.sender_id = u.id
-         WHERE cm.donation_id = $1::uuid
+         WHERE cm.donation_id = $1
          ORDER BY cm.created_at ASC`,
         [donationId]
       );
@@ -312,7 +302,7 @@ export const dbOps = {
         `SELECT ur.*, u.name as reviewer_name
          FROM user_reviews ur
          JOIN users u ON ur.reviewer_id = u.id
-         WHERE ur.donation_id = $1::uuid`,
+         WHERE ur.donation_id = $1`,
         [donationId]
       );
       return rows;
@@ -388,58 +378,25 @@ export const dbOps = {
       if (updates.status) {
         fields.push(`status = $${idx++}`);
         values.push(updates.status);
-}
-  } catch (err) {
-    console.error('Migration error:', err);
-    throw err;
-  }
-},
+      }
+      if (updates.priority) {
+        fields.push(`priority = $${idx++}`);
+        values.push(updates.priority);
+      }
+      if (updates.assigned_to !== undefined) {
+        fields.push(`assigned_to = $${idx++}`);
+        values.push(updates.assigned_to);
+      }
 
-donationReports: {
-  async create(reporterId: string, donationId: string, reason: string, description?: string) {
-    const { rows } = await pool.query(
-      `INSERT INTO donation_reports (reporter_id, donation_id, reason, description)
-       VALUES ($1, $2, $3, $4) RETURNING id`,
-      [reporterId, donationId, reason, description || null]
-    );
-    return rows[0];
-  },
-  async findByDonation(donationId: string) {
-    const { rows } = await pool.query(
-      `SELECT r.*, u.name as reporter_name, u.email as reporter_email
-       FROM donation_reports r
-       LEFT JOIN users u ON r.reporter_id = u.id
-       WHERE r.donation_id = $1::uuid
-       ORDER BY r.created_at DESC`,
-      [donationId]
-    );
-    return rows;
-  },
-  async findPending() {
-    const { rows } = await pool.query(
-      `SELECT r.*, d.title as donation_title, d.status as donation_status,
-              u.name as reporter_name
-       FROM donation_reports r
-       LEFT JOIN donations d ON r.donation_id = d.id
-       LEFT JOIN users u ON r.reporter_id = u.id
-       WHERE r.status = 'pending'
-       ORDER BY r.created_at DESC`
-    );
-    return rows;
-  },
-  async resolve(reportId: string, adminId: string) {
-    await pool.query(
-      `UPDATE donation_reports SET status = 'resolved', resolved_at = NOW(), resolved_by = $1 WHERE id = $2`,
-      [adminId, reportId]
-    );
-  },
-  async countPending() {
-    const { rows } = await pool.query(
-      `SELECT COUNT(*) as count FROM donation_reports WHERE status = 'pending'`
-    );
-    return parseInt(rows[0].count);
-  },
-},
+      fields.push(`updated_at = NOW()`);
+      values.push(ticketId);
+
+      const { rows } = await pool.query(
+        `UPDATE support_tickets SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`,
+        values
+      );
+      return rows[0] || null;
+    },
   },
   adminAudit: {
     async log(adminId: string, action: string, targetType: string, targetId: string | null, details: any): Promise<void> {
