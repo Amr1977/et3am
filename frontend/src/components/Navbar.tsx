@@ -195,25 +195,18 @@ export default function Navbar() {
           {isAuthenticated && (
             <div className="nav-section">
               <span className="nav-section-title">{t('nav.dashboard')}</span>
-              {navItems.slice(2, 7).map(item => (
-                <Link 
-                  key={item.path} 
-                  to={item.path} 
-                  className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
-                >
-                  <span className="nav-icon">{item.icon}</span>
-                  <span className="nav-label">{item.label}</span>
-                </Link>
+              {navItems.slice(2, 9).map(item => (
+                (!item.requiresAdmin || user?.role === 'admin') && (
+                  <Link 
+                    key={item.path} 
+                    to={item.path} 
+                    className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
+                  >
+                    <span className="nav-icon">{item.icon}</span>
+                    <span className="nav-label">{item.label}</span>
+                  </Link>
+                )
               ))}
-              {user?.role === 'admin' && (
-                <Link 
-                  to="/admin" 
-                  className={`nav-item admin ${isActive('/admin') ? 'active' : ''}`}
-                >
-                  <span className="nav-icon">🔧</span>
-                  <span className="nav-label">{t('admin.panel') || 'Admin Panel'}</span>
-                </Link>
-              )}
             </div>
           )}
 
