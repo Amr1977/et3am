@@ -178,6 +178,8 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
         center={defaultCenter}
         zoom={userLocation ? 13 : 10}
         style={{ height: '100%', width: '100%' }}
+        closePopupOnClick={true}
+        autoPan={true}
       >
         <BoundsTracker />
         <MapController />
@@ -191,7 +193,6 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
               position={[userLocation.lat, userLocation.lng]}
               icon={userLocationIcon}
             >
-              <Popup>{t('donations.your_location') || 'Your Location'}</Popup>
             </Marker>
             <Circle
               center={[userLocation.lat, userLocation.lng]}
@@ -226,8 +227,7 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
                 position={[d.latitude!, d.longitude!]}
                 icon={createMarkerIcon(color, d.food_type, newDonationIdsSet.has(d.id))}
                 eventHandlers={{
-                  click: (e: L.LeafletEvent) => {
-                    (e.originalEvent as MouseEvent).stopPropagation();
+                  click: () => {
                   },
                 }}
               >
