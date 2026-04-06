@@ -476,6 +476,93 @@ export const dbOps = {
       return rows;
     },
   },
+  crashLogs: {
+    async create(crash: {
+      crash_type: 'frontend' | 'backend';
+      severity?: 'info' | 'warning' | 'error' | 'critical';
+      title: string;
+      message?: string;
+      stack_trace?: string;
+      user_id?: string;
+      session_id?: string;
+      user_agent?: string;
+      url?: string;
+      metadata?: Record<string, any>;
+      fingerprint?: string;
+    }): Promise<string> {
+      const { rows } = await pool.query(
+        `INSERT INTO crash_logs (crash_type, severity, title, message, stack_trace, user_id, session_id, user_agent, url, metadata, fingerprint)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id`,
+        [
+          crash.crash_type,
+          crash.severity || 'error',
+          crash.title,
+          crash.message || null,
+          crash.stack_trace || null,
+          crash.user_id || null,
+          crash.session_id || null,
+          crash.user_agent || null,
+          crash.url || null,
+          crash.metadata ? JSON.stringify(crash.metadata) : '{}',
+          crash.fingerprint || null
+        ]
+      );
+      return rows[0].id;
+    },
+    async findAll(filters?: { crash_type?: string; resolved?: boolean }, page = 1, limit = 50): Promise<{ logs: any[]; total: number }> {
+      let where = 'WHERE 1=1';
+      const params: any[] = [];
+      let idx = 1;
+
+      if (filters?.crash_type) {
+        where += ` AND crash_type = $${idx++}`;
+        params.push(filters.crash_type);
+      }
+      if (filters?.resolved !== undefined) {
+        where += ` AND resolved = $${idx++}`;
+        params.push(filters.resolved);
+      }
+
+      const countResult = await pool.query(`SELECT COUNT(*) as total FROM crash_logs ${where}`, params);
+      const total = parseInt(countResult.rows[0].total);
+
+      params.push(limit);
+      params.push((page - 1) * limit);
+
+      const { rows } = await pool.query(
+        `SELECT cl.*, u.name as user_name
+         FROM crash_logs cl
+         LEFT JOIN users u ON cl.user_id = u.id
+         ${where} ORDER BY cl.created_at DESC
+         LIMIT $${idx++} OFFSET $${idx}`,
+        params
+      );
+      return { logs: rows, total };
+    },
+    async resolve(id: string, adminId: string): Promise<void> {
+      await pool.query(
+        `UPDATE crash_logs SET resolved = TRUE, resolved_at = NOW(), resolved_by = $1 WHERE id = $2`,
+        [adminId, id]
+      );
+    },
+    async countUnresolved(crash_type?: string): Promise<number> {
+      let query = 'SELECT COUNT(*) as count FROM crash_logs WHERE resolved = FALSE';
+      const params: any[] = [];
+      if (crash_type) {
+        query += ' AND crash_type = $1';
+        params.push(crash_type);
+      }
+      const { rows } = await pool.query(query, params);
+      return parseInt(rows[0].count);
+    },
+    async getFingerprintCount(fingerprint: string): Promise<number> {
+      const { rows } = await pool.query(
+        'SELECT COUNT(*) as count FROM crash_logs WHERE fingerprint = $1',
+        [fingerprint]
+      );
+      return parseInt(rows[0].count);
+    },
+  },
 };
 
 export async function runMigrations(): Promise<void> {

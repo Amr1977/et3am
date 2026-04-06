@@ -50,6 +50,9 @@
 .info-row .value {
   font-size: 1rem;
   color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+  unicode-bidi: plaintext;
 }
 
 .hash-section {

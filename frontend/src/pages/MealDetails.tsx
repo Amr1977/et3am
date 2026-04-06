@@ -102,6 +102,7 @@ export default function MealDetails() {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewData, setReviewData] = useState({ rating: 5, comment: '' });
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [mapFullscreen, setMapFullscreen] = useState(false);
 
   useEffect(() => {
     const fetchDonation = async () => {
@@ -132,6 +133,16 @@ export default function MealDetails() {
       fetchDonation();
     }
   }, [id, token]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && mapFullscreen) {
+        setMapFullscreen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mapFullscreen]);
 
   const handleLocation = (lat: number, lng: number) => {
     setUserLat(lat);
@@ -260,7 +271,7 @@ export default function MealDetails() {
           {donation.description && (
             <div className="info-row">
               <span className="label">{t('donations.description')}:</span>
-              <span className="value">{donation.description}</span>
+              <span className="value" dir="auto">{donation.description}</span>
             </div>
           )}
           <div className="info-row">
@@ -312,40 +323,47 @@ export default function MealDetails() {
           <h3>{t('navigation.directions')}</h3>
           {hasValidLocation ? (
             <>
-              <MapContainer
-                center={[pickupLat, pickupLng]}
-                zoom={14}
-                style={{ height: '400px', width: '100%', borderRadius: '12px' }}
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                
-                {userLat && userLng && (
-                  <>
-                    <Marker position={[userLat, userLng]} icon={userLocationIcon}>
-                      <Popup>{t('navigation.your_location')}</Popup>
-                    </Marker>
-                    <RouteInfo 
-                      userLat={userLat} 
-                      userLng={userLng} 
-                      destLat={pickupLat} 
-                      destLng={pickupLng} 
-                    />
-                  </>
+              <div className={`map-container-wrapper ${mapFullscreen ? 'fullscreen' : ''}`} onClick={() => !mapFullscreen && setMapFullscreen(true)}>
+                {mapFullscreen && (
+                  <button className="map-fullscreen-close" onClick={(e) => { e.stopPropagation(); setMapFullscreen(false); }}>
+                    ✕
+                  </button>
                 )}
-                
-                <Marker position={[pickupLat, pickupLng]} icon={pickupLocationIcon}>
-                  <Popup>
-                    <strong>{donation.title}</strong>
-                    <br />
-                    {donation.pickup_address}
-                  </Popup>
-                </Marker>
-                
-                <LocationTracker onLocation={handleLocation} />
-              </MapContainer>
+                <MapContainer
+                  center={[pickupLat, pickupLng]}
+                  zoom={14}
+                  style={{ height: '400px', width: '100%', borderRadius: '12px' }}
+                >
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                  
+                  {userLat && userLng && (
+                    <>
+                      <Marker position={[userLat, userLng]} icon={userLocationIcon}>
+                        <Popup>{t('navigation.your_location')}</Popup>
+                      </Marker>
+                      <RouteInfo 
+                        userLat={userLat} 
+                        userLng={userLng} 
+                        destLat={pickupLat} 
+                        destLng={pickupLng} 
+                      />
+                    </>
+                  )}
+                  
+                  <Marker position={[pickupLat, pickupLng]} icon={pickupLocationIcon}>
+                    <Popup>
+                      <strong>{donation.title}</strong>
+                      <br />
+                      {donation.pickup_address}
+                    </Popup>
+                  </Marker>
+                  
+                  <LocationTracker onLocation={handleLocation} />
+                </MapContainer>
+              </div>
               
               <div className="navigation-info">
                 <p className="info-text">

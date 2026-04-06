@@ -19,6 +19,7 @@ import supportRoutes from './routes/support';
 import reviewsRoutes from './routes/reviews';
 import adminRoutes from './routes/admin';
 import pushRoutes from './routes/push';
+import crashRoutes from './routes/crash';
 import { 
   helmetConfig, 
   cookieParserMiddleware, 
@@ -116,6 +117,7 @@ app.use('/api/support', apiLimiter, supportRoutes);
 app.use('/api/reviews', apiLimiter, reviewsRoutes);
 app.use('/api/admin', apiLimiter, adminRoutes);
 app.use('/api/push', pushRoutes);
+app.use('/api/crash', crashRoutes);
 
 app.get('/api/health', (_req, res) => {
   const healthyServers = getHealthyServers();
@@ -157,6 +159,42 @@ initDb().then(async () => {
   
   const httpServer = http.createServer(app);
   initSocket(httpServer);
+  
+  process.on('uncaughtException', async (error) => {
+    console.error('Uncaught Exception:', error);
+    try {
+      const crashId = await dbOps.crashLogs.create({
+        crash_type: 'backend',
+        severity: 'critical',
+        title: `Uncaught Exception: ${error.message}`,
+        message: error.message,
+        stack_trace: error.stack,
+        metadata: { event: 'uncaughtException' }
+      });
+      console.log('Backend crash logged with ID:', crashId);
+    } catch (logError) {
+      console.error('Failed to log crash:', logError);
+    }
+    process.exit(1);
+  });
+
+  process.on('unhandledRejection', async (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    try {
+      const error = reason instanceof Error ? reason : new Error(String(reason));
+      const crashId = await dbOps.crashLogs.create({
+        crash_type: 'backend',
+        severity: 'error',
+        title: `Unhandled Rejection: ${error.message}`,
+        message: error.message,
+        stack_trace: error.stack,
+        metadata: { event: 'unhandledRejection' }
+      });
+      console.log('Backend crash logged with ID:', crashId);
+    } catch (logError) {
+      console.error('Failed to log crash:', logError);
+    }
+  });
   
   httpServer.listen(PORT, () => {
     logger.info(`Server running on port ${PORT}`);

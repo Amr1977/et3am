@@ -17,6 +17,7 @@
 - when you start working on a task move its ticket to in progress lane in trello, when finished move it to done lane
 - prioritize tasks in trello backlog lane order so that top priority are at the top of the lane and give them priority labels/tags
 - categorize trello tickets by labels/tags 
+- after finishing a task: commit and push and deploy FE BE and FE and update KB local and remote
 
 
 
@@ -45,6 +46,7 @@
 - [ ] Handle backend crashes same as client crashes (store in database and notify admin and include in admin panel tab, etc) and tag it as backend crash for filtering
 - [ ] meal baloon on map: tapping it should navigate user to meal page 
 - [ ] meal baloon: own meal actions should be cancel, delivered, no reserve action button should show, and address and time should show up to signed in users
+- [ ] My reservations page: on user cancelling a reservation do not navigate to donation page.
 
 
 
@@ -61,3 +63,5 @@
 - [ ] donation page address doesnt provide edit action button
 - [ ] own donation card: some do not show edit button.
 - [ ] hash codes are not shown anywhere, each meal receiver/donor should be given a hashcode for each meal to preserve privacy and ensure correct pickup.
+- [ ] Availability time (start, end) is critical to show, currently missing in meal/donation page and grid
+- [ ] number of total users in home page stats not equal to number of users in admin panel

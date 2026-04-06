@@ -1,0 +1,27 @@
+{
+  "name": "إطعام Et3am - Food Donation",
+  "short_name": "إطعام",
+  "description": "Share surplus food with those in need",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0e0f11",
+  "theme_color": "#2D6A4F",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/defaulticon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/defaulticon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["charity", "food", "social"],
+  "lang": "ar",
+  "dir": "rtl"
+}

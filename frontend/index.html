@@ -40,6 +40,48 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/defaulticon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "إطعام Et3am",
+      "alternateName": "Et3am",
+      "url": "https://et3am.com/",
+      "logo": "https://et3am.com/et3am-og.png",
+      "description": "Charitable platform connecting donors with surplus food to recipients in need in Egypt.",
+      "sameAs": [
+        "https://facebook.com/et3am",
+        "https://twitter.com/et3am"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+20-1094450141",
+        "contactType": "customer service",
+        "availableLanguage": ["Arabic", "English"]
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "Egypt"
+      },
+      "serviceType": "Food Donation"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "إطعام Et3am",
+      "url": "https://et3am.com/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://et3am.com/donations?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

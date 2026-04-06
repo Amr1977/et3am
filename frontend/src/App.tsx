@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useSearchParams, useNavigate } 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import { SoundProvider } from './context/SoundContext';
+import { CrashLoggingProvider } from './context/CrashLoggingContext';
 import { useRTL } from './hooks/useRTL';
 import { logError } from './utils/logger';
 import Navbar from './components/Navbar';
@@ -79,7 +80,9 @@ export default function App() {
       <AuthProvider>
         <SocketProvider>
           <SoundProvider>
-            <AppContent />
+            <CrashLoggingProvider>
+              <AppContent />
+            </CrashLoggingProvider>
           </SoundProvider>
         </SocketProvider>
       </AuthProvider>
