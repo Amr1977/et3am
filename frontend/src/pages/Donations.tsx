@@ -2,9 +2,13 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSocket } from '../context/SocketContext';
+import { useSound } from '../context/SoundContext';
 import LocationPicker from '../components/LocationPicker';
 import ClusterMap from '../components/ClusterMap';
 import { fetchWithFailover } from '../services/api';
+import L from 'leaflet';
+import { formatDateTime } from '../hooks/useTimezone';
 
 interface Donation {
   id: string;
@@ -52,6 +56,8 @@ function getFoodIcon(type: string): string {
 export default function Donations() {
   const { t } = useTranslation();
   const { user, token, isAuthenticated } = useAuth();
+  const { onAdminNotification } = useSocket();
+  const { playSound } = useSound();
   const [searchParams] = useSearchParams();
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,6 +65,9 @@ export default function Donations() {
   const [filter, setFilter] = useState('available');
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('map');
   const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
+  const [mapBounds, setMapBounds] = useState<L.LatLngBounds | null>(null);
+  const [newDonationIds, setNewDonationIds] = useState<string[]>([]);
+  const [mapFullscreen, setMapFullscreen] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -132,6 +141,49 @@ export default function Donations() {
   useEffect(() => {
     fetchDonations();
   }, [fetchDonations]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const unsubscribe = onAdminNotification((data) => {
+      const eventType = data?.type || 'new_donation_added';
+      console.log('[Donations] Received notification:', eventType, data);
+
+      if (eventType === 'new_donation_added' && data.donation) {
+        const newDonation = data.donation;
+        if (mapBounds && newDonation.latitude && newDonation.longitude) {
+          const isInView = mapBounds.contains([newDonation.latitude, newDonation.longitude]);
+          if (isInView) {
+            setNewDonationIds(prev => [...prev, newDonation.id]);
+            setTimeout(() => {
+              setNewDonationIds(prev => prev.filter(id => id !== newDonation.id));
+            }, 1000);
+            playSound('new_meal');
+          }
+        }
+        setDonations(prev => {
+          if (prev.some(d => d.id === newDonation.id)) return prev;
+          return [newDonation, ...prev];
+        });
+      }
+    });
+
+    return () => unsubscribe();
+  }, [isAuthenticated, onAdminNotification, mapBounds, playSound]);
+
+  const handleBoundsChange = (bounds: L.LatLngBounds | null) => {
+    setMapBounds(bounds);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && mapFullscreen) {
+        setMapFullscreen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mapFullscreen]);
 
   const navigate = useNavigate();
   
@@ -475,13 +527,21 @@ export default function Donations() {
 
       {viewMode === 'map' ? (
         donations.some(d => d.latitude && d.longitude) || user?.latitude ? (
-          <div style={{ height: '500px' }}>
+          <div className={`map-container-wrapper ${mapFullscreen ? 'fullscreen' : ''}`} onClick={() => !mapFullscreen && setMapFullscreen(true)}>
+            {mapFullscreen && (
+              <button className="map-fullscreen-close" onClick={(e) => { e.stopPropagation(); setMapFullscreen(false); }}>
+                ✕
+              </button>
+            )}
             <ClusterMap 
               donations={donations} 
               userLocation={user?.latitude && user?.longitude ? { lat: user.latitude, lng: user.longitude } : null}
               t={t}
               onReserve={handleReserve}
               isAuthenticated={isAuthenticated}
+              onBoundsChange={handleBoundsChange}
+              newDonationIds={newDonationIds}
+              fullscreen={mapFullscreen}
             />
           </div>
         ) : (
@@ -527,7 +587,7 @@ export default function Donations() {
                   <h3 className="donation-title">{donation.title}</h3>
                   
                   {donation.description && (
-                    <p className="donation-desc">{donation.description.slice(0, 80)}{donation.description.length > 80 ? '...' : ''}</p>
+                    <p className="donation-desc" dir="auto">{donation.description.slice(0, 80)}{donation.description.length > 80 ? '...' : ''}</p>
                   )}
                   
                   <div className="donation-meta">
@@ -632,7 +692,7 @@ export default function Donations() {
             {selectedDonation.description && (
               <div className="modal-section">
                 <h4>{t('donations.description')}</h4>
-                <p>{selectedDonation.description}</p>
+                <p dir="auto">{selectedDonation.description}</p>
               </div>
             )}
             
@@ -654,13 +714,13 @@ export default function Donations() {
               {selectedDonation.pickup_date && (
                 <div className="modal-info">
                   <span className="info-label">{t('donations.pickup_date')}</span>
-                  <span className="info-value">{new Date(selectedDonation.pickup_date).toLocaleString()}</span>
+                  <span className="info-value">{formatDateTime(selectedDonation.pickup_date)}</span>
                 </div>
               )}
               {selectedDonation.expiry_date && (
                 <div className="modal-info">
                   <span className="info-label">{t('donations.expiry_date')}</span>
-                  <span className="info-value">{new Date(selectedDonation.expiry_date).toLocaleString()}</span>
+                  <span className="info-value">{formatDateTime(selectedDonation.expiry_date)}</span>
                 </div>
               )}
             </div>

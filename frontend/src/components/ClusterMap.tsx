@@ -45,6 +45,9 @@ interface ClusterMapProps {
   t: (key: string) => string;
   onReserve?: (id: string) => void;
   isAuthenticated?: boolean;
+  onBoundsChange?: (bounds: L.LatLngBounds | null) => void;
+  newDonationIds?: string[];
+  fullscreen?: boolean;
 }
 
 const statusColors: Record<string, string> = {
@@ -75,10 +78,11 @@ function getFoodIcon(type: string): string {
   return foodIcons['other'];
 }
 
-function createMarkerIcon(color: string, foodType: string) {
+function createMarkerIcon(color: string, foodType: string, isNew: boolean = false) {
   const icon = getFoodIcon(foodType);
+  const animationClass = isNew ? ' marker-bounce' : '';
   return L.divIcon({
-    className: 'custom-marker-container',
+    className: 'custom-marker-container' + animationClass,
     html: `
       <div style="
         background: ${color};
@@ -98,15 +102,38 @@ function createMarkerIcon(color: string, foodType: string) {
   });
 }
 
-export default function ClusterMap({ donations, userLocation, t, onReserve, isAuthenticated }: ClusterMapProps) {
+export default function ClusterMap({ donations, userLocation, t, onReserve, isAuthenticated, onBoundsChange, newDonationIds, fullscreen }: ClusterMapProps) {
   const [tileUrl, setTileUrl] = useState<string>('');
   const geoDonations = donations.filter(d => d.latitude && d.longitude);
+  const newDonationIdsSet = new Set(newDonationIds || []);
 
   useEffect(() => {
     getServerUrl().then(url => {
       setTileUrl(`${url}/api/maps/tiles/{z}/{x}/{y}.png`);
     });
   }, []);
+
+  function BoundsTracker() {
+    const map = useMap();
+    
+    useEffect(() => {
+      if (onBoundsChange) {
+        const bounds = map.getBounds();
+        onBoundsChange(bounds);
+        
+        const moveEndHandler = () => {
+          onBoundsChange(map.getBounds());
+        };
+        
+        map.on('moveend', moveEndHandler);
+        return () => {
+          map.off('moveend', moveEndHandler);
+        };
+      }
+    }, [map, onBoundsChange]);
+    
+    return null;
+  }
 
   const defaultCenter: [number, number] = userLocation 
     ? [userLocation.lat, userLocation.lng]
@@ -152,6 +179,7 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
         zoom={userLocation ? 13 : 10}
         style={{ height: '100%', width: '100%' }}
       >
+        <BoundsTracker />
         <MapController />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -196,7 +224,7 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
               <Marker
                 key={d.id}
                 position={[d.latitude!, d.longitude!]}
-                icon={createMarkerIcon(color, d.food_type)}
+                icon={createMarkerIcon(color, d.food_type, newDonationIdsSet.has(d.id))}
               >
                 <Popup>
                   <div style={{ minWidth: '180px', padding: '8px' }}>

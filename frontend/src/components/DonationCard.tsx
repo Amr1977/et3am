@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDateTime } from '../hooks/useTimezone';
 
 interface Donation {
   id: string;
@@ -50,7 +51,7 @@ export default function DonationCard({ donation, onReserve, onCancelReservation,
         </span>
       </div>
 
-      {donation.description && <p className="donation-desc">{donation.description}</p>}
+      {donation.description && <p className="donation-desc" dir="auto">{donation.description}</p>}
 
       <div className="donation-details">
         <div className="donation-detail">
@@ -68,13 +69,13 @@ export default function DonationCard({ donation, onReserve, onCancelReservation,
         {donation.pickup_date && (
           <div className="donation-detail">
             <span className="detail-label">{t('donations.pickup_date')}:</span>
-            <span className="detail-value">{new Date(donation.pickup_date).toLocaleDateString()}</span>
+            <span className="detail-value">{formatDateTime(donation.pickup_date)}</span>
           </div>
         )}
         {donation.expiry_date && (
           <div className="donation-detail">
             <span className="detail-label">{t('donations.expiry_date')}:</span>
-            <span className="detail-value">{new Date(donation.expiry_date).toLocaleDateString()}</span>
+            <span className="detail-value">{formatDateTime(donation.expiry_date)}</span>
           </div>
         )}
       </div>

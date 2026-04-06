@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { fetchWithFailover, getServerUrl } from '../services/api';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
+import { useAuth } from '../context/AuthContext';
+import { useSound } from '../context/SoundContext';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -102,10 +104,14 @@ function createClusterIcon(cluster: any) {
 
 export default function Home() {
   const { t } = useTranslation();
+  const { isAuthenticated } = useAuth();
+  const { playSound } = useSound();
   const [stats, setStats] = useState<Stats | null>(null);
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
   const [tileUrl, setTileUrl] = useState<string>('');
+  const [statsChanged, setStatsChanged] = useState(false);
+  const prevStatsRef = useRef<Stats | null>(null);
 
   useEffect(() => {
     getServerUrl().then(url => {
@@ -113,7 +119,7 @@ export default function Home() {
     });
   }, []);
 
-  useEffect(() => {
+  const fetchStats = () => {
     fetchWithFailover('/api/users/public-stats')
       .then(res => {
         if (!res.ok) throw new Error('Failed');
@@ -121,6 +127,16 @@ export default function Home() {
       })
       .then(data => {
         console.log('Stats loaded:', data);
+        const prevStats = prevStatsRef.current;
+        if (prevStats && (prevStats.completedDonations !== data.completedDonations || 
+            (prevStats.totalDonors + prevStats.totalReceivers) !== (data.totalDonors + data.totalReceivers))) {
+          setStatsChanged(true);
+          setTimeout(() => setStatsChanged(false), 600);
+          if (isAuthenticated) {
+            playSound('new_meal');
+          }
+        }
+        prevStatsRef.current = data;
         setStats(data);
       })
       .catch(err => {
@@ -128,11 +144,13 @@ export default function Home() {
         setStats(null);
       })
       .finally(() => setLoading(false));
+  };
 
-    fetchWithFailover('/api/donations?status=available&limit=50')
-      .then(res => res.ok ? res.json() : Promise.reject('Failed'))
-      .then(data => setDonations(data.donations || []))
-      .catch(err => console.error('Donations fetch error:', err));
+  useEffect(() => {
+    fetchStats();
+
+    const statsInterval = setInterval(fetchStats, 30000);
+    return () => clearInterval(statsInterval);
   }, []);
 
   const formatNumber = (num: number) => {
@@ -257,7 +275,7 @@ export default function Home() {
             {loading ? (
               <div className="stat-number">...</div>
             ) : (
-              <div className="stat-number">{formatNumber(stats?.completedDonations || 0)}</div>
+              <div className={`stat-number ${statsChanged ? 'stat-pulse' : ''}`}>{formatNumber(stats?.completedDonations || 0)}</div>
             )}
             <div className="stat-label">{t('home.meals_given')}</div>
           </div>
@@ -265,7 +283,7 @@ export default function Home() {
             {loading ? (
               <div className="stat-number">...</div>
             ) : (
-              <div className="stat-number">{formatNumber((stats?.totalDonors || 0) + (stats?.totalReceivers || 0))}</div>
+              <div className={`stat-number ${statsChanged ? 'stat-pulse' : ''}`}>{formatNumber((stats?.totalDonors || 0) + (stats?.totalReceivers || 0))}</div>
             )}
             <div className="stat-label">{t('home.total_members')}</div>
           </div>

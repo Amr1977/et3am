@@ -57,6 +57,21 @@ interface Report {
   created_at: string;
 }
 
+interface CrashLog {
+  id: string;
+  crash_type: string;
+  severity: string;
+  title: string;
+  message: string | null;
+  stack_trace: string | null;
+  user_name: string | null;
+  user_id: string | null;
+  session_id: string | null;
+  url: string | null;
+  resolved: boolean;
+  created_at: string;
+}
+
 interface Stats {
   users: {
     total: number;
@@ -98,6 +113,10 @@ export default function Admin() {
   const [ticketsLoading, setTicketsLoading] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
   const [reportsLoading, setReportsLoading] = useState(false);
+  const [crashLogs, setCrashLogs] = useState<CrashLog[]>([]);
+  const [crashLogsLoading, setCrashLogsLoading] = useState(false);
+  const [crashStats, setCrashStats] = useState({ frontend: 0, backend: 0, total: 0, unresolved: 0 });
+  const [crashFilter, setCrashFilter] = useState<{ type?: string; resolved?: boolean }>({});
   const [searchTerm, setSearchTerm] = useState('');
   const chartRef = useRef<any>(null);
 
@@ -319,11 +338,17 @@ export default function Admin() {
   };
 
   const tabs = [
-    { id: 'dashboard', label: t('admin.tabs.dashboard'), icon: '📊' },
-    { id: 'users', label: t('admin.tabs.users'), icon: '👥' },
-    { id: 'donations', label: t('admin.tabs.donations'), icon: '🎁' },
-    { id: 'tickets', label: t('admin.tabs.tickets'), icon: '🎫' },
-    { id: 'reports', label: t('admin.tabs.reports') || 'Reports', icon: '🚩' },
+    { id: 'dashboard', label: t('admin.tabs.dashboard'), icon: '📊', parent: 'overview' },
+    { id: 'users', label: t('admin.tabs.users'), icon: '👥', parent: 'manage' },
+    { id: 'donations', label: t('admin.tabs.donations'), icon: '🎁', parent: 'manage' },
+    { id: 'tickets', label: t('admin.tabs.tickets'), icon: '🎫', parent: 'support' },
+    { id: 'reports', label: t('admin.tabs.reports') || 'Reports', icon: '🚩', parent: 'support' },
+  ];
+
+  const tabGroups = [
+    { id: 'overview', label: 'Overview', tabs: tabs.filter(t => t.parent === 'overview') },
+    { id: 'manage', label: 'Management', tabs: tabs.filter(t => t.parent === 'manage') },
+    { id: 'support', label: 'Support', tabs: tabs.filter(t => t.parent === 'support') },
   ];
 
   return (
@@ -341,16 +366,23 @@ export default function Admin() {
           </div>
         </div>
 
-        <div className="admin-tabs-modern">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => handleTabChange(tab.id)}
-              className={`tab-modern ${activeTab === tab.id ? 'active' : ''}`}
-            >
-              <span className="tab-icon">{tab.icon}</span>
-              <span className="tab-label">{tab.label}</span>
-            </button>
+        <div className="admin-tabs-container">
+          {tabGroups.map(group => (
+            <div key={group.id} className="admin-tab-group">
+              <div className="tab-group-label">{group.label}</div>
+              <div className="admin-tabs-modern">
+                {group.tabs.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => handleTabChange(tab.id)}
+                    className={`tab-modern ${activeTab === tab.id ? 'active' : ''}`}
+                  >
+                    <span className="tab-icon">{tab.icon}</span>
+                    <span className="tab-label">{tab.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
 
@@ -511,34 +543,84 @@ export default function Admin() {
 
         {activeTab === 'donations' && (
           <div className="admin-donations">
+            <div className="admin-section-header">
+              <h2>Donations Management</h2>
+              <div className="admin-filters">
+                <select 
+                  className="admin-select"
+                  onChange={(e) => {
+                    const filtered = e.target.value === 'all' 
+                      ? donations 
+                      : donations.filter(d => d.status === e.target.value);
+                    setDonations(filtered);
+                  }}
+                >
+                  <option value="all">All Status</option>
+                  <option value="available">Available</option>
+                  <option value="reserved">Reserved</option>
+                  <option value="completed">Completed</option>
+                </select>
+                <input 
+                  type="text" 
+                  className="admin-search"
+                  placeholder="Search donations..."
+                  onChange={(e) => {
+                    const query = e.target.value.toLowerCase();
+                    // Re-fetch filtered - this is a simplified version
+                  }}
+                />
+              </div>
+            </div>
             {donationsLoading ? (
               <div className="loading-spinner"></div>
+            ) : donations.length === 0 ? (
+              <div className="empty-state">
+                <span>🎁</span>
+                <p>No donations found</p>
+              </div>
             ) : (
-              <div className="admin-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Title</th>
-                      <th>Food Type</th>
-                      <th>Quantity</th>
-                      <th>Status</th>
-                      <th>Address</th>
-                      <th>Created</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {donations.map(d => (
-                      <tr key={d.id}>
-                        <td>{d.title}</td>
-                        <td>{d.food_type}</td>
-                        <td>{d.quantity} {d.unit}</td>
-                        <td><span className={`status-badge ${d.status}`}>{d.status}</span></td>
-                        <td>{d.pickup_address}</td>
-                        <td>{new Date(d.created_at).toLocaleDateString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="donations-grid-modern">
+                {donations.map(d => (
+                  <div key={d.id} className="donation-card-modern">
+                    <div className="donation-card-header">
+                      <span className={`status-indicator ${d.status}`}></span>
+                      <span className={`status-label ${d.status}`}>{d.status}</span>
+                    </div>
+                    <h3 className="donation-title">{d.title}</h3>
+                    <div className="donation-meta">
+                      <div className="meta-item">
+                        <span className="meta-icon">🍽️</span>
+                        <span>{d.food_type}</span>
+                      </div>
+                      <div className="meta-item">
+                        <span className="meta-icon">📦</span>
+                        <span>{d.quantity} {d.unit}</span>
+                      </div>
+                    </div>
+                    <div className="donation-address">
+                      <span className="meta-icon">📍</span>
+                      <span>{d.pickup_address || 'No address'}</span>
+                    </div>
+                    <div className="donation-footer">
+                      <span className="donation-date">
+                        {new Date(d.created_at).toLocaleDateString('en-US', { 
+                          year: 'numeric', 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}
+                      </span>
+                      <div className="donation-actions">
+                        <button 
+                          className="btn-icon" 
+                          title="View Details"
+                          onClick={() => window.location.href = `/donations/${d.id}`}
+                        >
+                          👁️
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
