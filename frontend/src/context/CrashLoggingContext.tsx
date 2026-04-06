@@ -3,7 +3,7 @@ import { useAuth } from './AuthContext';
 import { useCrashLogging, initializeGlobalErrorHandlers } from '../hooks/useCrashLogging';
 
 interface CrashLoggingContextType {
-  logCrash: (report: { title: string; message?: string; stack_trace?: string; severity?: 'info' | 'warning' | 'error' | 'critical'; metadata?: Record<string, unknown> }) => Promise<string | null>;
+  logCrash: (report: { severity: 'info' | 'warning' | 'error' | 'critical'; title: string; message?: string; stack_trace?: string; metadata?: Record<string, unknown> }) => Promise<string | null>;
   logError: (title: string, error: Error | unknown, metadata?: Record<string, unknown>) => Promise<string | null>;
   logWarning: (title: string, message: string, metadata?: Record<string, unknown>) => Promise<string | null>;
 }
