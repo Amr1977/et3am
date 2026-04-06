@@ -2285,7 +2285,7 @@ html[dir="rtl"] .step-flow-number {
   position: relative;
   border-radius: 12px;
   overflow: hidden;
-  cursor: zoom-in;
+  cursor: pointer;
   transition: all 0.3s ease;
 }
 
@@ -2306,6 +2306,10 @@ html[dir="rtl"] .step-flow-number {
 .map-container-wrapper.fullscreen .map-container {
   height: 100% !important;
   width: 100% !important;
+}
+
+.map-container-wrapper.fullscreen .leaflet-container {
+  cursor: default !important;
 }
 
 .map-container-wrapper.fullscreen .leaflet-container {
