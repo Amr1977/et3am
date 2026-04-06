@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
+import { useSocket } from '../context/SocketContext';
 import { fetchWithFailover } from '../services/api';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
@@ -85,6 +86,7 @@ interface Stats {
 export default function Admin() {
   const { t } = useTranslation();
   const { user, token, isAuthenticated } = useAuth();
+  const { onAdminNotification } = useSocket();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -105,6 +107,15 @@ export default function Admin() {
       return;
     }
     fetchStats();
+
+    const unsub = onAdminNotification((data: any) => {
+      console.log('[Admin] Notification received:', data);
+      fetchStats();
+    });
+
+    return () => {
+      unsub();
+    };
   }, [isAuthenticated, user]);
 
   const fetchStats = async () => {

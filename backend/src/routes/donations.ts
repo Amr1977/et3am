@@ -276,6 +276,19 @@ router.post('/', createDonationLimiter, authenticate, async (req: AuthRequest, r
     });
 
     (logger as any).donation('New donation created', { donationId: donation.id, donorId: req.userId, title, food_type, quantity });
+
+    const admins = await dbOps.users.findAdmins();
+    for (const admin of admins) {
+      emitToUser(admin.id, 'new_donation_added', {
+        donationId: donation.id,
+        title: donation.title,
+        foodType: donation.food_type,
+        quantity: donation.quantity,
+        donorId: req.userId,
+        createdAt: new Date().toISOString()
+      });
+    }
+
     res.status(201).json({ messageKey: 'donation.created', donation });
   } catch (err: any) {
     logger.error('Create donation error:', err);
@@ -491,6 +504,15 @@ router.post('/:id/mark-received', authenticate, async (req: AuthRequest, res: Re
       });
     }
 
+    const admins = await dbOps.users.findAdmins();
+    for (const admin of admins) {
+      emitToUser(admin.id, 'meal_picked_up', {
+        donationId: req.params.id,
+        title: donation.title,
+        pickedUpAt: new Date().toISOString()
+      });
+    }
+
     res.json({ messageKey: 'donation.received', donation: updated });
   } catch (err: any) {
     logger.error('Mark received error:', err);
@@ -539,6 +561,15 @@ router.post('/:id/complete', authenticate, async (req: AuthRequest, res: Respons
       emitToUser(donation.reserved_by, 'delivery_completed', {
         donationId: req.params.id,
         title: donation.title,
+      });
+    }
+
+    const admins = await dbOps.users.findAdmins();
+    for (const admin of admins) {
+      emitToUser(admin.id, 'donation_completed', {
+        donationId: req.params.id,
+        title: donation.title,
+        completedAt: new Date().toISOString()
       });
     }
     

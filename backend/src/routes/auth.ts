@@ -7,6 +7,7 @@ import { registerSchema, loginSchema } from '../utils/validators';
 import { sanitizeString, sanitizeEmail, validateJWTStructure, validateTokenIntegrity } from '../utils/sanitizers';
 import logger from '../config/logger';
 import { admin, firebaseInitialized, serviceAccount } from '../firebase-admin';
+import { emitToUser } from '../config/socket';
 
 const router = Router();
 
@@ -55,6 +56,17 @@ router.post('/register', async (req: AuthRequest, res: Response) => {
       google_id: null,
       avatar_url: null,
     });
+
+    const admins = await dbOps.users.findAdmins();
+    for (const admin of admins) {
+      emitToUser(admin.id, 'new_user_registered', {
+        userId: id,
+        name: sanitizedName,
+        email: sanitizedEmail,
+        role: userRole,
+        createdAt: new Date().toISOString()
+      });
+    }
 
     const token = generateToken(id, user.role);
 
