@@ -65,3 +65,6 @@
 - [ ] hash codes are not shown anywhere, each meal receiver/donor should be given a hashcode for each meal to preserve privacy and ensure correct pickup.
 - [ ] Availability time (start, end) is critical to show, currently missing in meal/donation page and grid
 - [ ] number of total users in home page stats not equal to number of users in admin panel
+- [ ] Donations page: map: mouse pointer flikering and op clicking a marker no action occures
+- [ ] Donations page: map: on interacting with map and after it expands found that it doesnt expand to cover all the view port, it should expand even over the footer and navigation bar
+- [ ] Home page: interacting with map: expected map to auto expand to be full screen, found: no map expand occured

@@ -527,7 +527,17 @@ export default function Donations() {
 
       {viewMode === 'map' ? (
         donations.some(d => d.latitude && d.longitude) || user?.latitude ? (
-          <div className={`map-container-wrapper ${mapFullscreen ? 'fullscreen' : ''}`} onClick={() => !mapFullscreen && setMapFullscreen(true)}>
+          <div 
+            className={`map-container-wrapper ${mapFullscreen ? 'fullscreen' : ''}`} 
+            onClick={(e) => {
+              if (!mapFullscreen) {
+                const target = e.target as HTMLElement;
+                if (!target.closest('.leaflet-popup') && !target.closest('.leaflet-marker-icon')) {
+                  setMapFullscreen(true);
+                }
+              }
+            }}
+          >
             {mapFullscreen && (
               <button className="map-fullscreen-close" onClick={(e) => { e.stopPropagation(); setMapFullscreen(false); }}>
                 ✕
