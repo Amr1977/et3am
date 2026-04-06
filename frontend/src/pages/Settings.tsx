@@ -58,11 +58,27 @@ export default function Settings() {
     setSuccess(false);
 
     try {
-      // Handle push notification subscription
+      // Handle push notification subscription with timeout
       if (settings.notifications_enabled && pushSupported && !isSubscribed) {
-        await subscribe();
+        const subscribePromise = subscribe();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Subscribe timeout')), 5000)
+        );
+        try {
+          await Promise.race([subscribePromise, timeoutPromise]);
+        } catch (e) {
+          console.warn('Push subscription skipped:', e);
+        }
       } else if (!settings.notifications_enabled && isSubscribed) {
-        await unsubscribe();
+        const unsubscribePromise = unsubscribe();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Unsubscribe timeout')), 5000)
+        );
+        try {
+          await Promise.race([unsubscribePromise, timeoutPromise]);
+        } catch (e) {
+          console.warn('Push unsubscribe skipped:', e);
+        }
       }
 
       const res = await fetchWithFailover('/api/users/me', {
