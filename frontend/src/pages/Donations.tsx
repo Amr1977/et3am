@@ -85,6 +85,17 @@ export default function Donations() {
   const [reportData, setReportData] = useState({ reason: '', description: '' });
   const [reportSubmitting, setReportSubmitting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [editingDonation, setEditingDonation] = useState<Donation | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    title: '',
+    description: '',
+    food_type: '',
+    quantity: '',
+    unit: '',
+    pickup_address: '',
+    pickup_date: '',
+    expiry_date: '',
+  });
   const ITEMS_PER_PAGE = 12;
 
   useEffect(() => {
@@ -185,6 +196,21 @@ export default function Donations() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [mapFullscreen]);
 
+  useEffect(() => {
+    if (editingDonation) {
+      setEditFormData({
+        title: editingDonation.title || '',
+        description: editingDonation.description || '',
+        food_type: editingDonation.food_type || '',
+        quantity: String(editingDonation.quantity || ''),
+        unit: editingDonation.unit || 'portions',
+        pickup_address: editingDonation.pickup_address || '',
+        pickup_date: editingDonation.pickup_date ? editingDonation.pickup_date.slice(0, 16) : '',
+        expiry_date: editingDonation.expiry_date ? editingDonation.expiry_date.slice(0, 16) : '',
+      });
+    }
+  }, [editingDonation]);
+
   const navigate = useNavigate();
   
   const handleReserve = async (id: string) => {
@@ -235,6 +261,29 @@ export default function Donations() {
       if (res.ok) fetchDonations();
     } catch (err) {
       console.error('Failed to delete donation');
+    }
+  };
+
+  const handleEditSave = async () => {
+    if (!editingDonation) return;
+    try {
+      const res = await fetchWithFailover(`/api/donations/${editingDonation.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          ...editFormData,
+          quantity: parseInt(editFormData.quantity) || 1,
+        }),
+      });
+      if (res.ok) {
+        setEditingDonation(null);
+        fetchDonations();
+      }
+    } catch (err) {
+      console.error('Failed to update donation');
     }
   };
 
@@ -501,6 +550,104 @@ export default function Donations() {
         </div>
       )}
 
+      {editingDonation && (
+        <div className="modal-overlay" onClick={() => setEditingDonation(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h3>{t('donations.edit_title')}</h3>
+            <form onSubmit={(e) => { e.preventDefault(); handleEditSave(); }}>
+              <div className="form-group">
+                <label>{t('donations.title')}</label>
+                <input 
+                  name="title" 
+                  type="text" 
+                  value={editFormData.title} 
+                  onChange={(e) => setEditFormData({...editFormData, title: e.target.value})}
+                  className="form-input"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>{t('donations.description')}</label>
+                <textarea 
+                  name="description" 
+                  value={editFormData.description} 
+                  onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
+                  className="form-input"
+                  rows={3}
+                />
+              </div>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>{t('donations.food_type')}</label>
+                  <select 
+                    name="food_type" 
+                    value={editFormData.food_type} 
+                    onChange={(e) => setEditFormData({...editFormData, food_type: e.target.value})}
+                    className="form-input"
+                  >
+                    <option value="">Select type</option>
+                    {['meat', 'chicken', 'fish', 'vegetables', 'fruits', 'bread', 'rice', 'pasta', 'soup', 'dessert', 'other'].map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>{t('donations.quantity')}</label>
+                  <input 
+                    name="quantity" 
+                    type="number" 
+                    min="1"
+                    value={editFormData.quantity} 
+                    onChange={(e) => setEditFormData({...editFormData, quantity: e.target.value})}
+                    className="form-input"
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>{t('donations.pickup_address')}</label>
+                <input 
+                  name="pickup_address" 
+                  type="text" 
+                  value={editFormData.pickup_address} 
+                  onChange={(e) => setEditFormData({...editFormData, pickup_address: e.target.value})}
+                  className="form-input"
+                />
+              </div>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>{t('donations.pickup_date')}</label>
+                  <input 
+                    name="pickup_date" 
+                    type="datetime-local" 
+                    value={editFormData.pickup_date} 
+                    onChange={(e) => setEditFormData({...editFormData, pickup_date: e.target.value})}
+                    className="form-input" 
+                  />
+                </div>
+                <div className="form-group">
+                  <label>{t('donations.expiry_date')}</label>
+                  <input 
+                    name="expiry_date" 
+                    type="datetime-local" 
+                    value={editFormData.expiry_date} 
+                    onChange={(e) => setEditFormData({...editFormData, expiry_date: e.target.value})}
+                    className="form-input" 
+                  />
+                </div>
+              </div>
+              <div className="form-actions">
+                <button type="button" onClick={() => setEditingDonation(null)} className="btn btn-outline">
+                  {t('donations.cancel')}
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  {t('donations.save')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <div className="filter-tabs">
         {isAuthenticated ? (
           <>
@@ -611,6 +758,12 @@ export default function Donations() {
                         <span className="meta-value">{donation.donor_name}</span>
                       </div>
                     )}
+                    {donation.pickup_date && (
+                      <div className="donation-meta-item">
+                        <span className="meta-label">🕐 {t('donations.available')}</span>
+                        <span className="meta-value">{new Date(donation.pickup_date).toLocaleString()}</span>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="donation-address">
@@ -620,12 +773,21 @@ export default function Donations() {
                         ? donation.pickup_address || 'No address'
                         : (isAuthenticated ? t('donations.address_hidden') : t('donations.login_to_see'))}
                     </span>
+                    {isAuthenticated && donation.donor_id === user?.id && (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setEditingDonation(donation); }}
+                        className="btn btn-outline btn-sm"
+                        style={{ marginLeft: '8px', padding: '4px 8px', fontSize: '12px' }}
+                      >
+                        {t('donations.edit')}
+                      </button>
+                    )}
                   </div>
                   
                   <div className="donation-card-footer">
-                    {donation.hash_code && donation.reserved_by === user?.id && (
+                    {donation.hash_code && (donation.reserved_by === user?.id || donation.donor_id === user?.id) && (
                       <div className="hash-code-display">
-                        <span className="hash-label">Code:</span>
+                        <span className="hash-label">🔑 Code:</span>
                         <span className="hash-value">{donation.hash_code}</span>
                       </div>
                     )}

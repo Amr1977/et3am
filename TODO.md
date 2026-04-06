@@ -74,3 +74,4 @@
 - [ ] meal page: no data/time shown
 - [ ] donations grid: no start/end time shown
 - [ ] user avatar is still existing in navbar, we need to completely remove it, accessing uer profile should be in side menu
+- [ ] CORS errors when FE tries to failover on GCP server
