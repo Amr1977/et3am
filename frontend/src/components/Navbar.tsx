@@ -113,6 +113,7 @@ export default function Navbar() {
     { label: t('my_donations.title'), path: '/my-donations', icon: '🤝', requiresAuth: true },
     { label: t('my_reservations.title'), path: '/my-reservations', icon: '📋', requiresAuth: true },
     { label: t('support.title'), path: '/support', icon: '💬', requiresAuth: true },
+    { label: t('nav.profile'), path: '/profile', icon: '👤', requiresAuth: true },
     { label: t('nav.settings'), path: '/settings', icon: '⚙️', requiresAuth: true },
     { label: t('admin.tabs.dashboard'), path: '/admin', icon: '🔧', requiresAuth: true, requiresAdmin: true },
   ];
