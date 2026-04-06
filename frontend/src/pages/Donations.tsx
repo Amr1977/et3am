@@ -677,11 +677,13 @@ export default function Donations() {
           <div 
             className={`map-container-wrapper ${mapFullscreen ? 'fullscreen' : ''}`} 
             onClick={(e) => {
+              const target = e.target as HTMLElement;
+              // Don't fullscreen when clicking popup close button or popup content links
+              if (target.closest('.leaflet-popup-close-button') || target.closest('.leaflet-popup-content a')) {
+                return;
+              }
               if (!mapFullscreen) {
-                const target = e.target as HTMLElement;
-                if (!target.closest('.leaflet-popup') && !target.closest('.leaflet-marker-icon')) {
-                  setMapFullscreen(true);
-                }
+                setMapFullscreen(true);
               }
             }}
           >
