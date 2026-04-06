@@ -72,6 +72,9 @@ export default function Donations() {
     longitude: '',
   });
   const [createError, setCreateError] = useState('');
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportData, setReportData] = useState({ reason: '', description: '' });
+  const [reportSubmitting, setReportSubmitting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
 
@@ -231,6 +234,30 @@ export default function Donations() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleReport = async () => {
+    if (!reportData.reason) return;
+    setReportSubmitting(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/donations/${selectedDonation?.id}/report`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(reportData)
+      });
+      if (res.ok) {
+        setShowReportModal(false);
+        setSelectedDonation(null);
+        setReportData({ reason: '', description: '' });
+      }
+    } catch (err) {
+      console.error('Report error:', err);
+    } finally {
+      setReportSubmitting(false);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -668,6 +695,48 @@ export default function Donations() {
                   )}
                 </>
               ) : null}
+              {selectedDonation.donor_id !== user?.id && (
+                <button onClick={() => setShowReportModal(true)} className="btn btn-outline btn-sm" style={{ marginLeft: '8px' }}>
+                  {t('donations.report')}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showReportModal && selectedDonation && (
+        <div className="modal-overlay" onClick={() => setShowReportModal(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+            <button className="modal-close" onClick={() => setShowReportModal(false)}>✕</button>
+            <h3>{t('donations.report_donation')}</h3>
+            <div style={{ marginTop: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '8px' }}>{t('donations.report_reason_required').replace('Please select a reason', 'Select Reason')}</label>
+              <select
+                value={reportData.reason}
+                onChange={(e) => setReportData({ ...reportData, reason: e.target.value })}
+                style={{ width: '100%', padding: '8px', marginBottom: '16px' }}
+              >
+                <option value="">-- {t('donations.report_reason_required')} --</option>
+                <option value="inappropriate">{t('donations.report_reasons.inappropriate')}</option>
+                <option value="expired">{t('donations.report_reasons.expired')}</option>
+                <option value="misleading">{t('donations.report_reasons.misleading')}</option>
+                <option value="unavailable">{t('donations.report_reasons.unavailable')}</option>
+                <option value="other">{t('donations.report_reasons.other')}</option>
+              </select>
+              <label style={{ display: 'block', marginBottom: '8px' }}>{t('donations.report_description')}</label>
+              <textarea
+                value={reportData.description}
+                onChange={(e) => setReportData({ ...reportData, description: e.target.value })}
+                placeholder={t('donations.report_description_placeholder')}
+                style={{ width: '100%', padding: '8px', minHeight: '80px' }}
+              />
+            </div>
+            <div style={{ marginTop: '20px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowReportModal(false)} className="btn btn-outline">{t('common.cancel')}</button>
+              <button onClick={handleReport} disabled={!reportData.reason || reportSubmitting} className="btn btn-danger">
+                {reportSubmitting ? '...' : t('donations.submit_report')}
+              </button>
             </div>
           </div>
         </div>

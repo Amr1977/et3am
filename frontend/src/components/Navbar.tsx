@@ -138,9 +138,8 @@ export default function Navbar() {
         </button>
 
         <Link to="/" className="navbar-brand">
-          <img src="/defaulticon.png" alt={t('app.name')} className="brand-logo" />
           <div className="brand-content">
-            <span className="brand-text">{t('app.name')}</span>
+            <span className="brand-text">إطعام</span>
             <span className="brand-version">v{gitInfo.version}</span>
           </div>
         </Link>
@@ -211,7 +210,7 @@ export default function Navbar() {
                   className={`nav-item admin ${isActive('/admin') ? 'active' : ''}`}
                 >
                   <span className="nav-icon">🔧</span>
-                  <span className="nav-label">{t('admin.tabs.dashboard')}</span>
+                  <span className="nav-label">{t('admin.panel') || 'Admin Panel'}</span>
                 </Link>
               )}
             </div>
