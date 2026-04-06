@@ -233,4 +233,25 @@ router.get('/audit-log', authenticate, requireAdmin, async (req: AuthRequest, re
   }
 });
 
+router.get('/reports', authenticate, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const reports = await dbOps.donationReports.findPending();
+    res.json({ reports });
+  } catch (err) {
+    console.error('Admin reports error:', err);
+    res.status(500).json({ messageKey: 'general.server_error' });
+  }
+});
+
+router.put('/reports/:id/resolve', authenticate, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    await dbOps.donationReports.resolve(req.params.id, req.userId!);
+    await dbOps.adminAudit.log(req.userId!, 'resolve_report', 'report', req.params.id, {});
+    res.json({ messageKey: 'report.resolved' });
+  } catch (err) {
+    console.error('Admin resolve report error:', err);
+    res.status(500).json({ messageKey: 'general.server_error' });
+  }
+});
+
 export default router;

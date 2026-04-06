@@ -99,6 +99,9 @@ export default function MealDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewData, setReviewData] = useState({ rating: 5, comment: '' });
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
   useEffect(() => {
     const fetchDonation = async () => {
@@ -176,6 +179,31 @@ export default function MealDetails() {
       console.error('Failed to complete:', err);
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!token || !donation) return;
+    try {
+      const otherUserId = user?.id === donation.donor_id ? donation.reserved_by : donation.donor_id;
+      const reviewType = user?.id === donation.donor_id ? 'donor_to_receiver' : 'receiver_to_donor';
+      const res = await fetchWithFailover('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          reviewed_id: otherUserId,
+          donation_id: donation.id,
+          rating: reviewData.rating,
+          comment: reviewData.comment,
+          review_type: reviewType
+        })
+      });
+      if (res.ok) {
+        setReviewSubmitted(true);
+        setShowReviewModal(false);
+      }
+    } catch (err) {
+      console.error('Failed to submit review:', err);
     }
   };
 
@@ -259,13 +287,24 @@ export default function MealDetails() {
           
           {(user?.id === donation.donor_id || user?.id === donation.reserved_by) && 
            (donation.status === 'reserved' || donation.status === 'received') && (
-            <button 
-              onClick={handleComplete} 
-              disabled={actionLoading}
-              className="btn btn-primary"
-            >
-              {actionLoading ? t('common.loading') : t('donations.complete')}
-            </button>
+            <>
+              <button 
+                onClick={handleComplete} 
+                disabled={actionLoading}
+                className="btn btn-primary"
+              >
+                {actionLoading ? t('common.loading') : t('donations.complete')}
+              </button>
+              {!reviewSubmitted && (
+                <button 
+                  onClick={() => setShowReviewModal(true)} 
+                  className="btn btn-outline"
+                  style={{ marginRight: '8px' }}
+                >
+                  ⭐ {t('review.add_review') || 'Add Review'}
+                </button>
+              )}
+            </>
           )}
         </div>
 
@@ -324,6 +363,46 @@ export default function MealDetails() {
             </div>
           )}
         </div>
+
+        {reviewSubmitted && (
+          <div className="review-success-message">
+            ✅ {t('review.created') || 'Review submitted successfully!'}
+          </div>
+        )}
+
+        {showReviewModal && (
+          <div className="modal-overlay" onClick={() => setShowReviewModal(false)}>
+            <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+              <button className="modal-close" onClick={() => setShowReviewModal(false)}>✕</button>
+              <h3>⭐ {t('review.add_review') || 'Add Review'}</h3>
+              <div style={{ marginTop: '16px' }}>
+                <label style={{ display: 'block', marginBottom: '8px' }}>{t('review.rating') || 'Rating'}</label>
+                <div className="star-selector" style={{ display: 'flex', gap: '4px', marginBottom: '16px' }}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => setReviewData({ ...reviewData, rating: star })}
+                      style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}
+                    >
+                      {star <= reviewData.rating ? '⭐' : '☆'}
+                    </button>
+                  ))}
+                </div>
+                <label style={{ display: 'block', marginBottom: '8px' }}>{t('review.comment') || 'Comment (optional)'}</label>
+                <textarea
+                  value={reviewData.comment}
+                  onChange={(e) => setReviewData({ ...reviewData, comment: e.target.value })}
+                  placeholder={t('review.comment_placeholder') || 'Write your experience...'}
+                  style={{ width: '100%', padding: '8px', minHeight: '80px' }}
+                />
+              </div>
+              <div style={{ marginTop: '20px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                <button onClick={() => setShowReviewModal(false)} className="btn btn-outline">{t('common.cancel')}</button>
+                <button onClick={handleSubmitReview} className="btn btn-primary">{t('review.submit') || 'Submit Review'}</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

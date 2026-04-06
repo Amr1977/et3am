@@ -265,15 +265,7 @@ export default function Home() {
             {loading ? (
               <div className="stat-number">...</div>
             ) : (
-              <div className="stat-number">{formatNumber(stats?.totalDonors || 0)}</div>
-            )}
-            <div className="stat-label">{t('home.total_donors')}</div>
-          </div>
-          <div className="stat-card">
-            {loading ? (
-              <div className="stat-number">...</div>
-            ) : (
-              <div className="stat-number">{formatNumber(stats?.totalReceivers || 0)}</div>
+              <div className="stat-number">{formatNumber((stats?.totalDonors || 0) + (stats?.totalReceivers || 0))}</div>
             )}
             <div className="stat-label">{t('home.total_members')}</div>
           </div>

@@ -570,4 +570,31 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res: Response) => {
   }
 });
 
+router.post('/:id/report', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const { reason, description } = req.body;
+    if (!reason) {
+      res.status(400).json({ messageKey: 'donation.report_reason_required' });
+      return;
+    }
+
+    const donation = await dbOps.donations.findById(req.params.id);
+    if (!donation) {
+      res.status(404).json({ messageKey: 'donation.not_found' });
+      return;
+    }
+
+    if (donation.donor_id === req.userId) {
+      res.status(400).json({ messageKey: 'donation.cannot_report_own' });
+      return;
+    }
+
+    await dbOps.donationReports.create(req.userId!, req.params.id, reason, description);
+    res.json({ messageKey: 'donation.reported' });
+  } catch (err) {
+    console.error('Report error:', err);
+    res.status(500).json({ messageKey: 'general.server_error' });
+  }
+});
+
 export default router;

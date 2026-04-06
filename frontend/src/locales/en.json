@@ -149,7 +149,22 @@
     "mark_received": "Mark as Received",
     "hash_code": "Pickup Code",
     "hash_hint": "Share this code when meeting",
-    "view_on_map": "View on Map"
+    "view_on_map": "View on Map",
+    "report": "Report",
+    "report_donation": "Report this donation",
+    "report_reason_required": "Please select a reason",
+    "cannot_report_own": "You cannot report your own donation",
+    "reported": "Report submitted successfully",
+    "report_reasons": {
+      "inappropriate": "Inappropriate content",
+      "expired": "Expired donation",
+      "misleading": "Misleading description",
+      "unavailable": "No longer available",
+      "other": "Other"
+    },
+    "report_description": "Additional details (optional)",
+    "report_description_placeholder": "Provide more information...",
+    "submit_report": "Submit Report"
   },
   "food_types": {
     "meat": "Meat",
@@ -260,12 +275,23 @@
       "high": "High"
     }
   },
+  "review": {
+    "add_review": "Add Review",
+    "rating": "Rating",
+    "comment": "Comment (optional)",
+    "comment_placeholder": "Write your experience...",
+    "submit": "Submit Review",
+    "created": "Review submitted successfully!",
+    "already_exists": "You have already reviewed this transaction"
+  },
   "admin": {
+    "panel": "Admin Panel",
     "tabs": {
       "dashboard": "Dashboard",
       "users": "Users",
       "donations": "Donations",
-      "tickets": "Tickets"
+      "tickets": "Tickets",
+      "reports": "Reports"
     }
   },
   "profile": {
