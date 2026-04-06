@@ -3126,6 +3126,27 @@ html[dir="rtl"] .step-flow-number {
   border: none !important;
 }
 
+.custom-marker-container .marker-icon {
+  cursor: pointer !important;
+}
+
+.leaflet-marker-icon {
+  cursor: pointer !important;
+}
+
+.leaflet-marker-icon:hover {
+  transform: scale(1.1);
+}
+
+.leaflet-popup-close-button {
+  cursor: pointer !important;
+  z-index: 100;
+}
+
+.leaflet-popup-content-wrapper {
+  cursor: default !important;
+}
+
 /* Leaflet Popup Styles */
 .leaflet-popup-content-wrapper {
   border-radius: 12px;
