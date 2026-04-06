@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useSound } from '../context/SoundContext';
 import { fetchWithFailover } from '../services/api';
+import { usePushNotifications } from '../hooks/usePushNotifications';
 
 interface UserSettings {
   name: string;
@@ -23,6 +24,7 @@ export default function Settings() {
   const { t } = useTranslation();
   const { user, token, isAuthenticated, updateLanguage } = useAuth();
   const { soundEnabled, setSoundEnabled } = useSound();
+  const { isSupported: pushSupported, isSubscribed, subscribe, unsubscribe } = usePushNotifications();
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -56,6 +58,13 @@ export default function Settings() {
     setSuccess(false);
 
     try {
+      // Handle push notification subscription
+      if (settings.notifications_enabled && pushSupported && !isSubscribed) {
+        await subscribe();
+      } else if (!settings.notifications_enabled && isSubscribed) {
+        await unsubscribe();
+      }
+
       const res = await fetchWithFailover('/api/users/me', {
         method: 'PUT',
         headers: {

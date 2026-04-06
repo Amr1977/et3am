@@ -11,6 +11,7 @@ interface SocketContextType {
   sendMessage: (donationId: string, message: string) => void;
   onNewMessage: (callback: (message: any) => void) => () => void;
   onChatNotification: (callback: (data: any) => void) => () => void;
+  onAdminNotification: (callback: (data: any) => void) => () => void;
 }
 
 const SocketContext = createContext<SocketContextType | null>(null);
@@ -98,6 +99,19 @@ export function SocketProvider({ children }: SocketProviderProps) {
     };
   };
 
+  const onAdminNotification = (callback: (data: any) => void) => {
+    socket?.on('new_user_registered', callback);
+    socket?.on('new_donation_added', callback);
+    socket?.on('meal_picked_up', callback);
+    socket?.on('donation_completed', callback);
+    return () => {
+      socket?.off('new_user_registered', callback);
+      socket?.off('new_donation_added', callback);
+      socket?.off('meal_picked_up', callback);
+      socket?.off('donation_completed', callback);
+    };
+  };
+
   return (
     <SocketContext.Provider value={{
       socket,
@@ -107,6 +121,7 @@ export function SocketProvider({ children }: SocketProviderProps) {
       sendMessage,
       onNewMessage,
       onChatNotification,
+      onAdminNotification,
     }}>
       {children}
     </SocketContext.Provider>

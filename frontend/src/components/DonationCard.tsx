@@ -24,6 +24,7 @@ interface DonationCardProps {
   onCancelReservation?: (id: string) => void;
   onComplete?: (id: string) => void;
   onDelete?: (id: string) => void;
+  onEdit?: (id: string) => void;
   onMarkReceived?: (id: string) => void;
   onClick?: () => void;
   isOwner?: boolean;
@@ -31,7 +32,7 @@ interface DonationCardProps {
   t: (key: string) => string;
 }
 
-export default function DonationCard({ donation, onReserve, onCancelReservation, onComplete, onDelete, onMarkReceived, onClick, isOwner, isReserver, t }: DonationCardProps) {
+export default function DonationCard({ donation, onReserve, onCancelReservation, onComplete, onDelete, onEdit, onMarkReceived, onClick, isOwner, isReserver, t }: DonationCardProps) {
   const statusColors: Record<string, string> = {
     available: '#22c55e',
     reserved: '#f59e0b',
@@ -120,6 +121,11 @@ export default function DonationCard({ donation, onReserve, onCancelReservation,
         {isOwner && onDelete && (
           <button onClick={() => onDelete(donation.id)} className="btn btn-danger btn-sm">
             {t('donations.delete')}
+          </button>
+        )}
+        {isOwner && onEdit && (
+          <button onClick={() => onEdit(donation.id)} className="btn btn-outline btn-sm">
+            {t('donations.edit')}
           </button>
         )}
       </div>

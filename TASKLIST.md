@@ -1,26 +1,42 @@
 # Et3am Task List
 
+# Et3am Task List
+
+# Et3am Task List
+
 ## In Progress
-- [ ] Implement full reputation system with mutual review
-- [ ] Add push notifications
-- [ ] Admin notifications for new users and donation events
-- [ ] Real-time stats with sound and animation on home page
-- [ ] Map animations when meals added/removed in visible area
-- [ ] Full-screen map interaction
-- [ ] Apply docs/et3am_comprehensive_review.html
+- [ ] ET3AM-004: Add push notifications
+- [ ] ET3AM-005: Real-time stats with sound and animation
+- [ ] ET3AM-006: Map animations when meals added/removed
+- [ ] ET3AM-007: Full-screen map interaction
+- [ ] ET3AM-008: Apply docs/et3am_comprehensive_review.html
+- [ ] ET3AM-009: Re-design Admin panel Donations tab
+- [ ] ET3AM-010: Two-level side menu for admin panel
+- [ ] BUG-001: Donation timezone display
+- [ ] BUG-002: Preserve description formatting
+- [ ] BUG-003: RTL text direction in descriptions
 
 ## Completed (Tested)
-- [x] Rename "Dashboard" to "Admin Panel" in side menu
-- [x] Remove brand image from navbar (text-only: "إطعام")
+- [x] ET3AM-001: Donation report/flag feature
+- [x] ET3AM-002: Admin real-time notifications
+- [x] ET3AM-003: Donor CRUD for own donations
+- [x] Rename "Dashboard" to "Admin Panel"
+- [x] Remove brand image from navbar
 - [x] Hamburger menu works on desktop
-- [x] Home page stats fixed (combined donors+members)
-- [x] Report button added to donation modal
-- [x] Chat crash fixed (UUID type casts)
-- [x] Admin Panel: users management (view, change role)
-- [x] Admin Panel: donations management (view all)
-- [x] Admin Panel: tickets management (view, update status/priority)
-- [x] Admin Panel: reports management (view, resolve flags)
-- [x] Reputation system: review modal appears after completing donation
+- [x] Home page stats fixed
+- [x] Chat crash fixed
+- [x] Reputation system with review modal
+- [x] Confirmation dialogs on user actions
+
+## Trello Board
+- All pending tasks created as cards in Trello
+- See: https://trello.com/b/QA8Tk2hW/et3am
+
+## KB Documentation
+- `docs/kb/deployment/workflow-guide.md` - Project workflow
+- `docs/kb/deployment/trello-integration.md` - Trello setup
+- Feature specs in `docs/kb/features/`
+- Bug docs in `docs/kb/bugs/`
 - [x] Fix user dashboard stats (personal, not platform)
 - [x] Fix address showing for receiver
 - [x] Navbar hamburger visible on desktop

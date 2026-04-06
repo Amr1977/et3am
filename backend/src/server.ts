@@ -18,6 +18,7 @@ import chatRoutes from './routes/chat';
 import supportRoutes from './routes/support';
 import reviewsRoutes from './routes/reviews';
 import adminRoutes from './routes/admin';
+import pushRoutes from './routes/push';
 import { 
   helmetConfig, 
   cookieParserMiddleware, 
@@ -114,6 +115,7 @@ app.use('/api/chat', apiLimiter, chatRoutes);
 app.use('/api/support', apiLimiter, supportRoutes);
 app.use('/api/reviews', apiLimiter, reviewsRoutes);
 app.use('/api/admin', apiLimiter, adminRoutes);
+app.use('/api/push', pushRoutes);
 
 app.get('/api/health', (_req, res) => {
   const healthyServers = getHealthyServers();
