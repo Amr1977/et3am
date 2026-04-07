@@ -84,3 +84,4 @@
 - [ ] Home page: Hero map: should be centered on current user location (should ask for location permission if not granted yet)
 - [ ] Home page: Hero map: should show animated marker for current user location
 - [ ] donations page: grid view: sort donations by distance in backend, closest donations should come first in the list
+- [ ] a user with time zone UTC + 2 creates a donation starting from 08:00, expected that receiver find donation with start time 08:00, found that receiver sees donation start time is 10:00
