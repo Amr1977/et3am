@@ -51,6 +51,9 @@
 - [ ] My donations page: show have grid view and map view with this donor specific donations (available/reserved)
 - [ ] create and use placeholder mp3 files for events, i will overwrite later with proper mp3 files
 - [ ] Home page: herro map: on click/tap: show full baloon as in donations map , currently it shows minimal baloon
+- [ ] As a donor I should be able to pause a donation so that it is temporarily not listed publicly, if reserved then cancel reservation.
+- [ ] As a user when i reserve a donation i should see a unique 5 digit hashcode in order fields, this code will be used to pickup that donation
+- [ ] As a donor when another user reserves my donation then I should see a unique 5 digit hashcode in donation fields so that I only deliver this donation to that hashcode holder.
 
 
 

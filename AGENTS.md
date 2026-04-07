@@ -93,9 +93,39 @@ ssh amr_lotfy_othman@matrix-delivery-api-gc.mywire.org "pm2 restart et3am-backen
 
 ## Trello Board
 - **URL:** https://trello.com/b/et3am-project
-- **Workflow:** BACKLOG → TODO → PROGRESS → DONE
-- **Labels:** Feature, Bug, High Priority, etc.
-- **TASK_ID format:** ET3AM-XXX (features), BUG-XXX (bugs)
+- **Trello CLI (from backend dir):**
+```bash
+cd backend
+npm run trello list                    # List all cards
+npm run trello create "Title" TODO   # Create card
+npm run trello move ET3AM-005 PROGRESS   # Move to list
+npm run trello done ET3AM-005          # Move to DONE
+npm run trello comment ET3AM-005 "Note" # Add comment
+```
+
+---
+
+## TODO.md & TASKLIST.md Workflow
+
+### TODO.md (READ ONLY - Don't modify)
+- Source of pending tasks
+- Tasks marked with `[ ]` are pending, `[x]` are completed
+- Agent reads this to pick next task
+
+### TASKLIST.md
+- Agent appends completed tasks here
+- Format: Date, TASK_ID, Description
+
+### Workflow:
+1. Read TODO.md → Pick next unmarked task
+2. Move Trello ticket to PROGRESS
+3. Implement solution
+4. Test (must pass before commit)
+5. Commit with version bump
+6. Deploy FE and BE
+7. Update KB (docs/kb/)
+8. Append to TASKLIST.md
+9. Move Trello to DONE
 
 ---
 
