@@ -36,6 +36,7 @@
 - [x] add push notifications
 - [ ] Stats in home page are updated realtime with simple tick/ding sound and animation on change
 - [ ] maps are life: if a meal is added or reserved in the visible part it is animated ( added/removed ) with sound effect
+- [ ] donations grid is life, all changes reflect realtime
 - [x] hamburger menu is not added for desktop browser (tested on firefox/desktop display resolution 1440x900) and menu items are scattered on top of navbar and below it
 - [x] home page: remove "Food Donors" part of stats as it is duplicate.
 - [ ] on interacting with any map it should be expanded to take full screen with a simple close button in upper right corner so that user feels releafed with large map interaction. (Donations page done, home page pending)
@@ -48,9 +49,9 @@
 - [x] meal baloon on map: tapping it should navigate user to meal page 
 - [ ] meal baloon: own meal actions should be cancel, delivered, no reserve action button should show, and address and time should show up to signed in users
 - [ ] My reservations page: on user cancelling a reservation do not navigate to donation page.
-- [ ] My donations page: show have grid view and map view with this donor specific donations (available/reserved)
+- [ ] My donations page: should have grid view and map view with this donor specific donations (available/reserved)
 - [ ] create and use placeholder mp3 files for events, i will overwrite later with proper mp3 files
-- [ ] Home page: herro map: on click/tap: show full baloon as in donations map , currently it shows minimal baloon
+- [ ] Home page: hero map: on click/tap: show full baloon same design as in donations page map , currently it shows minimal baloon
 - [ ] As a donor I should be able to pause a donation so that it is temporarily not listed publicly, if reserved then cancel reservation.
 - [ ] As a user when i reserve a donation i should see a unique 5 digit hashcode in order fields, this code will be used to pickup that donation
 - [ ] As a donor when another user reserves my donation then I should see a unique 5 digit hashcode in donation fields so that I only deliver this donation to that hashcode holder.
