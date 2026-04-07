@@ -59,3 +59,18 @@ export function getTimezoneOffset(): string {
   const sign = offset <= 0 ? '+' : '-';
   return `UTC${sign}${hours}${minutes > 0 ? `:${minutes}` : ''}`;
 }
+
+export function toISOStringWithOffset(dateTimeLocal: string): string {
+  if (!dateTimeLocal) return '';
+  const date = new Date(dateTimeLocal);
+  const offset = date.getTimezoneOffset() * 60000;
+  const localTime = new Date(date.getTime() - offset);
+  return localTime.toISOString();
+}
+
+export function fromUTCToLocal(dateString: string): string {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return date.toLocaleString('en-US', { timeZone: userTimezone });
+}

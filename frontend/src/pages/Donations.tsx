@@ -8,7 +8,7 @@ import LocationPicker from '../components/LocationPicker';
 import ClusterMap from '../components/ClusterMap';
 import { fetchWithFailover } from '../services/api';
 import L from 'leaflet';
-import { formatDateTime } from '../hooks/useTimezone';
+import { formatDateTime, toISOStringWithOffset, fromUTCToLocal } from '../hooks/useTimezone';
 
 interface Donation {
   id: string;
@@ -306,6 +306,8 @@ export default function Donations() {
           quantity: parseInt(formData.quantity),
           latitude: formData.latitude || null,
           longitude: formData.longitude || null,
+          pickup_date: toISOStringWithOffset(formData.pickup_date),
+          expiry_date: toISOStringWithOffset(formData.expiry_date),
         }),
       });
       if (res.ok) {
@@ -767,7 +769,7 @@ export default function Donations() {
                     {donation.pickup_date && (
                       <div className="donation-meta-item">
                         <span className="meta-label">🕐 {t('donations.available')}</span>
-                        <span className="meta-value">{new Date(donation.pickup_date).toLocaleString()}</span>
+                        <span className="meta-value">{fromUTCToLocal(donation.pickup_date)}</span>
                       </div>
                     )}
                   </div>
