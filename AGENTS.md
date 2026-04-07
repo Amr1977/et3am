@@ -36,6 +36,16 @@ cd frontend && npm run build
 ```
 No exceptions - tests must pass before any commit.
 
+## CRITICAL - KB Update After Every Task
+**After completing ANY task, ALWAYS ask:**
+1. What technique/pattern did I use?
+2. What pitfalls did I encounter?
+3. Can this be generalized/reused?
+
+**If yes → Update KB immediately** in `docs/kb/deployment/` or appropriate folder.
+
+This ensures we never reinvent the wheel or repeat explanations.
+
 ## Project Structure
 ```
 et3am/
@@ -123,7 +133,7 @@ npm run trello comment ET3AM-005 "Note" # Add comment
 4. Test (must pass before commit)
 5. Commit with version bump
 6. Deploy FE and BE
-7. Update KB (docs/kb/)
+7. **CRITICAL: Ask - Can this be generalized? If yes → Update KB**
 8. Append to TASKLIST.md
 9. Move Trello to DONE
 
