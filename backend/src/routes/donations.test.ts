@@ -9,6 +9,25 @@ const createToken = (userId: string, role: string = 'user') => {
   return jwt.sign({ userId, role }, JWT_SECRET, { expiresIn: '7d' });
 };
 
+const mockDonation = {
+  id: 'donation-1',
+  donor_id: 'user-1',
+  title: 'Test Food',
+  description: 'Test description',
+  food_type: 'cooked',
+  quantity: 5,
+  unit: 'meals',
+  pickup_address: '123 Test St',
+  latitude: 30.0444,
+  longitude: 31.2357,
+  pickup_date: '2025-12-31',
+  expiry_date: '2026-01-01',
+  status: 'available',
+  reserved_by: null,
+  hash_code: null,
+  created_at: new Date(),
+};
+
 vi.mock('../database', () => {
   const mockDonation = {
     id: 'donation-1',
