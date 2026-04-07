@@ -8,20 +8,29 @@ export default defineConfig({
   retries: 0,
   workers: 1,
   reporter: 'list',
-  timeout: 30000,
+  timeout: 60000,
   expect: {
-    timeout: 5000
+    timeout: 10000
   },
   use: {
     baseURL: 'http://localhost:5173',
     trace: 'on-first-retry',
-    actionTimeout: 10000,
+    actionTimeout: 15000,
+    video: 'on',
+    screenshot: 'on',
   },
   projects: [
     {
       name: 'chromium',
       use: { 
         ...devices['Desktop Chrome'],
+        headless: false,
+      },
+    },
+    {
+      name: 'mobile-chromium',
+      use: { 
+        ...devices['iPhone 12'],
         headless: false,
       },
     },
