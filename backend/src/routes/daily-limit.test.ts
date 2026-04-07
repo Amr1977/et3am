@@ -1,6 +1,7 @@
 import request from 'supertest';
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import donationsRoutes from './donations';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'test_jwt_secret_for_integration_tests';
 
@@ -85,6 +86,8 @@ describe('Daily Limit Enforcement', () => {
     }
     next();
   });
+
+  app.use('/api/donations', donationsRoutes);
 
   beforeEach(() => {
     vi.clearAllMocks();

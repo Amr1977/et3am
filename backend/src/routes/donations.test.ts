@@ -1,67 +1,70 @@
 import request from 'supertest';
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import donationsRoutes from './donations';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'test_jwt_secret_for_integration_tests';
-
-const mockDonation = {
-  id: 'donation-1',
-  donor_id: 'user-1',
-  title: 'Test Food',
-  description: 'Test description',
-  food_type: 'cooked',
-  quantity: 5,
-  unit: 'meals',
-  pickup_address: '123 Test St',
-  latitude: 30.0444,
-  longitude: 31.2357,
-  pickup_date: '2025-12-31',
-  expiry_date: '2026-01-01',
-  status: 'available',
-  reserved_by: null,
-  hash_code: null,
-  created_at: new Date(),
-};
 
 const createToken = (userId: string, role: string = 'user') => {
   return jwt.sign({ userId, role }, JWT_SECRET, { expiresIn: '7d' });
 };
 
-vi.mock('../database', () => ({
-  dbOps: {
-    donations: {
-      findAll: vi.fn().mockResolvedValue({ donations: [mockDonation], total: 1 }),
-      findById: vi.fn().mockImplementation((id: string) => {
-        if (id === 'donation-1') return Promise.resolve(mockDonation);
-        if (id === 'reserved-donation-1') return Promise.resolve({ ...mockDonation, id: 'reserved-donation-1', status: 'reserved', reserved_by: 'user-2', hash_code: 'ABC123' });
-        if (id === 'my-donation-1') return Promise.resolve({ ...mockDonation, id: 'my-donation-1', donor_id: 'user-1' });
-        return Promise.resolve(null);
-      }),
-      findByDonor: vi.fn().mockResolvedValue([mockDonation]),
-      findByReserved: vi.fn().mockResolvedValue([]),
-      create: vi.fn().mockResolvedValue(mockDonation),
-      update: vi.fn().mockResolvedValue({ ...mockDonation }),
-      delete: vi.fn().mockResolvedValue(true),
-      countByStatus: vi.fn().mockResolvedValue(10),
-      totalCount: vi.fn().mockResolvedValue(100),
+vi.mock('../database', () => {
+  const mockDonation = {
+    id: 'donation-1',
+    donor_id: 'user-1',
+    title: 'Test Food',
+    description: 'Test description',
+    food_type: 'cooked',
+    quantity: 5,
+    unit: 'meals',
+    pickup_address: '123 Test St',
+    latitude: 30.0444,
+    longitude: 31.2357,
+    pickup_date: '2025-12-31',
+    expiry_date: '2026-01-01',
+    status: 'available',
+    reserved_by: null,
+    hash_code: null,
+    created_at: new Date(),
+  };
+  
+  return {
+    dbOps: {
+      donations: {
+        findAll: vi.fn().mockResolvedValue({ donations: [mockDonation], total: 1 }),
+        findById: vi.fn().mockImplementation((id: string) => {
+          if (id === 'donation-1') return Promise.resolve(mockDonation);
+          if (id === 'reserved-donation-1') return Promise.resolve({ ...mockDonation, id: 'reserved-donation-1', status: 'reserved', reserved_by: 'user-2', hash_code: 'ABC123' });
+          if (id === 'my-donation-1') return Promise.resolve({ ...mockDonation, id: 'my-donation-1', donor_id: 'user-1' });
+          return Promise.resolve(null);
+        }),
+        findByDonor: vi.fn().mockResolvedValue([mockDonation]),
+        findByReserved: vi.fn().mockResolvedValue([]),
+        create: vi.fn().mockResolvedValue(mockDonation),
+        update: vi.fn().mockResolvedValue({ ...mockDonation }),
+        delete: vi.fn().mockResolvedValue(true),
+        countByStatus: vi.fn().mockResolvedValue(10),
+        totalCount: vi.fn().mockResolvedValue(100),
+      },
+      users: {
+        findById: vi.fn().mockImplementation((id: string) => {
+          if (id === 'user-1') return Promise.resolve({ id: 'user-1', can_donate: true, can_receive: true, name: 'Test User', preferred_language: 'en' });
+          if (id === 'user-2') return Promise.resolve({ id: 'user-2', can_donate: true, can_receive: true, name: 'Receiver User', preferred_language: 'en' });
+          return Promise.resolve(null);
+        }),
+      },
+      dailyReservations: {
+        checkTodayAction: vi.fn().mockImplementation((userId: string) => {
+          if (userId === 'user-at-limit') return Promise.resolve(1);
+          return Promise.resolve(0);
+        }),
+        create: vi.fn().mockResolvedValue(true),
+      },
     },
-    users: {
-      findById: vi.fn().mockImplementation((id: string) => {
-        if (id === 'user-1') return Promise.resolve({ id: 'user-1', can_donate: true, can_receive: true, name: 'Test User', preferred_language: 'en' });
-        if (id === 'user-2') return Promise.resolve({ id: 'user-2', can_donate: true, can_receive: true, name: 'Receiver User', preferred_language: 'en' });
-        return Promise.resolve(null);
-      }),
-    },
-    dailyReservations: {
-      checkTodayAction: vi.fn().mockImplementation((userId: string) => {
-        if (userId === 'user-at-limit') return Promise.resolve(1);
-        return Promise.resolve(0);
-      }),
-      create: vi.fn().mockResolvedValue(true),
-    },
-  },
-  pool: { query: vi.fn().mockResolvedValue({ rows: [] }) },
-}));
+    pool: { query: vi.fn().mockResolvedValue({ rows: [] }) },
+  };
+});
 
 vi.mock('../config/socket', () => ({
   emitDonationEvent: vi.fn(),
@@ -83,6 +86,8 @@ describe('Donations Routes', () => {
     }
     next();
   });
+
+  app.use('/api/donations', donationsRoutes);
 
   beforeEach(() => {
     vi.clearAllMocks();

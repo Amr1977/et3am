@@ -1,6 +1,7 @@
 import request from 'supertest';
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import adminRoutes from './admin';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'test_jwt_secret_for_integration_tests';
 
@@ -99,6 +100,8 @@ describe('Admin Routes', () => {
     }
     next();
   });
+
+  app.use('/api/admin', adminRoutes);
 
   beforeEach(() => {
     vi.clearAllMocks();

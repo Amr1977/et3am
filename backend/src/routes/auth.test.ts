@@ -56,6 +56,7 @@ vi.mock('../database', () => ({
   },
 }));
 
+import authRoutes from './auth';
 import { generateToken } from '../middleware/auth';
 
 describe('Auth Routes', () => {
@@ -73,6 +74,7 @@ describe('Auth Routes', () => {
     }
     next();
   });
+  app.use('/api/auth', authRoutes);
 
   beforeEach(() => {
     vi.clearAllMocks();

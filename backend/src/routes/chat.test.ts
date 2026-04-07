@@ -1,6 +1,7 @@
 import request from 'supertest';
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import chatRoutes from './chat';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'test_jwt_secret_for_integration_tests';
 
@@ -77,6 +78,8 @@ describe('Chat Routes', () => {
     }
     next();
   });
+
+  app.use('/api/chat', chatRoutes);
 
   beforeEach(() => {
     vi.clearAllMocks();

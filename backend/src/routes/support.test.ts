@@ -1,6 +1,7 @@
 import request from 'supertest';
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import supportRoutes from './support';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'test_jwt_secret_for_integration_tests';
 
@@ -61,6 +62,8 @@ describe('Support Routes', () => {
     }
     next();
   });
+
+  app.use('/api/support', supportRoutes);
 
   beforeEach(() => {
     vi.clearAllMocks();
