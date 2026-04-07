@@ -1,0 +1,11 @@
+#!/bin/sh
+# Post-push hook: Deploy after successful push to master
+# Only runs on master branch
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$BRANCH" = "master" ]; then
+    echo "On master branch - running post-push deployment..."
+    cd "$(dirname "$0")/.."
+    ./deploy-backend.sh
+fi

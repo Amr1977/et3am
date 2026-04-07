@@ -1,11 +1,6 @@
 #!/bin/sh
-# Post-commit hook: Deploy after successful commit
-# Only runs on master branch
+# Post-commit hook - DISABLED
+# Deployment now happens via post-push hook instead
+# Run manually or use: git push
 
-BRANCH=$(git branch --show-current 2>/dev/null || git symbolic-ref --short HEAD 2>/dev/null)
-
-if [ "$BRANCH" = "master" ]; then
-    echo "On master branch - running post-commit deployment..."
-    cd "$(dirname "$0")/.."
-    ./deploy-backend.sh
-fi
+# echo "Post-commit hook disabled - use git push to deploy"
