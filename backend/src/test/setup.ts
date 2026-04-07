@@ -16,6 +16,13 @@ vi.mock('../database', () => ({
     },
     users: {
       findById: vi.fn().mockResolvedValue(null),
+      findAdmins: vi.fn().mockResolvedValue([]),
+    },
+    dailyReservations: {
+      checkTodayAction: vi.fn().mockResolvedValue(0),
+      create: vi.fn().mockResolvedValue(undefined),
+      getTodayActions: vi.fn().mockResolvedValue([]),
+      delete: vi.fn().mockResolvedValue(undefined),
     },
   },
 }));

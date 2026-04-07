@@ -24,6 +24,14 @@ const createToken = (userId: string, role: string = 'user') => {
 
 vi.mock('../database', () => ({
   dbOps: {
+    users: {
+      findById: vi.fn().mockImplementation((id: string) => {
+        if (id === 'user-1' || id === 'user-2') {
+          return Promise.resolve({ id, name: 'Test User', preferred_language: 'en' });
+        }
+        return Promise.resolve(null);
+      }),
+    },
     support: {
       createTicket: vi.fn().mockImplementation((userId, type, title, description) => {
         return Promise.resolve({ id: 'new-ticket', user_id: userId, type, title, description, status: 'open', priority: 'medium' });
