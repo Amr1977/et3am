@@ -224,10 +224,6 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
                 key={d.id}
                 position={[d.latitude!, d.longitude!]}
                 icon={createMarkerIcon(color, d.food_type, newDonationIdsSet.has(d.id))}
-                eventHandlers={{
-                  click: () => {
-                  },
-                }}
               >
                 <Popup>
                   <div style={{ minWidth: '180px', padding: '8px' }}>

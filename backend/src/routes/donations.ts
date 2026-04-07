@@ -487,7 +487,7 @@ router.post('/:id/mark-received', authenticate, async (req: AuthRequest, res: Re
     }
 
     const updated = await dbOps.donations.update(req.params.id, { 
-      status: 'received'
+      status: 'completed'
     });
 
     (logger as any).donation('Meal marked as received', { 
