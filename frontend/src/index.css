@@ -3142,6 +3142,11 @@ html[dir="rtl"] .step-flow-number {
   border: none !important;
 }
 
+.custom-marker-container > div {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
 .custom-marker-container .marker-icon {
   cursor: pointer !important;
   pointer-events: auto !important;
@@ -3160,6 +3165,15 @@ html[dir="rtl"] .step-flow-number {
 .leaflet-marker-icon:hover {
   transform: scale(1.1);
   z-index: 1001 !important;
+}
+
+/* Prevent flickering by ensuring marker content doesn't interfere with events */
+.custom-marker-container * {
+  pointer-events: none !important;
+}
+
+.custom-marker-container > div {
+  pointer-events: auto !important;
 }
 
 .leaflet-popup-close-button {
