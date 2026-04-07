@@ -123,3 +123,8 @@
 1. Visit home page
 2. Stats should show: Meals Given + Members (combined)
 3. No duplicate "Food Donors" stat
+
+---
+
+## Infrastructure Updates
+- [x] Multi-environment setup (dev, staging, test, production) for FE and BE

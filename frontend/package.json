@@ -5,11 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/generate-git-info.cjs && vite",
+    "dev:staging": "node scripts/generate-git-info.cjs && vite --mode staging",
+    "dev:test": "node scripts/generate-git-info.cjs && vite --mode test",
     "build": "node scripts/generate-git-info.cjs && tsc -b && vite build",
+    "build:staging": "node scripts/generate-git-info.cjs && tsc -b && vite build --mode staging",
+    "build:test": "node scripts/generate-git-info.cjs && tsc -b && vite build --mode test",
     "preview": "vite preview",
+    "preview:staging": "vite preview --mode staging",
+    "preview:test": "vite preview --mode test",
     "test": "vitest",
     "test:run": "vitest run",
-    "deploy": "npm run build && firebase deploy --only hosting --project foodshare777"
+    "deploy": "npm run build && firebase deploy --only hosting --project foodshare777",
+    "deploy:staging": "npm run build:staging && firebase deploy --only hosting --project foodshare777-staging",
+    "deploy:test": "npm run build:test && firebase deploy --only hosting --project foodshare777-test"
   },
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^5.1.0",
