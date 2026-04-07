@@ -12,3 +12,15 @@ frontend/src/git-info.json
 backend/maps/tiles.db
 frontend/.firebase/
 *.tsbuildinfo
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+coverage/
+.vscode/
+.idea/
+*.swp
+*.swo
+backend/src/logs/
+test-results/
+temp/

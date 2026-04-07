@@ -20,6 +20,7 @@ import reviewsRoutes from './routes/reviews';
 import adminRoutes from './routes/admin';
 import pushRoutes from './routes/push';
 import crashRoutes from './routes/crash';
+import publicRoutes from './routes/public';
 import { 
   helmetConfig, 
   cookieParserMiddleware, 
@@ -118,6 +119,9 @@ app.use('/api/reviews', apiLimiter, reviewsRoutes);
 app.use('/api/admin', apiLimiter, adminRoutes);
 app.use('/api/push', pushRoutes);
 app.use('/api/crash', crashRoutes);
+
+// Public API (for community/development)
+app.use('/api/public', publicRoutes);
 
 app.get('/api/health', (_req, res) => {
   const healthyServers = getHealthyServers();
