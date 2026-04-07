@@ -103,7 +103,14 @@ export async function getServerUrl(): Promise<string> {
     return cachedServerUrl;
   }
   
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl && (envUrl.startsWith('http://localhost') || envUrl.startsWith('http://127.0.0.1'))) {
+    cachedServerUrl = envUrl;
+    return envUrl;
+  }
+  
   const servers = await getServers();
-  cachedServerUrl = servers.length > 0 ? servers[0].url : DEFAULT_SERVERS[0].url;
-  return cachedServerUrl;
+  const fallbackUrl = servers.length > 0 ? servers[0].url : DEFAULT_SERVERS[0].url;
+  cachedServerUrl = fallbackUrl;
+  return fallbackUrl;
 }
