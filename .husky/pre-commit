@@ -2,6 +2,9 @@
 # Pre-commit hook: Run tests before commit
 # Runs backend tests and frontend build
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR"
+
 echo "Running pre-commit checks..."
 
 # Run backend tests (continue even if tests fail - some tests may be pre-existing failures)
@@ -11,7 +14,7 @@ BACKEND_RESULT=$?
 
 # Run frontend build to catch type errors (this MUST pass)
 echo "Running frontend build..."
-cd frontend && npm run build
+cd ../frontend && npm run build
 FRONTEND_RESULT=$?
 
 if [ $FRONTEND_RESULT -ne 0 ]; then
