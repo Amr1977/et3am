@@ -5,12 +5,18 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node src/server.ts",
+    "dev:staging": "ts-node -r dotenv/config src/server.ts dotenv_config_path=.env.staging",
+    "dev:test": "ts-node -r dotenv/config src/server.ts dotenv_config_path=.env.testing",
     "build": "tsc",
     "start": "node dist/server.js",
+    "start:staging": "node -r dotenv/config dist/server.js dotenv_config_path=.env.staging",
+    "start:test": "node -r dotenv/config dist/server.js dotenv_config_path=.env.testing",
     "test": "vitest",
     "test:run": "vitest run",
     "migrate": "ts-node src/migrate.ts",
     "migrate:run": "ts-node src/migrate.ts",
+    "migrate:staging": "ts-node -r dotenv/config src/migrate.ts dotenv_config_path=.env.staging",
+    "migrate:test": "ts-node -r dotenv/config src/migrate.ts dotenv_config_path=.env.testing",
     "trello": "node trello-cli.js"
   },
   "dependencies": {
