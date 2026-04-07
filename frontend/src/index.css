@@ -1826,6 +1826,73 @@ html[dir="rtl"] .version-badge {
   opacity: 0;
 }
 
+.launch-countdown {
+  margin-top: 2rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 8%, transparent) 0%, color-mix(in srgb, var(--secondary) 5%, transparent) 100%);
+  border: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
+  border-radius: var(--radius-lg);
+  animation: fadeInUp 0.6s ease forwards;
+  animation-delay: 0.4s;
+  opacity: 0;
+}
+
+.countdown-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 0.75rem;
+}
+
+.countdown-icon {
+  font-size: 1.1rem;
+}
+
+.countdown-display {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.countdown-number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text);
+  font-family: var(--font-display);
+  line-height: 1;
+}
+
+.countdown-unit {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.countdown-progress {
+  height: 6px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 50%, var(--secondary) 100%);
+  border-radius: var(--radius-full);
+  transition: width 0.5s ease;
+}
+
+.countdown-percentage {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
 @media (max-width: 640px) {
   .hero-buttons {
     flex-direction: column;

@@ -102,6 +102,21 @@ function createClusterIcon(cluster: any) {
   });
 }
 
+const LAUNCH_DATE = new Date('2026-05-01T00:00:00');
+
+function getDaysUntilLaunch(): number {
+  const now = new Date();
+  const diff = LAUNCH_DATE.getTime() - now.getTime();
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+}
+
+function getLaunchProgress(): { days: number; percent: number } {
+  const totalDays = 30;
+  const daysLeft = getDaysUntilLaunch();
+  const percent = Math.max(0, Math.min(100, ((totalDays - daysLeft) / totalDays) * 100));
+  return { days: daysLeft, percent };
+}
+
 export default function Home() {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
@@ -112,6 +127,14 @@ export default function Home() {
   const [tileUrl, setTileUrl] = useState<string>('');
   const [statsChanged, setStatsChanged] = useState(false);
   const prevStatsRef = useRef<Stats | null>(null);
+  const [launchInfo, setLaunchInfo] = useState(getLaunchProgress());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setLaunchInfo(getLaunchProgress());
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     getServerUrl().then(url => {
@@ -199,6 +222,23 @@ export default function Home() {
               {t('home.learn_more')}
             </Link>
           </div>
+          
+          {launchInfo.days > 0 && (
+            <div className="launch-countdown">
+              <div className="countdown-label">
+                <span className="countdown-icon">🚀</span>
+                <span>{t('home.launch_countdown') || 'Launching Soon'}</span>
+              </div>
+              <div className="countdown-display">
+                <div className="countdown-number">{launchInfo.days}</div>
+                <div className="countdown-unit">{t('home.days') || 'days'}</div>
+              </div>
+              <div className="countdown-progress">
+                <div className="progress-bar" style={{ width: `${launchInfo.percent}%` }}></div>
+              </div>
+              <div className="countdown-percentage">{Math.round(launchInfo.percent)}% {t('home.ready') || 'ready'}</div>
+            </div>
+          )}
         </div>
 
         <div className="hero-visual">
