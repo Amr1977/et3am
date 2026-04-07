@@ -1,0 +1,11 @@
+#!/bin/sh
+# Post-commit hook: Deploy after successful commit
+# Only runs on master branch
+
+BRANCH=$(git branch --show-current 2>/dev/null || git symbolic-ref --short HEAD 2>/dev/null)
+
+if [ "$BRANCH" = "master" ]; then
+    echo "On master branch - running post-commit deployment..."
+    cd "$(dirname "$0")/.."
+    ./deploy-backend.sh
+fi
