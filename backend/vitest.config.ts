@@ -6,9 +6,14 @@ export default defineConfig({
     globals: true,
     include: ['src/**/*.test.ts'],
     setupFiles: ['./src/test/setup.ts'],
+    reporters: ['verbose', 'html'],
+    outputFile: {
+      html: './coverage/test-report.html',
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
+      reportsDirectory: './coverage',
     },
   },
 });
