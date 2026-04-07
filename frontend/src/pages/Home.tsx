@@ -146,8 +146,26 @@ export default function Home() {
       .finally(() => setLoading(false));
   };
 
+  const fetchDonations = () => {
+    fetchWithFailover('/api/donations?limit=50')
+      .then(res => {
+        if (!res.ok) throw new Error('Failed');
+        return res.json();
+      })
+      .then(data => {
+        console.log('Donations loaded:', data);
+        if (data.donations) {
+          setDonations(data.donations);
+        }
+      })
+      .catch(err => {
+        console.error('Donations fetch error:', err);
+      });
+  };
+
   useEffect(() => {
     fetchStats();
+    fetchDonations();
 
     const statsInterval = setInterval(fetchStats, 30000);
     return () => clearInterval(statsInterval);
