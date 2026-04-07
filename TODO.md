@@ -50,6 +50,7 @@
 - [ ] My reservations page: on user cancelling a reservation do not navigate to donation page.
 - [ ] My donations page: show have grid view and map view with this donor specific donations (available/reserved)
 - [ ] create and use placeholder mp3 files for events, i will overwrite later with proper mp3 files
+- [ ] Home page: herro map: on click/tap: show full baloon as in donations map , currently it shows minimal baloon
 
 
 
@@ -80,3 +81,6 @@
 - [ ] Home page: map not full screen on firt user interaction
 - [ ] Home page: maps says 0 donations which is invalid number
 - [ ] Home page: stats show wrong users number
+- [ ] Home page: Hero map: should be centered on current user location (should ask for location permission if not granted yet)
+- [ ] Home page: Hero map: should show animated marker for current user location
+- [ ] donations page: grid view: sort donations by distance in backend, closest donations should come first in the list
