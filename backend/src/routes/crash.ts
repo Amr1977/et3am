@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import crypto from 'crypto';
 import { dbOps } from '../database';
 import { authenticate, AuthRequest } from '../middleware/auth';
+import logger from '../config/logger';
 
 function requireAdmin(req: AuthRequest, res: Response, next: Function): void {
   if (!req.userId || req.userRole !== 'admin') {
@@ -69,6 +70,27 @@ router.post('/crash', async (req: Request<{}, {}, {
       metadata: metadata || {},
       fingerprint
     });
+
+    const logMeta = {
+      crashId,
+      crash_type,
+      severity,
+      user_id,
+      session_id,
+      url,
+      fingerprint,
+      ...metadata
+    };
+
+    if (severity === 'critical' || severity === 'error') {
+      logger.error(`[CRASH ${crash_type.toUpperCase()}] ${title}`, {
+        ...logMeta,
+        message,
+        stack_trace
+      });
+    } else {
+      logger.warn(`[CRASH ${crash_type.toUpperCase()}] ${title}`, logMeta);
+    }
 
     const admins = await dbOps.users.findAdmins();
     

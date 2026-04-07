@@ -166,6 +166,11 @@ initDb().then(async () => {
   
   process.on('uncaughtException', async (error) => {
     console.error('Uncaught Exception:', error);
+    logger.error(`[CRASH BACKEND] Uncaught Exception: ${error.message}`, {
+      event: 'uncaughtException',
+      message: error.message,
+      stack_trace: error.stack
+    });
     try {
       const crashId = await dbOps.crashLogs.create({
         crash_type: 'backend',
@@ -175,17 +180,22 @@ initDb().then(async () => {
         stack_trace: error.stack,
         metadata: { event: 'uncaughtException' }
       });
-      console.log('Backend crash logged with ID:', crashId);
+      logger.error(`Backend crash logged with ID: ${crashId}`, { crashId, crash_type: 'backend' });
     } catch (logError) {
-      console.error('Failed to log crash:', logError);
+      logger.error('Failed to log crash:', logError);
     }
     process.exit(1);
   });
 
   process.on('unhandledRejection', async (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    const error = reason instanceof Error ? reason : new Error(String(reason));
+    logger.error(`[CRASH BACKEND] Unhandled Rejection: ${error.message}`, {
+      event: 'unhandledRejection',
+      message: error.message,
+      stack_trace: error.stack
+    });
     try {
-      const error = reason instanceof Error ? reason : new Error(String(reason));
       const crashId = await dbOps.crashLogs.create({
         crash_type: 'backend',
         severity: 'error',
@@ -194,9 +204,9 @@ initDb().then(async () => {
         stack_trace: error.stack,
         metadata: { event: 'unhandledRejection' }
       });
-      console.log('Backend crash logged with ID:', crashId);
+      logger.error(`Backend crash logged with ID: ${crashId}`, { crashId, crash_type: 'backend' });
     } catch (logError) {
-      console.error('Failed to log crash:', logError);
+      logger.error('Failed to log crash:', logError);
     }
   });
   
