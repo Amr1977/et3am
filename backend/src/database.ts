@@ -56,7 +56,7 @@ export interface Donation {
   latitude: number | null;
   longitude: number | null;
   pickup_date: string | null;
-  status: 'available' | 'reserved' | 'received' | 'completed' | 'expired';
+  status: 'available' | 'reserved' | 'completed' | 'expired';
   reserved_by: string | null;
   hash_code: string | null;
   created_at: string;
@@ -481,14 +481,14 @@ export const dbOps = {
       crash_type: 'frontend' | 'backend';
       severity?: 'info' | 'warning' | 'error' | 'critical';
       title: string;
-      message?: string;
-      stack_trace?: string;
-      user_id?: string;
-      session_id?: string;
-      user_agent?: string;
-      url?: string;
+      message?: string | null;
+      stack_trace?: string | null;
+      user_id?: string | null;
+      session_id?: string | null;
+      user_agent?: string | null;
+      url?: string | null;
       metadata?: Record<string, any>;
-      fingerprint?: string;
+      fingerprint?: string | null;
     }): Promise<string> {
       const { rows } = await pool.query(
         `INSERT INTO crash_logs (crash_type, severity, title, message, stack_trace, user_id, session_id, user_agent, url, metadata, fingerprint)

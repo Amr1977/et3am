@@ -1,7 +1,15 @@
 import { Router, Request, Response } from 'express';
-import { dbOps } from '../database.js';
-import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 import crypto from 'crypto';
+import { dbOps } from '../database';
+import { authenticate, AuthRequest } from '../middleware/auth';
+
+function requireAdmin(req: AuthRequest, res: Response, next: Function): void {
+  if (!req.userId || req.userRole !== 'admin') {
+    res.status(403).json({ error: 'Admin required' });
+    return;
+  }
+  next();
+}
 
 const router = Router();
 
@@ -12,7 +20,17 @@ function generateFingerprint(stackTrace?: string, message?: string): string | nu
   return crypto.createHash('sha256').update(normalized).digest('hex').substring(0, 64);
 }
 
-router.post('/crash', async (req: Request, res: Response) => {
+router.post('/crash', async (req: Request<{}, {}, {
+  crash_type?: string;
+  severity?: string;
+  title?: string;
+  message?: string;
+  stack_trace?: string;
+  user_id?: string;
+  session_id?: string;
+  url?: string;
+  metadata?: Record<string, unknown>;
+}>, res: Response) => {
   try {
     const {
       crash_type,
@@ -36,19 +54,19 @@ router.post('/crash', async (req: Request, res: Response) => {
       return;
     }
 
-    const fingerprint = generateFingerprint(stack_trace, message);
+    const fingerprint = generateFingerprint(stack_trace, message) || undefined;
     
     const crashId = await dbOps.crashLogs.create({
-      crash_type,
-      severity: severity || 'error',
+      crash_type: crash_type as 'frontend' | 'backend',
+      severity: (severity as 'info' | 'warning' | 'error' | 'critical') || 'error',
       title,
-      message,
-      stack_trace,
-      user_id,
-      session_id,
-      user_agent: req.headers['user-agent'],
-      url,
-      metadata,
+      message: message || null,
+      stack_trace: stack_trace || null,
+      user_id: user_id || null,
+      session_id: session_id || null,
+      user_agent: req.headers['user-agent'] || null,
+      url: url || null,
+      metadata: metadata || {},
       fingerprint
     });
 
@@ -56,7 +74,8 @@ router.post('/crash', async (req: Request, res: Response) => {
     
     if (admins.length > 0 && process.env.SOCKET_PORT) {
       try {
-        const { io } = await import('../index.js');
+        const { getIO } = await import('../config/socket.js');
+        const io = getIO();
         if (io) {
           admins.forEach(admin => {
             io.to(`admin:${admin.id}`).emit('crash:new', {
@@ -81,7 +100,7 @@ router.post('/crash', async (req: Request, res: Response) => {
   }
 });
 
-router.get('/crash', authenticateToken, requireAdmin, async (req: Request, res: Response) => {
+router.get('/crash', authenticate, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const { crash_type, resolved, page = '1', limit = '50' } = req.query;
     
@@ -97,10 +116,10 @@ router.get('/crash', authenticateToken, requireAdmin, async (req: Request, res: 
   }
 });
 
-router.patch('/crash/:id/resolve', authenticateToken, requireAdmin, async (req: Request, res: Response) => {
+router.patch('/crash/:id/resolve', authenticate, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const adminId = req.user?.id;
+    const adminId = req.userId;
 
     if (!adminId) {
       res.status(401).json({ error: 'Unauthorized' });
@@ -115,7 +134,7 @@ router.patch('/crash/:id/resolve', authenticateToken, requireAdmin, async (req: 
   }
 });
 
-router.get('/crash/stats', authenticateToken, requireAdmin, async (req: Request, res: Response) => {
+router.get('/crash/stats', authenticate, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const [frontend, backend, unresolved] = await Promise.all([
       dbOps.crashLogs.countUnresolved('frontend'),
