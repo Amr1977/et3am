@@ -13,6 +13,8 @@
     "start:test": "node -r dotenv/config dist/server.js dotenv_config_path=.env.testing",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:all": "vitest run && vitest run --config vitest.integration.config.ts",
     "test:run:coverage": "vitest run --coverage",
     "test:report": "vitest run --coverage",
     "migrate": "ts-node src/migrate.ts",
