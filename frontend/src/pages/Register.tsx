@@ -65,6 +65,7 @@ export default function Register() {
             <div className="auth-icon">🤲</div>
             <h1>{t('auth.register_title')}</h1>
             <p>{t('auth.register_subtitle')}</p>
+            <p className="auth-hadith-source">{t('auth.register_hadith_source')}</p>
           </div>
 
           {error && <div className="alert alert-error">{error}</div>}
