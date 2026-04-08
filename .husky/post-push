@@ -9,3 +9,16 @@ if [ "$BRANCH" = "master" ]; then
     cd "$(dirname "$0")/.."
     ./deploy-all.sh
 fi
+
+echo ""
+echo "==========================================="
+echo "⚠️  REMINDER: Update KB after this push?"
+echo "==========================================="
+echo ""
+echo "Ask yourself:"
+echo "  1. What technique/pattern did I use?"
+echo "  2. What pitfalls did I encounter?"
+echo "  3. Can this be generalized/reused?"
+echo ""
+echo "If yes → Update docs/kb/ and push"
+echo ""
