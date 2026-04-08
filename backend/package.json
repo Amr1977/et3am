@@ -64,6 +64,6 @@
     "supertest": "^6.3.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
-    "vitest": "^1.1.0"
+    "vitest": "^4.1.3"
   }
 }
