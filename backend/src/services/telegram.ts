@@ -1,10 +1,14 @@
 import { Telegraf, Markup } from 'telegraf';
 import { pool } from '../database';
 
+console.log('Loading Telegram bot, env keys:', Object.keys(process.env).filter(k => k.includes('TELEGRAM')));
+
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
 if (!TELEGRAM_BOT_TOKEN) {
   console.warn('TELEGRAM_BOT_TOKEN not configured - Telegram notifications disabled');
+} else {
+  console.log('TELEGRAM_BOT_TOKEN loaded, length:', TELEGRAM_BOT_TOKEN.length);
 }
 
 export const bot = TELEGRAM_BOT_TOKEN ? new Telegraf(TELEGRAM_BOT_TOKEN) : null;
