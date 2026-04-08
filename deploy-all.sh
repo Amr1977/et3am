@@ -5,11 +5,33 @@
 
 set -e
 
+# Error handler function
+error_exit() {
+  echo ""
+  echo "❌ DEPLOYMENT FAILED!"
+  echo "=========================================="
+  echo "Error occurred at step that returned exit code: $?"
+  echo ""
+  echo "Possible causes:"
+  echo "  - Git fetch/reset failed"
+  echo "  - npm install failed"
+  echo "  - npm build failed"
+  echo "  - PM2 start failed"
+  echo "  - Firebase deploy failed"
+  echo ""
+  echo "Check logs above for details."
+  echo "=========================================="
+  exit 1
+}
+
+# Trap any command that returns non-zero
+trap 'error_exit' ERR
+
 echo "🚀 Starting full deployment (Backend + Frontend)..."
 
 # Auto-bump version once at the start
 echo "📝 Bumping version..."
-source ./version-bump.sh
+source ./version-bump.sh || true
 
 # Deploy Backend to both servers
 echo ""
@@ -54,4 +76,6 @@ firebase deploy --only hosting --project foodshare777
 echo "✅ Frontend deployed to https://foodshare777.web.app"
 
 echo ""
+echo "=========================================="
 echo "🎉 Full deployment complete!"
+echo "=========================================="
