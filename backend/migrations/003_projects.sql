@@ -10,8 +10,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- PROJECTS TABLE
 -- =====================================================
 CREATE TABLE IF NOT EXISTS projects (
-    id TEXT PRIMARY KEY DEFAULT uuid_generate_v4()::text,
-    owner_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    owner_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     description TEXT,
     category VARCHAR(50) NOT NULL CHECK (category IN ('education', 'health', 'infrastructure', 'environment', 'social', 'technology', 'other')),
@@ -39,9 +39,9 @@ CREATE INDEX IF NOT EXISTS idx_projects_location ON projects(location_city, loca
 -- PROJECT DONATIONS TABLE
 -- =====================================================
 CREATE TABLE IF NOT EXISTS project_donations (
-    id TEXT PRIMARY KEY DEFAULT uuid_generate_v4()::text,
-    project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-    donor_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    donor_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     amount DECIMAL(12, 2) NOT NULL,
     message TEXT,
     is_anonymous BOOLEAN DEFAULT false,

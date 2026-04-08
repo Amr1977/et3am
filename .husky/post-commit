@@ -1,6 +1,5 @@
 #!/bin/sh
 # Post-commit hook - DISABLED
-# Deployment now happens via post-push hook instead
-# Run manually or use: git push
+# Deployment happens via post-push hook instead (servers pull from GitHub)
 
 # echo "Post-commit hook disabled - use git push to deploy"

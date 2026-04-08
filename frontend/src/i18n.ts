@@ -36,12 +36,8 @@ async function getInitialLanguage(): Promise<string> {
     return stored;
   }
   
-  const browserLang = navigator.language?.split('-')[0];
-  if (browserLang && ['en', 'ar'].includes(browserLang)) {
-    return browserLang;
-  }
-  
-  return detectLanguageByIP();
+  // Default to Arabic unless explicitly set to English
+  return 'ar';
 }
 
 getInitialLanguage().then(lang => {

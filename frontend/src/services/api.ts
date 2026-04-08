@@ -12,6 +12,11 @@ const DEFAULT_SERVERS: ServerInfo[] = [
 ];
 
 async function getServers(): Promise<ServerInfo[]> {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl && (envUrl.startsWith('http://localhost') || envUrl.startsWith('http://127.0.0.1'))) {
+    return [{ id: 'localhost', url: envUrl }];
+  }
+
   const now = Date.now();
 
   if (serverCache && cacheTimestamp && now - cacheTimestamp < SERVER_LIST_CACHE_TIME) {

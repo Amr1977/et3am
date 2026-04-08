@@ -9,6 +9,11 @@
             "date": 1775333632176,
             "name": "D:\\et3am\\backend\\src\\logs\\security-2026-04-04.log",
             "hash": "5c8338e2833346489217f2906b116f4745276b08e2f5f3701e370687ee54594e"
+        },
+        {
+            "date": 1775597141981,
+            "name": "D:\\et3am\\backend\\src\\logs\\security-2026-04-07.log",
+            "hash": "17bc541e02bc626cf674323818a2c62c58d380eb1fdd107911c242f00bc30362"
         }
     ],
     "hashType": "sha256"
