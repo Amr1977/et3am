@@ -20,6 +20,8 @@ import reviewsRoutes from './routes/reviews';
 import adminRoutes from './routes/admin';
 import pushRoutes from './routes/push';
 import crashRoutes from './routes/crash';
+import telegramRoutes from './routes/telegram';
+import { setupBotCommands, bot } from './services/telegram';
 import publicRoutes from './routes/public';
 import { 
   helmetConfig, 
@@ -119,6 +121,7 @@ app.use('/api/reviews', apiLimiter, reviewsRoutes);
 app.use('/api/admin', apiLimiter, adminRoutes);
 app.use('/api/push', pushRoutes);
 app.use('/api/crash', crashRoutes);
+app.use('/api/telegram', telegramRoutes);
 
 // Public API (for community/development)
 app.use('/api/public', publicRoutes);
@@ -214,6 +217,16 @@ initDb().then(async () => {
     logger.info(`Server running on port ${PORT}`);
     logger.info(`Server ID: ${SERVER_ID}`);
     logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    
+    // Initialize Telegram bot
+    setupBotCommands();
+    if (bot) {
+      bot.launch().then(() => {
+        logger.info('Telegram bot started successfully');
+      }).catch((err: any) => {
+        logger.error('Telegram bot failed to start:', err);
+      });
+    }
   });
 }).catch(err => {
   logger.error('Failed to initialize database:', err);

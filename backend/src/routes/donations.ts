@@ -5,6 +5,7 @@ import { authenticate, optionalAuth, AuthRequest } from '../middleware/auth';
 import { emitDonationEvent, emitToUser } from '../config/socket';
 import { createDonationLimiter } from '../middleware/rateLimit';
 import logger from '../config/logger';
+import { notifyReservation } from '../services/telegram';
 
 function generateHashCode(): string {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -379,6 +380,12 @@ router.post('/:id/reserve', authenticate, async (req: AuthRequest, res: Response
         title: donation.title,
         reserverName: user?.name,
       });
+    }
+    
+    // Send Telegram notification to reserver
+    const reserver = await dbOps.users.findById(req.userId!);
+    if (reserver?.telegram_chat_id) {
+      await notifyReservation({ ...updated, reserved_by_telegram: reserver.telegram_chat_id }, user?.name || 'User');
     }
     
     res.json({ 
