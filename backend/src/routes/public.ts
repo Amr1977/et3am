@@ -42,21 +42,24 @@ router.use(apiLimiter);
 
 router.get('/stats', async (req, res) => {
   try {
-    const result = await pool.query(`
+    const donationResult = await pool.query(`
       SELECT 
         COUNT(*) FILTER (WHERE status = 'completed') as completed_donations,
-        COUNT(*) FILTER (WHERE status = 'available') as available_donations,
-        COUNT(DISTINCT id) as total_users,
-        COUNT(DISTINCT CASE WHEN role = 'donor' THEN id END) as total_donors,
-        COUNT(DISTINCT CASE WHEN role = 'recipient' THEN id END) as total_recipients
-      FROM users
+        COUNT(*) FILTER (WHERE status = 'available') as available_donations
+      FROM donations
     `);
     
-    const stats = result.rows[0];
+    const userResult = await pool.query(`
+      SELECT COUNT(*) as total_users FROM users
+    `);
+    
+    const stats = donationResult.rows[0];
+    const userStats = userResult.rows[0];
+    
     res.json({
       completedDonations: parseInt(stats.completed_donations) || 0,
       availableDonations: parseInt(stats.available_donations) || 0,
-      totalUsers: parseInt(stats.total_users) || 0,
+      totalUsers: parseInt(userStats.total_users) || 0,
       totalDonors: parseInt(stats.total_donors) || 0,
       totalReceivers: parseInt(stats.total_recipients) || 0,
     });
