@@ -54,7 +54,12 @@ export async function notifyReservation(donation: any, userName: string) {
 }
 
 export function setupBotCommands() {
-  if (!bot) return;
+  if (!bot) {
+    console.log('Bot is null - telegram will not be initialized');
+    return;
+  }
+  
+  console.log('Setting up Telegram bot commands...');
   
   bot.start(function(ctx: any) {
     var welcome = '🕌 *Welcome to Et3am!*\n\nYour daily bridge between those who have and those who need.\n\n🍽️ *How it works:*\n• Browse available food donations near you\n• Reserve a meal to help someone in need\n• Pick up and deliver the donation\n\n📍 Available donations: https://foodshare777.web.app/donations\n\nWhat would you like to do?';
