@@ -170,7 +170,7 @@ export default function Home() {
   };
 
   const fetchDonations = () => {
-    fetchWithFailover('/api/donations?limit=50')
+    fetchWithFailover('/api/public/donations?limit=50')
       .then(res => {
         if (!res.ok) throw new Error('Failed');
         return res.json();
