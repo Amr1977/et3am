@@ -46,6 +46,7 @@ vi.mock('../database', () => ({
         if (googleId === 'google-123') return Promise.resolve({ ...mockUser, id: 'google-user-1', google_id: 'google-123' });
         return Promise.resolve(null);
       }),
+      findAdmins: vi.fn().mockResolvedValue([]),
       create: vi.fn().mockImplementation((user) => {
         return Promise.resolve({ ...user, id: user.id });
       }),
@@ -86,7 +87,7 @@ describe('Auth Routes', () => {
         .post('/api/auth/register')
         .send({ name: 'Test' });
       expect(res.status).toBe(400);
-      expect(res.body.messageKey).toBe('validation.required_field');
+      expect(res.body.messageKey).toBe('validation.invalid_input');
     });
 
     it('should return 409 for existing email', async () => {
@@ -113,7 +114,7 @@ describe('Auth Routes', () => {
         .post('/api/auth/login')
         .send({ email: 'test@test.com' });
       expect(res.status).toBe(400);
-      expect(res.body.messageKey).toBe('validation.required_field');
+      expect(res.body.messageKey).toBe('validation.invalid_input');
     });
 
     it('should return 401 for non-existent user', async () => {

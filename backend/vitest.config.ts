@@ -5,6 +5,7 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     include: ['src/**/*.test.ts'],
+    exclude: ['**/integration.test.ts', '**/*.integration.test.ts'],
     setupFiles: ['./src/test/setup.ts'],
     reporters: ['verbose', 'html'],
     outputFile: {

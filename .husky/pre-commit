@@ -1,26 +1,44 @@
 #!/bin/sh
-# Pre-commit hook: Run tests before commit
-# Runs backend tests and frontend build
+# Pre-commit hook: Run all tests before commit
+# Runs backend unit tests, integration tests, and frontend build
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
 echo "Running pre-commit checks..."
 
-# Run backend tests (continue even if tests fail - some tests may be pre-existing failures)
-echo "Running backend tests..."
+# Run backend unit tests
+echo "Running backend unit tests..."
 cd backend && npm run test:run 2>&1 | tail -20
 BACKEND_RESULT=$?
 
+# Run backend integration tests
+echo "Running backend integration tests..."
+npm run test:integration 2>&1 | tail -20
+INTEGRATION_RESULT=$?
+
+# Go back to project root
+cd "$SCRIPT_DIR"
+
 # Run frontend build to catch type errors (this MUST pass)
 echo "Running frontend build..."
-cd ../frontend && npm run build
+cd frontend && npm run build
 FRONTEND_RESULT=$?
 
+# Go back to project root
+cd "$SCRIPT_DIR"
+
+# Determine final result
 if [ $FRONTEND_RESULT -ne 0 ]; then
     echo "Frontend build failed! Commit aborted."
     exit 1
 fi
 
-echo "All pre-commit checks passed! (Backend tests had issues but build succeeded)"
+# Allow unit tests to fail (some may be pre-existing), but integration tests must pass
+if [ $INTEGRATION_RESULT -ne 0 ]; then
+    echo "Integration tests failed! Commit aborted."
+    exit 1
+fi
+
+echo "All pre-commit checks passed!"
 exit 0
