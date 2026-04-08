@@ -37,6 +37,7 @@ export interface User {
   total_received?: number;
   sound_enabled?: boolean;
   notifications_enabled?: boolean;
+  telegram_chat_id?: string | null;
   reset_token?: string | null;
   reset_token_expiry?: string | null;
   created_at: string;
