@@ -218,6 +218,13 @@ export default function Navbar() {
               </button>
             ) : (
               <div className="nav-auth-buttons">
+                <button 
+                  onClick={() => { handleLanguageSwitch(); setMobileMenuOpen(false); }}
+                  className="btn btn-ghost lang-switch"
+                  title={isRTL ? 'Switch to English' : 'التبديل للعربية'}
+                >
+                  {isRTL ? 'EN' : 'عربي'}
+                </button>
                 <Link to="/login" className="btn btn-ghost">{t('nav.login')}</Link>
                 <Link to="/register" className="btn btn-primary">{t('nav.register')}</Link>
               </div>
@@ -282,6 +289,13 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="auth-buttons">
+              <button 
+                onClick={handleLanguageSwitch}
+                className="btn btn-ghost lang-switch"
+                title={isRTL ? 'Switch to English' : 'التبديل للعربية'}
+              >
+                {isRTL ? 'EN' : 'عربي'}
+              </button>
               <Link to="/login" className="btn btn-ghost">{t('nav.login')}</Link>
               <Link to="/register" className="btn btn-primary">{t('nav.register')}</Link>
             </div>

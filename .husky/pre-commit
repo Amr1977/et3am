@@ -2,31 +2,24 @@
 # Pre-commit hook: Run all tests before commit
 # Runs backend unit tests, integration tests, and frontend build
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-cd "$SCRIPT_DIR"
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 echo "Running pre-commit checks..."
 
 # Run backend unit tests
 echo "Running backend unit tests..."
-cd backend && npm run test:run 2>&1 | tail -20
+cd "$PROJECT_ROOT/backend" && npm run test:run 2>&1 | tail -20
 BACKEND_RESULT=$?
 
 # Run backend integration tests
 echo "Running backend integration tests..."
-npm run test:integration 2>&1 | tail -20
+cd "$PROJECT_ROOT/backend" && npm run test:integration 2>&1 | tail -20
 INTEGRATION_RESULT=$?
-
-# Go back to project root
-cd "$SCRIPT_DIR"
 
 # Run frontend build to catch type errors (this MUST pass)
 echo "Running frontend build..."
-cd frontend && npm run build
+cd "$PROJECT_ROOT/frontend" && npm run build
 FRONTEND_RESULT=$?
-
-# Go back to project root
-cd "$SCRIPT_DIR"
 
 # Determine final result
 if [ $FRONTEND_RESULT -ne 0 ]; then

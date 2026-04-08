@@ -24,3 +24,4 @@ coverage/
 backend/src/logs/
 test-results/
 temp/
+backend/.env
