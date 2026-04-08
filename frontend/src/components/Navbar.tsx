@@ -220,10 +220,13 @@ export default function Navbar() {
               <div className="nav-auth-buttons">
                 <button 
                   onClick={() => { handleLanguageSwitch(); setMobileMenuOpen(false); }}
-                  className="btn btn-ghost lang-switch"
+                  className="lang-switch-btn"
+                  style={{ width: '100%', justifyContent: 'center' }}
                   title={isRTL ? 'Switch to English' : 'التبديل للعربية'}
                 >
-                  {isRTL ? 'EN' : 'عربي'}
+                  <span className="lang-icon">{isRTL ? '🇪🇬' : '🇸🇦'}</span>
+                  <span>{isRTL ? 'Switch to English' : 'التبديل للعربية'}</span>
+                  <span className="lang-arrow">▼</span>
                 </button>
                 <Link to="/login" className="btn btn-ghost">{t('nav.login')}</Link>
                 <Link to="/register" className="btn btn-primary">{t('nav.register')}</Link>
@@ -277,11 +280,7 @@ export default function Navbar() {
                   )}
                   <div className="dropdown-divider"></div>
                   <button onClick={handleLanguageSwitch} className="dropdown-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"/>
-                      <line x1="2" y1="12" x2="22" y2="12"/>
-                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                    </svg>
+                    <span style={{ fontSize: '1.2rem' }}>{isRTL ? '🇪🇬' : '🇸🇦'}</span>
                     <span>{isRTL ? 'English' : 'العربية'}</span>
                   </button>
                   <button onClick={handleLogout} className="dropdown-item logout">
@@ -299,10 +298,12 @@ export default function Navbar() {
             <div className="auth-buttons">
               <button 
                 onClick={handleLanguageSwitch}
-                className="btn btn-ghost lang-switch"
+                className="lang-switch-btn"
                 title={isRTL ? 'Switch to English' : 'التبديل للعربية'}
               >
-                {isRTL ? 'EN' : 'عربي'}
+                <span className="lang-icon">{isRTL ? '🇪🇬' : '🇸🇦'}</span>
+                <span>{isRTL ? 'EN' : 'عربي'}</span>
+                <span className="lang-arrow">▼</span>
               </button>
               <Link to="/login" className="btn btn-ghost">{t('nav.login')}</Link>
               <Link to="/register" className="btn btn-primary">{t('nav.register')}</Link>
