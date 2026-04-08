@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 
 const TEST_DB_URL = process.env.TEST_DATABASE_URL || 'postgresql://postgres:REDACTED_PASSWORD@localhost:5433/et3am_test';
 
-let testPool: Pool;
+let testPool: Pool | null = null;
 let testClient: PoolClient | null = null;
 
 export async function setupIntegrationTest(): Promise<void> {
