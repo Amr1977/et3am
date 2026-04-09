@@ -92,8 +92,9 @@ export const sanitizeRequest: RequestHandler = (req: Request, res: Response, nex
 
 export const validateSecurityConfig = (): void => {
   if (IS_TEST) {
-    if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
-      process.env.JWT_SECRET = 'test_jwt_secret_'.padEnd(32, 'x');
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret || jwtSecret.length < 32) {
+      throw new Error('JWT_SECRET environment variable is required for tests and must be at least 32 characters');
     }
     if (!process.env.CORS_ORIGIN) {
       process.env.CORS_ORIGIN = 'http://localhost:3000,http://localhost:5173';
@@ -106,7 +107,7 @@ export const validateSecurityConfig = (): void => {
   const missing = required.filter(key => !process.env[key]);
 
   if (missing.length > 0) {
-    console.error(`Missing required environment variables: ${missing.join(', ')}`);
+    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
   }
 
   if (IS_PRODUCTION) {
