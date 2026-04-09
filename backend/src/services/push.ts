@@ -1,5 +1,11 @@
 import dotenv from 'dotenv';
-dotenv.config();
+import { join } from 'path';
+
+if (process.env.NODE_ENV === 'production') {
+  dotenv.config({ path: join(__dirname, '../../.env.production') });
+} else {
+  dotenv.config();
+}
 
 import { pool } from '../database';
 import { emitToUser } from '../config/socket';

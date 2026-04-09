@@ -1,5 +1,11 @@
 import dotenv from 'dotenv';
-dotenv.config();
+import { join } from 'path';
+
+if (process.env.NODE_ENV === 'production') {
+  dotenv.config({ path: join(__dirname, '../../.env.production') });
+} else {
+  dotenv.config();
+}
 
 const TRELLO_API_KEY = process.env.TRELLO_API_KEY;
 const TRELLO_TOKEN = process.env.TRELLO_TOKEN;

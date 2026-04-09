@@ -5,8 +5,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
-// Load environment file
-dotenv.config();
+// Load environment file - prefer .env.production in production
+if (process.env.NODE_ENV === 'production') {
+  dotenv.config({ path: join(__dirname, '../.env.production') });
+} else {
+  dotenv.config();
+}
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
