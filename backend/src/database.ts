@@ -3,11 +3,18 @@ import { Pool, QueryResult } from 'pg';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { readdirSync, readFileSync, existsSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
 
 // Load environment file - prefer .env.production in production
-const envPath = join(__dirname, '../.env.production');
-const devEnvPath = join(__dirname, '../.env');
+// Use require to get __dirname at runtime (works with ts-node and compiled JS)
+const distPath = dirname(require.main?.filename || __filename || './');
+const basePath = distPath.includes('dist') ? join(distPath, '..') : distPath;
+const envPath = join(basePath, '.env.production');
+const devEnvPath = join(basePath, '.env');
+
+console.log('[database] distPath:', distPath, 'basePath:', basePath);
+console.log('[database] envPath:', envPath, 'exists:', existsSync(envPath));
+console.log('[database] devEnvPath:', devEnvPath, 'exists:', existsSync(devEnvPath));
 
 if (process.env.NODE_ENV === 'production' && existsSync(envPath)) {
   console.log('[database] Loading production env from:', envPath);

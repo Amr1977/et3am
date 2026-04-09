@@ -1,9 +1,11 @@
 import dotenv from 'dotenv';
-import { join } from 'path';
+import { join, dirname } from 'path';
 import { existsSync } from 'fs';
 
-const envPath = join(__dirname, '../../.env.production');
-const devEnvPath = join(__dirname, '../../.env');
+const distPath = dirname(require.main?.filename || __filename || './');
+const basePath = distPath.includes('dist') ? join(distPath, '..') : distPath;
+const envPath = join(basePath, '.env.production');
+const devEnvPath = join(basePath, '.env');
 
 if (existsSync(envPath)) {
   console.log('[trello] Loading production env from:', envPath);
