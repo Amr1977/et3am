@@ -1,8 +1,16 @@
 import dotenv from 'dotenv';
 import { join } from 'path';
+import { existsSync } from 'fs';
 
-if (process.env.NODE_ENV === 'production') {
-  dotenv.config({ path: join(__dirname, '../../.env.production') });
+const envPath = join(__dirname, '../../.env.production');
+const devEnvPath = join(__dirname, '../../.env');
+
+if (existsSync(envPath)) {
+  console.log('[push] Loading production env from:', envPath);
+  dotenv.config({ path: envPath });
+} else if (existsSync(devEnvPath)) {
+  console.log('[push] Loading dev env from:', devEnvPath);
+  dotenv.config({ path: devEnvPath });
 } else {
   dotenv.config();
 }

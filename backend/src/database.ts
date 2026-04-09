@@ -2,13 +2,21 @@ import dotenv from 'dotenv';
 import { Pool, QueryResult } from 'pg';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
-import { readdirSync, readFileSync } from 'fs';
+import { readdirSync, readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
 // Load environment file - prefer .env.production in production
-if (process.env.NODE_ENV === 'production') {
-  dotenv.config({ path: join(__dirname, '../.env.production') });
+const envPath = join(__dirname, '../.env.production');
+const devEnvPath = join(__dirname, '../.env');
+
+if (process.env.NODE_ENV === 'production' && existsSync(envPath)) {
+  console.log('[database] Loading production env from:', envPath);
+  dotenv.config({ path: envPath });
+} else if (existsSync(devEnvPath)) {
+  console.log('[database] Loading dev env from:', devEnvPath);
+  dotenv.config({ path: devEnvPath });
 } else {
+  console.log('[database] No .env file found, using process.env');
   dotenv.config();
 }
 
