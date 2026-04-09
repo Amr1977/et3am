@@ -16,7 +16,8 @@ console.log('[database] distPath:', distPath, 'basePath:', basePath);
 console.log('[database] envPath:', envPath, 'exists:', existsSync(envPath));
 console.log('[database] devEnvPath:', devEnvPath, 'exists:', existsSync(devEnvPath));
 
-if (process.env.NODE_ENV === 'production' && existsSync(envPath)) {
+// First check if .env.production exists (most reliable in deployment)
+if (existsSync(envPath)) {
   console.log('[database] Loading production env from:', envPath);
   dotenv.config({ path: envPath });
 } else if (existsSync(devEnvPath)) {
