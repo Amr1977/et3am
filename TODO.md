@@ -19,6 +19,7 @@
 - categorize trello tickets by labels/tags 
 - after finishing a task: commit and push and deploy FE BE and FE and update KB local and remote
 - TO avoid sharing violation on TODO.md file: use it as read only untiil I tell you to check it and update its
+- When synchronzig and accessing trello board: make sure each ticket has an ID, edit ticket titles if needed to add its ID
 
 
 
@@ -40,9 +41,9 @@
 - [x] hamburger menu is not added for desktop browser (tested on firefox/desktop display resolution 1440x900) and menu items are scattered on top of navbar and below it
 - [x] home page: remove "Food Donors" part of stats as it is duplicate.
 - [ ] on interacting with any map it should be expanded to take full screen with a simple close button in upper right corner so that user feels releafed with large map interaction. (Donations page done, home page pending)
-- [ ] Apply docs/et3am_comprehensive_review.html
-- [ ] Re-Design Admin panel Donations tab
-- [ ] Admin Panel: Design: use secondary side menu or use two level item in main side menu for admin panel and its tab (allow items/sub-items)
+- [P] Apply docs/et3am_comprehensive_review.html
+- [P] Re-Design Admin panel Donations tab
+- [P] Admin Panel: Design: use secondary side menu or use two level item in main side menu for admin panel and its tab (allow items/sub-items)
 - [x] Add confirmation dialog on users actions (reserve donation, delete donations, save edited donation, mark donation as completed, etc) 
 - [x] Add submitting clients/frontend logs to backend, support rotation, auto detect crashes/errors and create crash report for each crash pattern, make a table in database for crashes, each crash entry should contain full context/session/request information in order to be able to reproduce and fix the bug, send admin notification with the crash entry id and add a tab in admin panel to view crash entries and download all/selected crash entries, tag it as frontend crash for filtering
 - [x] Handle backend crashes same as client crashes (store in database and notify admin and include in admin panel tab, etc) and tag it as backend crash for filtering
@@ -81,10 +82,10 @@
 - [ ] Home page: interacting with map: expected map to auto expand to be full screen, found: no map expand occured
 - [ ] user avatar is still existing in navbar, we need to completely remove it, accessing uer profile should be in side menu
 - [ ] CORS errors when FE tries to failover on GCP server
-- [ ] Home page: map not showing donations
-- [ ] Home page: map not full screen on firt user interaction
-- [ ] Home page: maps says 0 donations which is invalid number
-- [ ] Home page: stats show wrong users number
+- [P] Home page: map not showing donations
+- [P] Home page: map not full screen on firt user interaction
+- [P] Home page: maps says 0 donations which is invalid number
+- [P] Home page: stats show wrong users number
 - [ ] Home page: Hero map: should be centered on current user location (should ask for location permission if not granted yet)
 - [ ] Home page: Hero map: should show animated marker for current user location
 - [ ] donations page: grid view: sort donations by distance in backend, closest donations should come first in the list

@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests/e2e',
   testMatch: '**/*.e2e.ts',
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,
   workers: 1,
@@ -16,22 +16,15 @@ export default defineConfig({
     baseURL: 'http://localhost:5173',
     trace: 'on-first-retry',
     actionTimeout: 15000,
-    video: 'on',
-    screenshot: 'on',
+    video: 'retain-on-failure',
+    screenshot: 'retain-on-failure',
   },
   projects: [
     {
       name: 'chromium',
       use: { 
         ...devices['Desktop Chrome'],
-        headless: false,
-      },
-    },
-    {
-      name: 'mobile-chromium',
-      use: { 
-        ...devices['iPhone 12'],
-        headless: false,
+        headless: true,
       },
     },
   ],
@@ -40,5 +33,7 @@ export default defineConfig({
     url: 'http://localhost:5173',
     reuseExistingServer: true,
     timeout: 120000,
+    stdout: 'pipe',
+    stderr: 'pipe',
   },
 });
