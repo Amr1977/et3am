@@ -128,6 +128,7 @@ export default function Home() {
   const [statsChanged, setStatsChanged] = useState(false);
   const prevStatsRef = useRef<Stats | null>(null);
   const [launchInfo, setLaunchInfo] = useState(getLaunchProgress());
+  const [mapFullscreen, setMapFullscreen] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -170,7 +171,7 @@ export default function Home() {
   };
 
   const fetchDonations = () => {
-    fetchWithFailover('/api/public/donations?limit=50')
+    fetchWithFailover('/api/public/donations?limit=50&status=available')
       .then(res => {
         if (!res.ok) throw new Error('Failed');
         return res.json();
@@ -178,7 +179,11 @@ export default function Home() {
       .then(data => {
         console.log('Donations loaded:', data);
         if (data.donations) {
-          setDonations(data.donations);
+          const availableDonations = data.donations.filter((d: Donation) => 
+            d.status === 'available' && d.latitude && d.longitude
+          );
+          setDonations(availableDonations);
+          console.log('Available donations with location:', availableDonations.length);
         }
       })
       .catch(err => {
@@ -242,7 +247,10 @@ export default function Home() {
         </div>
 
         <div className="hero-visual">
-          <div className="hero-map">
+          <div 
+            className={`hero-map ${mapFullscreen ? 'fullscreen' : ''}`}
+            onClick={() => !mapFullscreen && setMapFullscreen(true)}
+          >
             <MapContainer 
               center={[30.0444, 31.2357]} 
               zoom={11} 
@@ -277,9 +285,30 @@ export default function Home() {
                 ))}
               </MarkerClusterGroup>
             </MapContainer>
+            {mapFullscreen && (
+              <button 
+                className="map-fullscreen-close"
+                onClick={(e) => { e.stopPropagation(); setMapFullscreen(false); }}
+                style={{
+                  position: 'absolute',
+                  top: '20px',
+                  right: '20px',
+                  zIndex: 1000,
+                  background: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '40px',
+                  height: '40px',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+                }}
+              >
+                ✕
+              </button>
+            )}
             <div className="hero-map-overlay">
               <div className="hero-map-badge">
-                <span>🗺️</span>
+                <span>🎁</span>
                 <span>{donations.length} {t('nav.donations')}</span>
               </div>
             </div>

@@ -82,10 +82,10 @@
 - [ ] Home page: interacting with map: expected map to auto expand to be full screen, found: no map expand occured
 - [ ] user avatar is still existing in navbar, we need to completely remove it, accessing uer profile should be in side menu
 - [ ] CORS errors when FE tries to failover on GCP server
-- [P] Home page: map not showing donations
-- [P] Home page: map not full screen on firt user interaction
-- [P] Home page: maps says 0 donations which is invalid number
-- [P] Home page: stats show wrong users number
+- [x] Home page: map not showing donations
+- [x] Home page: map not full screen on firt user interaction
+- [x] Home page: maps says 0 donations which is invalid number
+- [x] Home page: stats show wrong users number
 - [ ] Home page: Hero map: should be centered on current user location (should ask for location permission if not granted yet)
 - [ ] Home page: Hero map: should show animated marker for current user location
 - [ ] donations page: grid view: sort donations by distance in backend, closest donations should come first in the list
