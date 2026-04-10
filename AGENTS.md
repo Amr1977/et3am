@@ -57,6 +57,8 @@ A task is ONLY complete when ALL steps are done:
    - New cards in TODO: create in Trello
 5. **Update TASKLIST.md** with completed tasks
 6. **Create task docs** for any new in-progress tasks
+7. **MANDATORY: Update KB** - Document learnings, pitfalls, and patterns
+8. **Push KB updates** to remote submodule
 
 ---
 
@@ -71,15 +73,25 @@ cd frontend && npm run build
 ```
 No exceptions - tests must pass before any commit.
 
+## CRITICAL - Session Start: Read KB First
+**At the START of every session, ALWAYS:**
+1. Read `docs/kb/README.md` to understand available patterns
+2. Read any recent additions in `docs/kb/deployment/`, `docs/kb/features/`, `docs/kb/bugs/`
+3. Check `docs/kb/deployment/workflow-guide.md` for current workflow
+4. Restore context from previous work - check `docs/tasks/` for any in-progress task docs
+
+This ensures continuity and avoids repeating work already documented in KB.
+
+---
+
 ## CRITICAL - KB Update After Every Task
-**After completing ANY task, ALWAYS ask:**
-1. What technique/pattern did I use?
-2. What pitfalls did I encounter?
-3. Can this be generalized/reused?
+**MANDATORY - After completing ANY task, you MUST:**
+1. Document the technique/pattern used in appropriate KB folder
+2. Document pitfalls encountered and how they were resolved
+3. If reusable, add to KB immediately (docs/kb/deployment/, docs/kb/features/, or docs/kb/bugs/)
+4. Update KB submodule and push to remote
 
-**If yes → Update KB immediately** in `docs/kb/deployment/` or appropriate folder.
-
-This ensures we never reinvent the wheel or repeat explanations.
+**If you skip KB update, the task is NOT complete.**
 
 ## Project Structure
 ```
@@ -227,7 +239,7 @@ cd backend && npm run build
 4. **Run tests** → Fix any failures
 5. **Commit** → Update VERSION file
 6. **Deploy** → Both FE and BE
-7. **Update KB** → Document learnings in docs/kb/
+7. **MANDATORY: Update KB** → Document learnings in docs/kb/, push to remote
 8. **Update TASKLIST.md** → Mark complete
 9. **Move Trello** → To DONE
 
