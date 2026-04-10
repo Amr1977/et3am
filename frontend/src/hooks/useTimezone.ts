@@ -17,8 +17,10 @@ export function formatDate(dateString: string, options?: Intl.DateTimeFormatOpti
 }
 
 export function formatDateTime(dateString: string): string {
+  if (!dateString) return '';
   const date = new Date(dateString);
-  return date.toLocaleString(undefined, {
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return date.toLocaleString(userTimezone, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -63,9 +65,9 @@ export function getTimezoneOffset(): string {
 export function toISOStringWithOffset(dateTimeLocal: string): string {
   if (!dateTimeLocal) return '';
   const date = new Date(dateTimeLocal);
-  const offset = date.getTimezoneOffset() * 60000;
-  const localTime = new Date(date.getTime() - offset);
-  return localTime.toISOString();
+  const localOffset = date.getTimezoneOffset() * 60000;
+  const utcTime = new Date(date.getTime() + localOffset);
+  return utcTime.toISOString();
 }
 
 export function fromUTCToLocal(dateString: string): string {
