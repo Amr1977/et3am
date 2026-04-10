@@ -3295,11 +3295,22 @@ html[dir="rtl"] .step-flow-number {
 
 .leaflet-marker-icon.leaflet-interactive {
   pointer-events: auto !important;
+  cursor: pointer !important;
 }
 
 .leaflet-marker-icon:hover {
   transform: scale(1.1);
   z-index: 1001 !important;
+}
+
+/* Fix marker cursor flickering */
+.leaflet-marker-icon > div,
+.leaflet-marker-icon > img,
+.custom-marker-container,
+.custom-marker-container > div {
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  pointer-events: unset !important;
 }
 
 /* Ensure markers can receive click events */
