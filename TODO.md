@@ -35,12 +35,12 @@
 - [x] when a new user is registered, admins get notified with a link to user profile
 - [x] admin gets notified when meal donation is added/picked up/completed 
 - [x] add push notifications
-- [ ] Stats in home page are updated realtime with simple tick/ding sound and animation on change
-- [ ] maps are life: if a meal is added or reserved in the visible part it is animated ( added/removed ) with sound effect
-- [ ] donations grid is life, all changes reflect realtime
+- [x] Stats in home page are updated realtime with simple tick/ding sound and animation on change
+- [x] maps are life: if a meal is added or reserved in the visible part it is animated ( added/removed ) with sound effect
+- [x] donations grid is life, all changes reflect realtime
 - [x] hamburger menu is not added for desktop browser (tested on firefox/desktop display resolution 1440x900) and menu items are scattered on top of navbar and below it
 - [x] home page: remove "Food Donors" part of stats as it is duplicate.
-- [ ] on interacting with any map it should be expanded to take full screen with a simple close button in upper right corner so that user feels releafed with large map interaction. (Donations page done, home page pending)
+- [x] on interacting with any map it should be expanded to take full screen with a simple close button in upper right corner so that user feels releafed with large map interaction. (Donations page done, home page pending)
 - [x] Apply docs/et3am_comprehensive_review.html
 - [x] Re-Design Admin panel Donations tab
 - [x] Admin Panel: Design: use secondary side menu or use two level item in main side menu for admin panel and its tab (allow items/sub-items)
@@ -48,14 +48,14 @@
 - [x] Add submitting clients/frontend logs to backend, support rotation, auto detect crashes/errors and create crash report for each crash pattern, make a table in database for crashes, each crash entry should contain full context/session/request information in order to be able to reproduce and fix the bug, send admin notification with the crash entry id and add a tab in admin panel to view crash entries and download all/selected crash entries, tag it as frontend crash for filtering
 - [x] Handle backend crashes same as client crashes (store in database and notify admin and include in admin panel tab, etc) and tag it as backend crash for filtering
 - [x] meal baloon on map: tapping it should navigate user to meal page 
-- [ ] meal baloon: own meal actions should be cancel, delivered, no reserve action button should show, and address and time should show up to signed in users
-- [ ] My reservations page: on user cancelling a reservation do not navigate to donation page.
-- [ ] My donations page: should have grid view and map view with this donor specific donations (available/reserved)
+- [x] meal baloon: own meal actions should be cancel, delivered, no reserve action button should show, and address and time should show up to signed in users
+- [x] My reservations page: on user cancelling a reservation do not navigate to donation page.
+- [x] My donations page: should have grid view and map view with this donor specific donations (available/reserved)
 - [ ] create and use placeholder mp3 files for events, i will overwrite later with proper mp3 files
-- [ ] Home page: hero map: on click/tap: show full baloon same design as in donations page map , currently it shows minimal baloon
-- [ ] As a donor I should be able to pause a donation so that it is temporarily not listed publicly, if reserved then cancel reservation.
-- [ ] As a user when i reserve a donation i should see a unique 5 digit hashcode in order fields, this code will be used to pickup that donation
-- [ ] As a donor when another user reserves my donation then I should see a unique 5 digit hashcode in donation fields so that I only deliver this donation to that hashcode holder.
+- [x] Home page: hero map: on click/tap: show full baloon same design as in donations page map , currently it shows minimal baloon
+- [x] As a donor I should be able to pause a donation so that it is temporarily not listed publicly, if reserved then cancel reservation.
+- [x] As a user when i reserve a donation i should see a unique 5 digit hashcode in order fields, this code will be used to pickup that donation
+- [x] As a donor when another user reserves my donation then I should see a unique 5 digit hashcode in donation fields so that I only deliver this donation to that hashcode holder.
 
 
 
@@ -72,21 +72,21 @@
 - [x] Owner unable to edit his donation
 - [x] meal page: no data/time shown
 - [x] donations grid: no start/end time shown
-- [ ] donation time entried should be in user time zone, currently they are UTC
-- [ ] donation description formatting dropped, allow same user formatting, do not drop user formatting
-- [ ] donations description text direction disordered when mixing arabic/english numbers and arabic text
-- [ ] donation page address shows "Address not available"
-- [ ] number of total users in home page stats not equal to number of users in admin panel
-- [ ] Donations page: map: mouse pointer flikering and op clicking a marker no action occures
-- [ ] Donations page: map: on interacting with map and after it expands found that it doesnt expand to cover all the view port, it should expand even over the footer and navigation bar
-- [ ] Home page: interacting with map: expected map to auto expand to be full screen, found: no map expand occured
-- [ ] user avatar is still existing in navbar, we need to completely remove it, accessing uer profile should be in side menu
-- [ ] CORS errors when FE tries to failover on GCP server
+- [x] donation time entried should be in user time zone, currently they are UTC
+- [x] donation description formatting dropped, allow same user formatting, do not drop user formatting
+- [x] donations description text direction disordered when mixing arabic/english numbers and arabic text
+- [x] donation page address shows "Address not available"
+- [x] number of total users in home page stats not equal to number of users in admin panel
+- [x] Donations page: map: mouse pointer flikering and op clicking a marker no action occures
+- [x] Donations page: map: on interacting with map and after it expands found that it doesnt expand to cover all the view port, it should expand even over the footer and navigation bar
+- [x] Home page: interacting with map: expected map to auto expand to be full screen, found: no map expand occured
+- [x] user avatar is still existing in navbar, we need to completely remove it, accessing uer profile should be in side menu
+- [x] CORS errors when FE tries to failover on GCP server
 - [x] Home page: map not showing donations
 - [x] Home page: map not full screen on firt user interaction
 - [x] Home page: maps says 0 donations which is invalid number
 - [x] Home page: stats show wrong users number
-- [ ] Home page: Hero map: should be centered on current user location (should ask for location permission if not granted yet)
-- [ ] Home page: Hero map: should show animated marker for current user location
-- [ ] donations page: grid view: sort donations by distance in backend, closest donations should come first in the list
-- [ ] a user with time zone UTC + 2 creates a donation starting from 08:00, expected that receiver find donation with start time 08:00, found that receiver sees donation start time is 10:00
+- [x] Home page: Hero map: should be centered on current user location (should ask for location permission if not granted yet)
+- [x] Home page: Hero map: should show animated marker for current user location
+- [x] donations page: grid view: sort donations by distance in backend, closest donations should come first in the list
+- [x] a user with time zone UTC + 2 creates a donation starting from 08:00, expected that receiver find donation with start time 08:00, found that receiver sees donation start time is 10:00

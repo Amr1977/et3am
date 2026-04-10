@@ -114,6 +114,70 @@ ${description}
     return { pending: tasks, inProgress: inProgressTasks, done: doneTasks };
   },
 
+  async updateTodoFromTrello(todoContent, boardCards) {
+    const lines = todoContent.split('\n');
+    const doneListId = LIST_IDS.DONE;
+    const progressListId = LIST_IDS.PROGRESS;
+    
+    const doneCards = boardCards.filter(c => c.idList === doneListId);
+    const progressCards = boardCards.filter(c => c.idList === progressListId);
+    
+    const doneTitles = doneCards.map(c => {
+      const clean = c.name.replace(/^(ET3AM-\d+|BUG-\d+):\s*/, '').toLowerCase();
+      return { original: c.name, clean, keywords: clean.split(/\s+/).filter(w => w.length > 3).slice(0, 5) };
+    });
+    
+    const progressTitles = progressCards.map(c => {
+      const clean = c.name.replace(/^(ET3AM-\d+|BUG-\d+):\s*/, '').toLowerCase();
+      return { original: c.name, clean, keywords: clean.split(/\s+/).filter(w => w.length > 3).slice(0, 5) };
+    });
+    
+    const newLines = [];
+    
+    for (const line of lines) {
+      let newLine = line;
+      
+      if (line.match(/^\s*-\s*\[\s*\]\s+/)) {
+        const titleMatch = line.match(/^\s*-\s*\[\s*\]\s+(.+)$/);
+        if (titleMatch) {
+          const title = titleMatch[1].toLowerCase();
+          const titleKeywords = title.split(/\s+/).filter(w => w.length > 3).slice(0, 5);
+          
+          let isDone = false;
+          let isProgress = false;
+          
+          for (const done of doneTitles) {
+            const matchCount = titleKeywords.filter(kw => done.clean.includes(kw)).length;
+            const reverseMatch = done.keywords.filter(kw => title.includes(kw)).length;
+            if (matchCount >= 2 || reverseMatch >= 2 || title.includes(done.clean.substring(0, 30)) || done.clean.includes(title.substring(0, 30))) {
+              isDone = true;
+              break;
+            }
+          }
+          
+          for (const prog of progressTitles) {
+            const matchCount = titleKeywords.filter(kw => prog.clean.includes(kw)).length;
+            const reverseMatch = prog.keywords.filter(kw => title.includes(kw)).length;
+            if (matchCount >= 2 || reverseMatch >= 2 || title.includes(prog.clean.substring(0, 30)) || prog.clean.includes(title.substring(0, 30))) {
+              isProgress = true;
+              break;
+            }
+          }
+          
+          if (isDone) {
+            newLine = line.replace(/\[\s*\]/, '[x]');
+          } else if (isProgress) {
+            newLine = line.replace(/\[\s*\]/, '[P]');
+          }
+        }
+      }
+      
+      newLines.push(newLine);
+    }
+    
+    return newLines.join('\n');
+  },
+
   async updateCardName(cardId, newName) {
     return trelloRequest(`/cards/${cardId}`, 'PUT', { name: newName });
   },
@@ -340,6 +404,39 @@ async function main() {
             }
           }
         }
+      }
+      
+      console.log('\n--- Syncing Trello status to TODO.md ---');
+      const updatedTodo = await trelloService.updateTodoFromTrello(todoContent, boardCards);
+      
+      console.log(`  TODO.md has ${pending.length} pending, ${inProgress.length} in progress, ${done.length} done`);
+      console.log(`  Trello has ${progressCards.length} in PROGRESS, ${doneCards.length} in DONE`);
+      
+      const changedLines = [];
+      const oldLines = todoContent.split('\n');
+      const newLines = updatedTodo.split('\n');
+      
+      for (let i = 0; i < oldLines.length; i++) {
+        if (oldLines[i] !== newLines[i]) {
+          changedLines.push({ line: i + 1, old: oldLines[i], new: newLines[i] });
+        }
+      }
+      
+      if (changedLines.length > 0) {
+        console.log(`  Found ${changedLines.length} tasks to update:`);
+        for (const change of changedLines.slice(0, 10)) {
+          console.log(`    Line ${change.line}: ${change.old.substring(0, 40)} -> ${change.new.substring(0, 40)}`);
+        }
+        if (changedLines.length > 10) {
+          console.log(`    ... and ${changedLines.length - 10} more`);
+        }
+        
+        if (!dryRun) {
+          fs.writeFileSync(todoPath, updatedTodo, 'utf-8');
+          console.log('  -> TODO.md updated!');
+        }
+      } else {
+        console.log('  No changes needed in TODO.md');
       }
       
       if (dryRun) {
