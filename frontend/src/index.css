@@ -3277,11 +3277,17 @@ html[dir="rtl"] .step-flow-number {
 .custom-marker-container {
   background: transparent !important;
   border: none !important;
+  z-index: 1000 !important;
 }
 
 .custom-marker-container > div {
   pointer-events: auto !important;
   cursor: pointer !important;
+  z-index: 1000 !important;
+}
+
+.custom-marker-container.leaflet-marker-icon {
+  z-index: 1000 !important;
 }
 
 .custom-marker-container .marker-icon {
