@@ -128,7 +128,7 @@ router.get('/donations/:id', async (req, res) => {
     
     res.json({
       ...donation,
-      pickup_address: donation.status === 'available' ? null : donation.pickup_address,
+      pickup_address: donation.pickup_address || null,
       latitude: donation.latitude ? Number(donation.latitude) : null,
       longitude: donation.longitude ? Number(donation.longitude) : null,
     });

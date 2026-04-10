@@ -2431,6 +2431,8 @@ html[dir="rtl"] .step-flow-number {
   border-radius: 0 !important;
   cursor: default !important;
   background: #fff;
+  padding-top: 0 !important;
+  margin: 0 !important;
 }
 
 .map-container-wrapper.fullscreen .map-container {
