@@ -114,6 +114,76 @@ ${description}
     return { pending: tasks, inProgress: inProgressTasks, done: doneTasks };
   },
 
+  async updateCardName(cardId, newName) {
+    return trelloRequest(`/cards/${cardId}`, 'PUT', { name: newName });
+  },
+
+  async addLabel(cardId, labelId) {
+    return trelloRequest(`/cards/${cardId}/idLabels`, 'POST', { value: labelId });
+  },
+
+  async getLabels() {
+    return trelloRequest(`/boards/${TRELLO_BOARD_SHORT_ID}/labels`);
+  },
+
+  async fixCardIds(todoContent) {
+    const boardCards = await this.getBoardCards();
+    const labels = await this.getLabels();
+    
+    const labelMap = {};
+    for (const label of labels) {
+      labelMap[label.name.toUpperCase()] = label.id;
+    }
+    
+    const lines = todoContent.split('\n');
+    
+    const extractId = (line) => {
+      const match = line.match(/^\- \[.\]\s+(ET3AM-\d+|BUG-\d+):\s*(.+)/);
+      return match ? { id: match[1], title: match[2] } : null;
+    };
+    
+    const todoTasks = [];
+    for (const line of lines) {
+      const task = extractId(line);
+      if (task) todoTasks.push(task);
+    }
+    
+    const maxEt3am = todoTasks.filter(t => t.id.startsWith('ET3AM-'))
+      .map(t => parseInt(t.id.replace('ET3AM-', '')))
+      .reduce((max, n) => Math.max(max, n), 0);
+    
+    const maxBug = todoTasks.filter(t => t.id.startsWith('BUG-'))
+      .map(t => parseInt(t.id.replace('BUG-', '')))
+      .reduce((max, n) => Math.max(max, n), 0);
+    
+    let nextEt3am = maxEt3am + 1;
+    let nextBug = maxBug + 1;
+    
+    const updates = [];
+    for (const card of boardCards) {
+      const hasId = card.name.match(/^(ET3AM-\d+|BUG-\d+):/);
+      if (!hasId) {
+        const isBug = card.name.toLowerCase().includes('bug') || 
+                      card.name.toLowerCase().includes('error') ||
+                      card.name.toLowerCase().includes('fix');
+        
+        let newId, labelKey;
+        if (isBug) {
+          newId = `BUG-${nextBug++}`;
+          labelKey = 'BUG';
+        } else {
+          newId = `ET3AM-${nextEt3am++}`;
+          labelKey = 'FEATURE';
+        }
+        
+        const newName = `${newId}: ${card.name}`;
+        updates.push({ card, newName, taskId: newId, labelKey });
+      }
+    }
+    
+    return { cardsWithoutId: updates, labelMap };
+  },
+
   lists: LIST_IDS,
 };
 
@@ -216,9 +286,33 @@ async function main() {
       console.log('\nTrello Status:');
       console.log(`  PROGRESS: ${progressCards.length}`);
       console.log(`  DONE: ${doneCards.length}`);
-      console.log('\n--- Moving tasks to correct lists ---');
       
+      console.log('\n--- Fixing cards without IDs ---');
+      const { cardsWithoutId, labelMap } = await trelloService.fixCardIds(todoContent);
       const dryRun = args[1] !== '--apply';
+      
+      for (const update of cardsWithoutId) {
+        console.log(`  Would rename: "${update.card.name}" -> "${update.newName}"`);
+        if (!dryRun) {
+          await trelloService.updateCardName(update.card.id, update.newName);
+          
+          const taskId = update.taskId;
+          if (taskId.startsWith('ET3AM-')) {
+            const labelId = labelMap['FEATURE'];
+            if (labelId) {
+              await trelloService.addLabel(update.card.id, labelId);
+            }
+          } else if (taskId.startsWith('BUG-')) {
+            const labelId = labelMap['BUG'];
+            if (labelId) {
+              await trelloService.addLabel(update.card.id, labelId);
+            }
+          }
+          console.log(`    -> Fixed!`);
+        }
+      }
+      
+      console.log('\n--- Moving tasks to correct lists ---');
       
       for (const task of inProgress) {
         const found = progressCards.find(c => c.name.toLowerCase().includes(task.title.toLowerCase().substring(0, 20)));
@@ -249,7 +343,7 @@ async function main() {
       }
       
       if (dryRun) {
-        console.log('\n** Dry run only. Add --apply to actually move cards. **');
+        console.log('\n** Dry run only. Add --apply to actually apply all changes. **');
       }
       break;
     }
