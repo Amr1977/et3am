@@ -105,18 +105,25 @@ router.get('/stats', authenticate, requireAdmin, async (req: AuthRequest, res: R
 router.get('/users', authenticate, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', search } = req.query;
+    const limitNum = parseInt(limit as string) || 20;
+    const offsetNum = (parseInt(page as string) - 1) * limitNum;
+    
     let query = 'SELECT id, name, email, role, can_donate, can_receive, reputation_score, total_donations, total_received, created_at FROM users';
     const params: any[] = [];
 
     if (search) {
       query += ' WHERE name ILIKE $1 OR email ILIKE $1';
       params.push(`%${search}%`);
+      params.push(limitNum);
+      params.push(offsetNum);
+      query += ` LIMIT $2 OFFSET $3`;
+    } else {
+      params.push(limitNum);
+      params.push(offsetNum);
+      query += ` LIMIT $1 OFFSET $2`;
     }
 
     query += ' ORDER BY created_at DESC';
-    params.push(parseInt(limit as string));
-    params.push((parseInt(page as string) - 1) * parseInt(limit as string));
-    query += ` LIMIT $${params.length} OFFSET $${params.length}`;
 
     const result = await dbOps.pool.query(query, params);
     res.json({ users: result.rows });
