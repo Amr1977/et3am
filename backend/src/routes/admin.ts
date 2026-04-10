@@ -108,25 +108,29 @@ router.get('/users', authenticate, requireAdmin, async (req: AuthRequest, res: R
     const limitNum = parseInt(limit as string) || 20;
     const offsetNum = (parseInt(page as string) - 1) * limitNum;
     
-    let query = 'SELECT id, name, email, role, can_donate, can_receive, reputation_score, total_donations, total_received, created_at FROM users';
     const params: any[] = [];
-
+    
     if (search) {
-      query += ' WHERE name ILIKE $1 OR email ILIKE $1';
-      params.push(`%${search}%`);
-      params.push(limitNum);
-      params.push(offsetNum);
-      query += ` LIMIT $2 OFFSET $3`;
+      const searchPattern = `%${search}%`;
+      const query = `
+        SELECT id, name, email, role, can_donate, can_receive, reputation_score, total_donations, total_received, created_at 
+        FROM users 
+        WHERE name ILIKE $1 OR email ILIKE $1
+        ORDER BY created_at DESC 
+        LIMIT $2 OFFSET $3
+      `;
+      const result = await dbOps.pool.query(query, [searchPattern, limitNum, offsetNum]);
+      return res.json({ users: result.rows });
     } else {
-      params.push(limitNum);
-      params.push(offsetNum);
-      query += ` LIMIT $1 OFFSET $2`;
+      const query = `
+        SELECT id, name, email, role, can_donate, can_receive, reputation_score, total_donations, total_received, created_at 
+        FROM users 
+        ORDER BY created_at DESC 
+        LIMIT $1 OFFSET $2
+      `;
+      const result = await dbOps.pool.query(query, [limitNum, offsetNum]);
+      return res.json({ users: result.rows });
     }
-
-    query += ' ORDER BY created_at DESC';
-
-    const result = await dbOps.pool.query(query, params);
-    res.json({ users: result.rows });
   } catch (err) {
     console.error('Admin users error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
