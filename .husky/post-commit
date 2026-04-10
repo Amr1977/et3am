@@ -1,11 +1,15 @@
 #!/bin/sh
-# Post-commit hook - Remind to update KB after each commit
+# Post-commit hook - Remind to update KB and Trello after each commit
 
 echo ""
 echo "==========================================="
-echo "⚠️  REMINDER: Update KB after this commit?"
+echo "⚠️  REMINDER: Update Trello & KB after this commit?"
 echo "==========================================="
 echo ""
+echo "Trello: Move completed cards to DONE"
+echo "  cd backend && npm run trello done 'TASK-ID'"
+echo ""
+echo "KB: Document what you learned?"
 echo "Ask yourself:"
 echo "  1. What technique/pattern did I use?"
 echo "  2. What pitfalls did I encounter?"

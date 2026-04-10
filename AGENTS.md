@@ -25,6 +25,41 @@ This project uses **Conventional Commits** with **Auto-Versioning** based on git
 
 # Agent Workflow Guide
 
+## CRITICAL - Task Lifecycle (MUST FOLLOW)
+
+A task is ONLY complete when ALL steps are done:
+1. ✅ Implemented
+2. ✅ Backend tests pass (`npm run test:run`)
+3. ✅ Frontend build succeeds (`npm run build`)
+4. ✅ Deployed to both servers (FE + BE)
+5. ✅ E2E tests pass (or manually verified)
+6. ✅ Documented in `docs/tasks/{task_id}.md`
+
+**Status Markers in TODO.md:**
+| Marker | Meaning | Trello List |
+|--------|---------|-------------|
+| `[ ]` | Pending (not started) | TODO |
+| `[P]` | In Progress | PROGRESS |
+| `[x]` | Fully completed (deployed + tested) | DONE |
+
+---
+
+## Sync Workflow (When User Says "sync todo")
+
+1. **Read TODO.md** - find `[P]` and `[x]` tasks
+2. **Fetch Trello board** - get all cards and their lists
+3. **Sync TODO.md → Trello:**
+   - `[P]` tasks: move to PROGRESS list (create if not exists)
+   - `[x]` tasks: move to DONE list
+4. **Sync Trello → TODO.md:**
+   - Cards in PROGRESS: add `[P]` to TODO.md
+   - Cards in DONE: add `[x]` to TODO.md
+   - New cards in TODO: create in Trello
+5. **Update TASKLIST.md** with completed tasks
+6. **Create task docs** for any new in-progress tasks
+
+---
+
 ## CRITICAL - Testing Before Every Commit
 **ALWAYS run tests before committing:**
 ```bash
@@ -111,31 +146,33 @@ npm run trello create "Title" TODO   # Create card
 npm run trello move ET3AM-005 PROGRESS   # Move to list
 npm run trello done ET3AM-005          # Move to DONE
 npm run trello comment ET3AM-005 "Note" # Add comment
+npm run trello sync                    # Sync TODO.md with Trello (dry run)
+npm run trello sync --apply            # Sync with actual moves
 ```
+
+---
 
 ---
 
 ## TODO.md & TASKLIST.md Workflow
 
-### TODO.md (READ ONLY - Don't modify)
-- Source of pending tasks
-- Tasks marked with `[ ]` are pending, `[x]` are completed
-- Agent reads this to pick next task
+### TODO.md Status Markers
+- `[ ]` - Pending (not started)
+- `[P]` - In Progress (actively working)
+- `[x]` - Fully completed (deployed + tested)
 
 ### TASKLIST.md
-- Agent appends completed tasks here
+- Maintains completed tasks history
 - Format: Date, TASK_ID, Description
+- Also tracks in-progress tasks
 
 ### Workflow:
-1. Read TODO.md → Pick next unmarked task
-2. Move Trello ticket to PROGRESS
-3. Implement solution
-4. Test (must pass before commit)
-5. Commit with version bump
-6. Deploy FE and BE
-7. **CRITICAL: Ask - Can this be generalized? If yes → Update KB**
-8. Append to TASKLIST.md
-9. Move Trello to DONE
+1. User says "sync todo" (or adds task to TODO/Trello)
+2. Agent syncs TODO.md ↔ Trello ↔ TASKLIST.md
+3. For each task in progress, create `docs/tasks/{task_id}.md`
+4. Track all actions in task doc
+5. On completion: mark `[x]` in TODO.md + DONE in Trello + update TASKLIST.md
+6. **CRITICAL: Ask - Can this be generalized? If yes → Update KB**
 
 ---
 
@@ -196,12 +233,52 @@ cd backend && npm run build
 
 ---
 
+## Task Documentation
+
+### docs/tasks/{task_id}.md
+For each task, create a documentation file containing:
+- Task ID and Trello link
+- Description and acceptance criteria
+- Action log (all steps taken)
+- Test results (before/after)
+- Deployment status
+- Notes and learnings
+
+### Template
+```markdown
+# {task_id}: Task Title
+
+**Trello:** [Link](url)
+**Status:** IN PROGRESS | DONE
+
+## Description
+
+## Action Log
+| Date | Action | Result |
+|------|--------|--------|
+| YYYY-MM-DD | Implemented feature | Pass |
+
+## Tests
+- Backend: PASS/FAIL
+- Frontend Build: PASS/FAIL
+- E2E: PASS/FAIL
+
+## Deployment
+- [ ] AWS
+- [ ] GCP
+
+## Learnings
+```
+
+---
+
 ## Key Files Reference
 
 | File | Purpose |
 |------|---------|
-| `TODO.md` | Pending tasks (READ ONLY - don't modify) |
+| `TODO.md` | Pending tasks with markers `[ ]` `[P]` `[x]` |
 | `TASKLIST.md` | Completed tasks history |
+| `docs/tasks/{task_id}.md` | Per-task documentation |
 | `VERSION` | Current version (MAJOR.MINOR.PATCH) |
 | `docs/servers.md` | Server SSH credentials |
 | `docs/kb/` | Knowledge Base submodule |

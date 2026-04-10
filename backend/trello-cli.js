@@ -86,6 +86,34 @@ ${description}
     return cards.find(c => c.name.startsWith(taskId));
   },
 
+  async syncFromTodo(todoContent) {
+    const tasks = [];
+    const inProgressTasks = [];
+    const doneTasks = [];
+    
+    const lines = todoContent.split('\n');
+    let currentTask = null;
+    
+    for (const line of lines) {
+      const inProgressMatch = line.match(/^\- \[P\]\s+(.+)$/);
+      const doneMatch = line.match(/^\- \[x\]\s+(.+)$/);
+      const pendingMatch = line.match(/^\- \[\]\s+(.+)$/);
+      
+      if (inProgressMatch) {
+        currentTask = { id: null, title: inProgressMatch[1].trim(), status: 'IN_PROGRESS' };
+        inProgressTasks.push(currentTask);
+      } else if (doneMatch) {
+        currentTask = { id: null, title: doneMatch[1].trim(), status: 'DONE' };
+        doneTasks.push(currentTask);
+      } else if (pendingMatch) {
+        currentTask = { id: null, title: pendingMatch[1].trim(), status: 'PENDING' };
+        tasks.push(currentTask);
+      }
+    }
+    
+    return { pending: tasks, inProgress: inProgressTasks, done: doneTasks };
+  },
+
   lists: LIST_IDS,
 };
 
@@ -164,6 +192,67 @@ async function main() {
       console.log(`Moved ${taskId} to DONE`);
       break;
     }
+    case 'sync': {
+      const fs = require('fs');
+      const todoPath = path.join(__dirname, '..', 'TODO.md');
+      if (!fs.existsSync(todoPath)) {
+        console.error('TODO.md not found');
+        process.exit(1);
+      }
+      const todoContent = fs.readFileSync(todoPath, 'utf-8');
+      const { pending, inProgress, done } = await trelloService.syncFromTodo(todoContent);
+      
+      const boardCards = await trelloService.getBoardCards();
+      const progressListId = LIST_IDS.PROGRESS;
+      const doneListId = LIST_IDS.DONE;
+      const progressCards = boardCards.filter(c => c.idList === progressListId);
+      const doneCards = boardCards.filter(c => c.idList === doneListId);
+      
+      console.log('\n=== SYNC REPORT ===\n');
+      console.log('TODO.md Status:');
+      console.log(`  Pending: ${pending.length}`);
+      console.log(`  In Progress: ${inProgress.length}`);
+      console.log(`  Done: ${done.length}`);
+      console.log('\nTrello Status:');
+      console.log(`  PROGRESS: ${progressCards.length}`);
+      console.log(`  DONE: ${doneCards.length}`);
+      console.log('\n--- Moving tasks to correct lists ---');
+      
+      const dryRun = args[1] !== '--apply';
+      
+      for (const task of inProgress) {
+        const found = progressCards.find(c => c.name.toLowerCase().includes(task.title.toLowerCase().substring(0, 20)));
+        if (!found) {
+          const possibleCard = boardCards.find(c => c.name.toLowerCase().includes(task.title.toLowerCase().substring(0, 20)));
+          if (possibleCard) {
+            console.log(`  Would move to PROGRESS: "${task.title}" (${possibleCard.id})`);
+            if (!dryRun) {
+              await trelloService.moveCard(possibleCard.id, progressListId);
+              console.log(`    -> Moved!`);
+            }
+          }
+        }
+      }
+      
+      for (const task of done) {
+        const found = doneCards.find(c => c.name.toLowerCase().includes(task.title.toLowerCase().substring(0, 20)));
+        if (!found) {
+          const possibleCard = boardCards.find(c => c.name.toLowerCase().includes(task.title.toLowerCase().substring(0, 20)));
+          if (possibleCard && possibleCard.idList !== doneListId) {
+            console.log(`  Would move to DONE: "${task.title}" (${possibleCard.id})`);
+            if (!dryRun) {
+              await trelloService.moveCard(possibleCard.id, doneListId);
+              console.log(`    -> Moved!`);
+            }
+          }
+        }
+      }
+      
+      if (dryRun) {
+        console.log('\n** Dry run only. Add --apply to actually move cards. **');
+      }
+      break;
+    }
     default:
       console.log(`
 Trello CLI for Et3am
@@ -174,6 +263,7 @@ Usage:
   node trello-cli.js comment <TASK_ID> <text>        Add comment to card
   node trello-cli.js done <TASK_ID>                  Move card to DONE
   node trello-cli.js list                             List all cards
+  node trello-cli.js sync                            Sync TODO.md with Trello
 
 Example:
   node trello-cli.js create ET3AM-004 "Push Notifications" TODO
