@@ -128,14 +128,8 @@ router.get('/stats', authenticate, async (req: AuthRequest, res: Response) => {
       dbOps.userCount(),
     ]);
 
-    let myDonations = 0;
-    let myReservations = 0;
-
-    if (req.userRole === 'donor') {
-      myDonations = await dbOps.donations.countByDonor(req.userId!);
-    } else if (req.userRole === 'recipient') {
-      myReservations = await dbOps.donations.countByReserved(req.userId!);
-    }
+    const myDonations = await dbOps.donations.countByDonor(req.userId!);
+    const myReservations = await dbOps.donations.countByReserved(req.userId!);
 
     res.json({
       stats: {
