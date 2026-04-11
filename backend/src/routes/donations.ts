@@ -163,6 +163,7 @@ router.get('/my-donations', authenticate, async (req: AuthRequest, res: Response
     const enriched = donations.map(d => ({
       ...d,
       donor_name: 'You',
+      pickup_address: d.pickup_address,
       reserved_by_name: d.reserved_by ? 'Reserved' : null,
     }));
 
@@ -180,6 +181,7 @@ router.get('/my-reservations', authenticate, async (req: AuthRequest, res: Respo
     const enriched = donations.map(d => ({
       ...d,
       donor_name: 'Anonymous',
+      pickup_address: d.pickup_address,
       hash_code: d.hash_code,
     }));
 
