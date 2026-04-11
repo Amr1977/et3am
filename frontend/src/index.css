@@ -294,10 +294,6 @@ html[dir="rtl"] .brand-content {
   gap: 0.25rem;
 }
 
-.navbar-links.mobile-open {
-  display: flex;
-}
-
 .nav-section {
   display: flex;
   flex-direction: column;
