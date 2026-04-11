@@ -289,9 +289,13 @@ html[dir="rtl"] .brand-content {
 }
 
 .navbar-links {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 0.25rem;
+}
+
+.navbar-links.mobile-open {
+  display: flex;
 }
 
 .nav-section {
@@ -771,7 +775,9 @@ html[dir="rtl"] .version-badge {
 }
 
 .hamburger {
-  display: flex;
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
   flex-direction: column;
   justify-content: center;
   align-items: center;
