@@ -2,7 +2,7 @@ import * as admin from 'firebase-admin';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const serviceAccountPath = path.join(__dirname, '..', 'foodshare777-firebase-adminsdk-fbsvc-593c5b2f3c.json');
+const serviceAccountPath = path.join(__dirname, '..', 'firebase-service-account.json');
 let serviceAccount: admin.ServiceAccount | null = null;
 
 if (fs.existsSync(serviceAccountPath)) {

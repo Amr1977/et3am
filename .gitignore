@@ -2,26 +2,47 @@ node_modules/
 dist/
 data/
 *.log
-foodshare777-firebase-adminsdk-fbsvc-593c5b2f3c.json
+
+# Environment files - NEVER commit these
 *.env
 .env
 .env.*
 !.env.example
-nul
-frontend/src/git-info.json
+
+# Firebase service account keys - NEVER commit
+firebase-service-account.json
+*firebase-adminsdk*.json
+*servicekey*.json
+et3am*-*.json
+
+# Map tiles
 backend/maps/tiles.db
+
+# Frontend
 frontend/.firebase/
+frontend/src/git-info.json
+
+# Build
 *.tsbuildinfo
-.DS_Store
-Thumbs.db
-*.tmp
-*.temp
-coverage/
+
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+
+# Logs directory
 backend/src/logs/
+
+# Test results
 test-results/
+coverage/
 temp/
-backend/.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.backup
+*.bak
