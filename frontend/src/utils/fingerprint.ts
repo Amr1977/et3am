@@ -1,11 +1,18 @@
 let deviceId: string | null = null;
 
 export const initDeviceFingerprint = async (): Promise<string> => {
+  if (deviceId) return deviceId;
+  
   try {
-    const FingerprintJS = await import('@fingerprintjs/fingerprintjs');
-    const fp = await FingerprintJS.load();
-    const result = await fp.get();
-    deviceId = result.visitorId;
+    const stored = localStorage.getItem('et3am_device_id');
+    if (stored) {
+      deviceId = stored;
+      console.log('[Fingerprint] Device ID from storage:', deviceId);
+      return deviceId;
+    }
+    
+    deviceId = `device-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    localStorage.setItem('et3am_device_id', deviceId);
     console.log('[Fingerprint] Device ID:', deviceId);
     return deviceId;
   } catch (error) {
@@ -15,11 +22,4 @@ export const initDeviceFingerprint = async (): Promise<string> => {
   }
 };
 
-export const getDeviceId = (): string | null => {
-  return deviceId;
-};
-
-export const getDeviceIdOrGenerate = async (): Promise<string> => {
-  if (deviceId) return deviceId;
-  return initDeviceFingerprint();
-};
+export const getDeviceId = (): string | null => deviceId;
