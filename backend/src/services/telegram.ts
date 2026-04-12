@@ -4,6 +4,7 @@ import { pool } from '../database';
 console.log('Loading Telegram bot, env keys:', Object.keys(process.env).filter(k => k.includes('TELEGRAM')));
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID;
 
 if (!TELEGRAM_BOT_TOKEN) {
   console.warn('TELEGRAM_BOT_TOKEN not configured - Telegram notifications disabled');
@@ -20,6 +21,29 @@ export async function sendTelegramMessage(chatId: string, message: string) {
     await bot.telegram.sendMessage(chatId, message, { parse_mode: 'Markdown' });
   } catch (error) {
     console.error('Telegram send error:', error);
+  }
+}
+
+export async function sendAdminAlert(service: string, status: 'DOWN' | 'UP', details?: string) {
+  if (!bot || !TELEGRAM_ADMIN_CHAT_ID) return;
+  
+  const emoji = status === 'DOWN' ? '🔴' : '🟢';
+  const timestamp = new Date().toISOString();
+  
+  let message = `${emoji} *${service} ${status}*\n\n⏰ Time: ${timestamp}`;
+  
+  if (details) {
+    message += `\n📝 Details: ${details}`;
+  }
+  
+  if (status === 'DOWN') {
+    message += `\n\n⚠️ Action required!`;
+  }
+  
+  try {
+    await sendTelegramMessage(TELEGRAM_ADMIN_CHAT_ID, message);
+  } catch (error) {
+    console.error('Admin alert error:', error);
   }
 }
 

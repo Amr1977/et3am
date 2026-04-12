@@ -1984,11 +1984,14 @@ html[dir="rtl"] .version-badge {
   height: 100% !important;
   width: 100% !important;
   z-index: 1;
-  cursor: pointer;
 }
 
-.hero-map .leaflet-container * {
-  pointer-events: auto;
+.hero-map .leaflet-pane {
+  z-index: auto;
+}
+
+.hero-map .leaflet-marker-pane {
+  z-index: 100;
 }
 
 .hero-map .leaflet-control {
@@ -1998,10 +2001,12 @@ html[dir="rtl"] .version-badge {
 /* Hero map markers */
 .hero-map .leaflet-marker-icon {
   pointer-events: auto !important;
+  cursor: pointer !important;
 }
 
 .hero-map .leaflet-marker-icon > div {
   pointer-events: auto !important;
+  cursor: pointer !important;
 }
 
 @media (max-width: 768px) {
@@ -3336,17 +3341,12 @@ html[dir="rtl"] .step-flow-number {
 .custom-marker-container {
   background: transparent !important;
   border: none !important;
-  z-index: 1000 !important;
 }
 
 .custom-marker-container > div {
   pointer-events: auto !important;
   cursor: pointer !important;
-  z-index: 1000 !important;
-}
-
-.custom-marker-container.leaflet-marker-icon {
-  z-index: 1000 !important;
+  z-index: auto !important;
 }
 
 .custom-marker-container .marker-icon {
@@ -3357,7 +3357,6 @@ html[dir="rtl"] .step-flow-number {
 .leaflet-marker-icon {
   cursor: pointer !important;
   pointer-events: auto !important;
-  z-index: 1000 !important;
 }
 
 .leaflet-marker-icon.leaflet-interactive {

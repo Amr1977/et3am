@@ -8,6 +8,7 @@ import { i18nMiddleware } from './middleware/i18n';
 import { generateToken } from './middleware/auth';
 import { serviceAccount, firebaseInitialized } from './firebase-admin';
 import { SERVER_ID, startServerRegistry, getHealthyServers } from './services/serverRegistry';
+import { startMonitoring } from './services/monitor';
 import { initSocket } from './config/socket';
 import logger from './config/logger';
 import authRoutes from './routes/auth';
@@ -163,6 +164,7 @@ initDb().then(async () => {
   await runMigrations();
   await warmupDatabase();
   await startServerRegistry();
+  startMonitoring();
   
   const httpServer = http.createServer(app);
   initSocket(httpServer);

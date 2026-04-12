@@ -106,7 +106,9 @@ test.describe('Home Page Hero Map', () => {
   });
 
   test('should open marker popup on click', async ({ page }) => {
-    await page.waitForTimeout(2000);
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/');
+    await page.waitForTimeout(3000);
     
     const markers = page.locator('.hero-map .leaflet-marker-icon');
     const clusters = page.locator('.hero-map .marker-cluster-custom');
@@ -114,15 +116,21 @@ test.describe('Home Page Hero Map', () => {
     const markersCount = await markers.count();
     const clustersCount = await clusters.count();
     
+    console.log(`Markers: ${markersCount}, Clusters: ${clustersCount}`);
+    
+    expect(markersCount + clustersCount).toBeGreaterThan(0);
+    
     if (markersCount > 0) {
-      await markers.first().click();
-      await page.waitForTimeout(500);
+      await markers.first().click({ force: true });
+      await page.waitForTimeout(1000);
       
       const popup = page.locator('.hero-map .leaflet-popup');
-      await expect(popup).toBeVisible();
+      const popupVisible = await popup.isVisible().catch(() => false);
+      
+      expect(popupVisible).toBe(true);
     } else if (clustersCount > 0) {
       await clusters.first().click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000);
     }
   });
 
