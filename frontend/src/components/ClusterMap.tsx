@@ -95,10 +95,12 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
         align-items: center;
         justify-content: center;
         font-size: 18px;
+        cursor: pointer;
       ">${icon}</div>
     `,
     iconSize: [36, 36],
     iconAnchor: [18, 18],
+    popupAnchor: [0, -18],
   });
 }
 

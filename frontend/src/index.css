@@ -3402,17 +3402,6 @@ html[dir="rtl"] .step-flow-number {
   z-index: 1000 !important;
 }
 
-/* Prevent popup flickering */
-.leaflet-popup {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-.leaflet-popup-close-button + .leaflet-popup-content {
-  margin-top: 12px;
-}
-
 /* Leaflet Popup Styles */
 .leaflet-popup-content-wrapper {
   border-radius: 12px;
