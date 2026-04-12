@@ -1,0 +1,272 @@
+## CONTEXT
+## Repo: Amr1977/et3am (local clone)
+## Postgres credentials exposed in 3 public commits:
+##   Commit A: 4927b94  →  docs/FIX-HOME-STATS-ENV-LOADING.md
+##   Commit B: 93db93a  →  list_28_users.js
+##   Commit C: d28a23e  →  backend/src/database.ts
+## Password already rotated. Mission: purge all credential traces from git
+## history, harden the codebase, and verify clean before re-publishing.
+## Work through all 4 phases in order. Report findings after each phase.
+
+## ─────────────────────────────────────────────
+## PHASE 1 — INVENTORY: find every leaked value
+## ─────────────────────────────────────────────
+
+echo "=== 1.1 Install git-filter-repo ==="
+pip install git-filter-repo --break-system-packages 2>/dev/null || \
+pip3 install git-filter-repo --break-system-packages 2>/dev/null || \
+brew install git-filter-repo 2>/dev/null
+
+echo "=== 1.2 Full diff of the 3 flagged commits ==="
+git show 4927b94 -- docs/FIX-HOME-STATS-ENV-LOADING.md
+git show 93db93a -- list_28_users.js
+git show d28a23e -- backend/src/database.ts
+
+echo "=== 1.3 Every postgres connection string ever committed ==="
+git log --all -p | grep -iE \
+  "(postgresql|postgres)://|DATABASE_URL|DB_PASS|DB_USER|DB_HOST|DB_NAME|DB_PORT" \
+  | grep -v "^--" | grep -v "^Binary"
+
+echo "=== 1.4 Every .env file ever committed ==="
+git log --all -p -- ".env" ".env.*" "**/.env" "**/.env.*" | grep -v "^--"
+
+echo "=== 1.5 Broad secret pattern scan across all history ==="
+git log --all -p | grep -iE \
+  "(password|passwd|secret|token|api_key|private_key)\s*[=:]\s*['\"]?[A-Za-z0-9_/+@.-]{8,}" \
+  | grep -v -iE "(REDACTED|example|placeholder|your_|test_|fake_)" | head -80
+
+echo "=== 1.6 All files in history that look sensitive ==="
+git log --all --oneline --diff-filter=A -- \
+  "*.env" ".env*" "*credentials*" "*secret*" "*database.ts" \
+  "*database.js" "list_28_users*" "*.sql" "*.sqlite" "*.db"
+
+echo ""
+echo "==> STOP. Collect every unique secret VALUE from output above."
+echo "==> You need them for Phase 2 expressions.txt."
+
+
+## ─────────────────────────────────────────────────────────────
+## PHASE 2 — HISTORY REWRITE: purge all secrets permanently
+## ─────────────────────────────────────────────────────────────
+
+## 2.1 Back up the repo before any destructive operations
+cp -r "$(pwd)" "$(pwd)/../et3am-backup-$(date +%Y%m%d-%H%M%S)"
+echo "Backup created."
+
+## 2.2 Build expressions.txt from the values found in Phase 1.
+## For EACH unique secret value found, add one line below in this format:
+##   literal:ACTUAL_SECRET_VALUE==>REDACTED
+## Example (replace with real values):
+cat > /tmp/expressions.txt << 'EXPR'
+literal:REPLACE_WITH_ACTUAL_DB_PASSWORD==>REDACTED_PASSWORD
+literal:REPLACE_WITH_ACTUAL_DB_HOST==>REDACTED_HOST
+literal:REPLACE_WITH_ACTUAL_DB_USER==>REDACTED_USER
+literal:REPLACE_WITH_ACTUAL_DB_NAME==>REDACTED_DB
+literal:REPLACE_WITH_FULL_CONNECTION_STRING==>postgresql://REDACTED_USER:REDACTED_PASSWORD@REDACTED_HOST:5432/REDACTED_DB
+EXPR
+
+## IMPORTANT: Edit /tmp/expressions.txt and replace the placeholder lines
+## with the actual secret values found in Phase 1 before proceeding.
+echo "==> Edit /tmp/expressions.txt now with real values, then continue."
+
+## 2.3 Remove list_28_users.js entirely from all history
+## (this file should not exist publicly at all)
+git filter-repo \
+  --path list_28_users.js \
+  --invert-paths \
+  --force
+echo "list_28_users.js purged from history."
+
+## 2.4 Remove docs/FIX-HOME-STATS-ENV-LOADING.md from history
+## (internal fix doc, no reason to be public)
+git filter-repo \
+  --path docs/FIX-HOME-STATS-ENV-LOADING.md \
+  --invert-paths \
+  --force
+echo "FIX-HOME-STATS-ENV-LOADING.md purged from history."
+
+## 2.5 Scrub inline credential values from all remaining files in history
+git filter-repo \
+  --replace-text /tmp/expressions.txt \
+  --force
+echo "Inline secrets scrubbed via expressions.txt."
+
+## 2.6 Also remove any .env files that were ever committed
+git filter-repo \
+  --path-glob '*.env' \
+  --path-glob '.env.*' \
+  --invert-paths \
+  --force 2>/dev/null || echo "(no .env files found in history)"
+
+## 2.7 Verify — these should return empty output if clean
+echo "=== 2.7 Verification: searching history for remaining secrets ==="
+git log --all -p | grep -iE \
+  "(postgresql|postgres)://|DB_PASS|DATABASE_URL" \
+  | grep -v "REDACTED" | head -20
+echo "If nothing printed above, history is clean."
+
+
+## ─────────────────────────────────────────────────────────────────────
+## PHASE 3 — HARDEN: fix current files & add guardrails
+## ─────────────────────────────────────────────────────────────────────
+
+## 3.1 Check current backend/src/database.ts — must use env vars only
+echo "=== 3.1 Check database.ts for hardcoded values ==="
+grep -n "postgresql://\|DB_PASS\|DB_HOST\|DB_USER\|DB_NAME\|DATABASE_URL\|password\s*=" \
+  backend/src/database.ts 2>/dev/null || echo "File not found or already clean"
+
+## If any hardcoded values remain in the current file, replace them now.
+## database.ts should read from process.env like:
+##   const connectionString = process.env.DATABASE_URL;
+## Fix any remaining hardcoded values in that file before continuing.
+
+## 3.2 Ensure .env is in .gitignore
+echo "=== 3.2 Checking .gitignore ==="
+if ! grep -q "^\.env$" .gitignore 2>/dev/null; then
+  cat >> .gitignore << 'IGNORE'
+
+# Environment & secrets — never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+node_modules/
+*.log
+*.sql
+*.sqlite
+*.db
+IGNORE
+  echo ".gitignore updated."
+else
+  echo ".gitignore already covers .env."
+fi
+
+## 3.3 Create .env.example if it doesn't exist
+if [ ! -f .env.example ]; then
+  cat > .env.example << 'ENVEX'
+# Copy this file to .env and fill in real values. Never commit .env.
+
+# Database
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DBNAME
+
+# Add other required env vars below with placeholder values
+ENVEX
+  echo ".env.example created."
+fi
+
+## 3.4 Confirm no real .env file is currently tracked
+git ls-files | grep -E "^\.env" && \
+  echo "WARNING: .env is tracked — run: git rm --cached .env" || \
+  echo ".env is not tracked. Good."
+
+## 3.5 Install and configure pre-commit to block future leaks
+pip install pre-commit detect-secrets --break-system-packages 2>/dev/null || true
+
+cat > .pre-commit-config.yaml << 'PRECOMMIT'
+repos:
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.4
+    hooks:
+      - id: gitleaks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      - id: check-merge-conflict
+      - id: detect-private-key
+PRECOMMIT
+
+pre-commit install && echo "pre-commit hooks installed." || \
+  echo "pre-commit install failed — run manually."
+
+## 3.6 Create SECURITY.md
+cat > SECURITY.md << 'SEC'
+# Security policy
+
+## Reporting a vulnerability
+
+Please do not open a public GitHub issue for security vulnerabilities.
+
+Email: security@et3am.com (replace with your real contact)
+Response time: within 48 hours
+
+## Supported versions
+
+| Version | Supported |
+|---------|-----------|
+| latest  | yes       |
+SEC
+echo "SECURITY.md created."
+
+
+## ─────────────────────────────────────────────────────────────────────
+## PHASE 4 — PUSH & VERIFY: force push and request GitHub cache purge
+## ─────────────────────────────────────────────────────────────────────
+
+## 4.1 Re-add remote (git-filter-repo removes it as a safety measure)
+git remote add origin https://github.com/Amr1977/et3am.git 2>/dev/null || \
+  git remote set-url origin https://github.com/Amr1977/et3am.git
+echo "Remote set."
+
+## 4.2 Force push rewritten history to GitHub
+git push origin --force --all
+git push origin --force --tags
+echo "Force push complete."
+
+## 4.3 Final clean scan on current working tree
+echo "=== 4.3 Final scan — current files ==="
+git ls-files | xargs grep -lE \
+  "(postgresql|postgres)://|DB_PASS\s*=|DATABASE_URL\s*=" 2>/dev/null \
+  | grep -v ".env.example" \
+  && echo "WARNING: credentials still in working tree files above" \
+  || echo "Working tree: CLEAN"
+
+## 4.4 Final scan — rewritten history
+echo "=== 4.4 Final scan — git history ==="
+git log --all -p | grep -E \
+  "(postgresql|postgres)://|DB_PASS\s*=|DATABASE_URL\s*=" \
+  | grep -v "REDACTED" \
+  && echo "WARNING: credentials still in history" \
+  || echo "Git history: CLEAN"
+
+## 4.5 Confirm the 3 original commit SHAs no longer resolve
+git cat-file -t 4927b94 2>/dev/null \
+  && echo "WARNING: commit 4927b94 still exists — history rewrite may have failed" \
+  || echo "Commit 4927b94: gone from local history (good)"
+git cat-file -t 93db93a 2>/dev/null \
+  && echo "WARNING: commit 93db93a still exists" \
+  || echo "Commit 93db93a: gone from local history (good)"
+git cat-file -t d28a23e 2>/dev/null \
+  && echo "WARNING: commit d28a23e still exists" \
+  || echo "Commit d28a23e: gone from local history (good)"
+
+## 4.6 Print GitHub cache purge instructions
+echo ""
+echo "============================================================"
+echo "MANUAL STEP REQUIRED — GitHub cache purge"
+echo "============================================================"
+echo "The 3 original commit SHAs may still be accessible via direct"
+echo "GitHub URL even after force push. You MUST submit a request to:"
+echo ""
+echo "  https://support.github.com/contact?tags=docs-generic"
+echo ""
+echo "Subject: Request to purge cached git objects after history rewrite"
+echo ""
+echo "Body: Please purge cached objects for the following commit SHAs"
+echo "in the repository https://github.com/Amr1977/et3am :"
+echo "  4927b94189de9e15e7811b2c25d7f8c54d1c2ad5"
+echo "  93db93a75857348c1d7d281957c8d6433dbf40dd"
+echo "  d28a23e23fb1ebe351548ff2062e2714d9d9ba2b"
+echo ""
+echo "Also check your Postgres provider dashboard for any unfamiliar"
+echo "connections logged during the exposure window."
+echo "============================================================"

@@ -46,3 +46,15 @@ Thumbs.db
 # Backup files
 *.backup
 *.bak
+
+# Dev artifacts (debug/test files - never commit)
+console_output.txt
+console_errors.txt
+test-*.js
+test-*.py
+check_*.py
+*.tar.gz
+*.sql
+pgpass.conf
+%nul%
+*.bat

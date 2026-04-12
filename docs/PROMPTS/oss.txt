@@ -1,0 +1,189 @@
+You are working on the open-source repository at https://github.com/Amr1977/et3am — a food donation platform built for the Arab world (React 18 + TypeScript + Express + PostgreSQL). The repo is freshly made public and needs immediate improvements for OSS credibility, contributor onboarding, and fundraising visibility.
+
+Complete ALL of the following tasks in order. Commit each task separately with a clear conventional commit message.
+
+---
+
+TASK A — Rewrite README.md
+
+Replace the current README.md with an upgraded version that includes:
+
+1. At the very top, embed the existing snapshot: ![Et3am Screenshot](et3am_snapshot.png)
+
+2. A bilingual hero tagline immediately below:
+   English: "Connecting surplus food to families in need — free, open, and community-powered."
+   Arabic: "نربط الطعام الفائض بالعائلات المحتاجة — مجاناً، مفتوح المصدر، ومُدار من المجتمع."
+
+3. Badge row (after the existing version/license/PRs badges, add):
+   - Live demo badge linking to https://et3am.com
+   - Open Collective badge (placeholder URL: https://opencollective.com/et3am)
+   - GitHub Sponsors badge
+
+4. A new "Why Et3am?" section before Features:
+   - Egypt wastes ~35% of food produced annually
+   - 1 in 3 Egyptians faces food insecurity
+   - Et3am bridges this gap with zero fees and no middlemen
+   - Inspired by the concept of Sadaqah Jariyah (continuous charity)
+
+5. Keep all existing sections (Features, Tech Stack, Quick Start, Contributing, Structure, License, Contact) but clean up formatting.
+
+6. Add a "Support the project" section near the bottom with:
+   - GitHub Sponsors link
+   - Open Collective link (https://opencollective.com/et3am)
+   - PayPal: amr.lotfy.othman@gmail.com
+   - Crypto: [CRYPTO_WALLET_ADDRESS] (leave as placeholder)
+   - InstaPay: [INSTAPAY_ID] (leave as placeholder)
+
+7. Add a "Community" section pointing to GitHub Discussions.
+
+Commit message: "docs: overhaul README with bilingual hero, impact stats, and donation links"
+
+---
+
+TASK B — Create .github/FUNDING.yml
+
+Create the file .github/FUNDING.yml with:
+
+```yaml
+github: Amr1977
+open_collective: et3am
+custom:
+  - https://paypal.me/et3am
+  - https://et3am.com/donate
+```
+
+Commit message: "chore: add FUNDING.yml to enable Sponsor button on repo"
+
+---
+
+TASK C — Create GitHub issue templates
+
+Create .github/ISSUE_TEMPLATE/bug_report.yml:
+
+```yaml
+name: Bug report
+description: Report a bug in Et3am
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for reporting a bug! Please fill out the form below."
+  - type: input
+    id: summary
+    attributes:
+      label: Bug summary
+      placeholder: A short description of what went wrong
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Go to...\n2. Click on...\n3. See error"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "OS, Node version, browser"
+```
+
+Create .github/ISSUE_TEMPLATE/feature_request.yml:
+
+```yaml
+name: Feature request
+description: Suggest a new feature or improvement
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      placeholder: "As a [donor/recipient/admin], I want to..."
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Frontend
+        - Backend
+        - Database
+        - DevOps
+        - Documentation
+        - Accessibility / RTL
+        - Other
+    validations:
+      required: true
+```
+
+Create .github/pull_request_template.md:
+
+```markdown
+## Summary
+<!-- What does this PR do? One sentence. -->
+
+## Type of change
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Documentation update
+- [ ] Refactor / cleanup
+- [ ] Tests
+
+## Related issue
+Closes #<!-- issue number -->
+
+## Testing
+<!-- How did you test this? -->
+
+## Screenshots (if UI change)
+
+## Checklist
+- [ ] Code follows the project style (TypeScript, ESLint passing)
+- [ ] I've tested locally
+- [ ] I've updated docs if needed
+- [ ] No secrets or credentials included
+```
+
+Commit message: "chore: add structured issue and PR templates"
+
+---
+
+TASK D — Clean up root-level dev artifacts
+
+1. Move the following files OUT of the repo root. Delete them entirely (they are debug/dev artifacts with no value to contributors):
+   - console_output.txt
+   - console_errors.txt
+   - page_content.html
+   - test-bcrypt.js
+   - test-db.js
+   - test-flow.js
+   - test_page.py
+   - check_console.py
+   - check_frontend.py
+   - test-map.py
+   - backend.tar.gz
+   - test.sql
+   - test_db.bat
+
+2. Add all of these patterns to .gitignore:
