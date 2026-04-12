@@ -1,14 +1,15 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 import { useRTL } from '../hooks/useRTL';
+import { playSound as playSoundEffect, preloadSounds } from '../utils/soundPlayer';
+
+type SoundType = 'new_meal' | 'reserved' | 'delivered' | 'message' | 'cancelled';
 
 interface SoundContextType {
   soundEnabled: boolean;
   setSoundEnabled: (enabled: boolean) => void;
   playSound: (soundType: SoundType) => void;
 }
-
-type SoundType = 'new_meal' | 'reserved' | 'delivered' | 'message' | 'cancelled';
 
 const soundMessages: Record<SoundType, { en: string; ar: string }> = {
   new_meal: {
@@ -25,7 +26,7 @@ const soundMessages: Record<SoundType, { en: string; ar: string }> = {
   },
   message: {
     en: 'New message received!',
-    ar: 'رسالة جديدة_received!',
+    ar: 'رسالة جديدة!',
   },
   cancelled: {
     en: 'Reservation cancelled!',
@@ -59,6 +60,12 @@ export function SoundProvider({ children }: SoundProviderProps) {
       .catch(console.error);
   }, [isAuthenticated, token]);
 
+  useEffect(() => {
+    if (soundEnabled) {
+      preloadSounds();
+    }
+  }, [soundEnabled]);
+
   const speak = (text: string) => {
     if (!window.speechSynthesis) return;
     
@@ -76,9 +83,15 @@ export function SoundProvider({ children }: SoundProviderProps) {
   const playSound = (soundType: SoundType) => {
     if (!soundEnabled) return;
     
+    try {
+      playSoundEffect(soundType);
+    } catch (err) {
+      console.log('Sound effect not available, using speech fallback');
+    }
+    
     const messages = soundMessages[soundType];
     const text = isRTL ? messages.ar : messages.en;
-    speak(text);
+    setTimeout(() => speak(text), 100);
   };
 
   const handleSetSoundEnabled = async (enabled: boolean) => {
