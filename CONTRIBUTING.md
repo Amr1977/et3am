@@ -1,8 +1,34 @@
 # Contributing to Et3am
 
-Thank you for your interest in contributing to Et3am! This document will help you get started.
+<p align="center">
+  <img src="artifacts/images/donations-map.png" alt="Et3am Screenshot" width="600">
+</p>
 
-## Quick Start
+Welcome to Et3am (إطعام)! We're an Arabic-first open-source food donation platform, and we're excited that you're interested in contributing. Whether you're a developer, translator, tester, or just someone who wants to help — **everyone is welcome**.
+
+---
+
+## Ways to Contribute
+
+| Type | Description |
+|------|-------------|
+| 💻 **Code** | Fix bugs, add features, improve performance |
+| 🌍 **Translations** | Help translate the app to Arabic/English |
+| 📝 **Documentation** | Improve guides, README, API docs |
+| 🐛 **Bug Reports** | Open issues with clear reproduction steps |
+| 🧪 **Testing** | Test new features and report issues |
+
+---
+
+## Development Setup
+
+### Requirements
+
+- Node.js 20+
+- PostgreSQL (local or cloud like Neon)
+- Firebase project (console.firebase.google.com)
+
+### Quick Start
 
 ```bash
 # 1. Fork the repository on GitHub
@@ -26,42 +52,76 @@ cd backend && npm run dev
 cd frontend && npm run dev
 ```
 
-## Development Setup
+### Verify Your Setup
 
-### Requirements
-- Node.js 20+
-- PostgreSQL (local or Neon cloud)
-- Firebase project (create at console.firebase.google.com)
+```bash
+# Backend tests
+cd backend && npm run test:run
 
-### Environment Variables
-
-Create `backend/.env` based on `.env.example`:
-
-```env
-DATABASE_URL=postgresql://user:pass@localhost:5432/et3am
-JWT_SECRET=your-random-64-char-secret
-NODE_ENV=development
-PORT=3001
-FRONTEND_URL=http://localhost:5173
-
-# Firebase (get from Project Settings > Service Accounts)
-FIREBASE_PRIVATE_KEY=your-private-key
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk@...
-FIREBASE_PROJECT_ID=your-project
+# Frontend build
+cd frontend && npm run build
 ```
+
+---
+
+## Branching Strategy
+
+| Branch | Purpose |
+|--------|---------|
+| `master` | Stable, production-ready (protected) |
+| `feature/*` | New features (e.g., `feature/user-profile`) |
+| `fix/*` | Bug fixes (e.g., `fix/login-redirect`) |
+
+Create a branch from `master`:
+
+```bash
+git checkout -b feature/your-feature-name
+```
+
+---
+
+## Commit Message Convention
+
+We use **Conventional Commits**. This helps us generate changelogs and versions automatically.
+
+| Type | Description |
+|------|-------------|
+| `feat:` | New feature |
+| `fix:` | Bug fix |
+| `docs:` | Documentation update |
+| `chore:` | Maintenance, refactoring |
+| `test:` | Adding/updating tests |
+| `refactor:` | Code restructure |
+| `perf:` | Performance improvement |
+| `build:` | Build system changes |
+| `ci:` | CI/CD configuration |
+
+**Examples:**
+```
+feat: add user profile page
+fix: resolve login redirect issue
+docs: update API documentation
+chore: clean up unused dependencies
+```
+
+---
+
+## How to Claim an Issue
+
+1. Browse the [Issues](https://github.com/Amr1977/et3am/issues)
+2. Find one you're interested in (look for `good first issue` label)
+3. Comment: **"I'd like to work on this"**
+4. A maintainer will assign it to you within **48 hours**
+
+---
 
 ## Pull Request Process
 
-1. **Create a branch** from `master`:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-2. **Make your changes** following our coding standards
-
-3. **Add tests** if applicable (backend has Vitest, frontend has Playwright)
-
-4. **Run checks locally:**
+1. **Fork** the repository
+2. **Create** a feature branch from `master`
+3. **Make your changes** following our coding standards
+4. **Add tests** if applicable (backend has Vitest, frontend has Playwright)
+5. **Run checks locally:**
    ```bash
    # Backend tests
    cd backend && npm run test:run
@@ -69,72 +129,56 @@ FIREBASE_PROJECT_ID=your-project
    # Frontend build
    cd frontend && npm run build
    ```
-
-5. **Submit PR** with clear description:
-   - What does this change do?
+6. **Submit PR** with clear description:
+   - What does this PR do?
    - Why is it needed?
    - How can someone test it?
+   - Related issue (e.g., `Closes #123`)
 
-6. **Wait for review** - typically 1-2 business days
+7. **Wait for review** — we aim to review within **5 business days**
+
+---
 
 ## Coding Standards
 
-### Git Commits
-We use Conventional Commits:
-```
-feat: add new feature
-fix: resolve a bug
-docs: update documentation
-refactor: restructure code
-test: add tests
-chore: maintenance
-```
-
 ### Code Style
 - ESLint + Prettier (automatic on save)
-- TypeScript - strict mode
+- TypeScript with strict mode
 - Meaningful variable/function names
 - Comment complex logic, not obvious code
 
 ### Testing
 - New features should have tests
 - Bug fixes should include regression tests
-- Run tests before committing
-
-## Project Structure
-
-```
-et3am/
-├── backend/           # Express API server
-│   ├── src/
-│   │   ├── routes/   # API endpoints
-│   │   ├── services/ # Business logic
-│   │   ├── middleware/ # Auth, rate limiting
-│   │   └── config/   # Configuration
-│   └── tests/        # Integration tests
-│
-├── frontend/         # React application
-│   ├── src/
-│   │   ├── pages/   # Page components
-│   │   ├── components/ # Reusable components
-│   │   ├── context/ # React contexts
-│   │   ├── hooks/   # Custom hooks
-│   │   └── services/ # API calls
-│   └── tests/        # E2E tests
-│
-└── docs/             # Documentation
-```
-
-## Getting Help
-
-- **Issues:** Open a GitHub issue for bugs/features
-- **Discussions:** Use GitHub Discussions for questions
-- **Security:** See SECURITY.md for vulnerability reporting
-
-## Recognition
-
-Contributors will be added to CONTRIBUTORS.md after their first PR is merged.
+- Always run tests before committing
 
 ---
 
-*Last updated: 2026-04-07*
+## Contributor Recognition
+
+🌟 **Every contributor matters!** 🌟
+
+All contributors will be:
+- Listed in the [README contributors section](README.md#contributors)
+- Credited in [CHANGELOG.md](CHANGELOG.md)
+- Thanked in PR merge comments
+
+---
+
+## Getting Help
+
+| Channel | Use for |
+|---------|---------|
+| [GitHub Discussions](https://github.com/Amr1977/et3am/discussions) | Questions, ideas, community chat |
+| [GitHub Issues](https://github.com/Amr1977/et3am/issues) | Bug reports, feature requests |
+| [SECURITY.md](SECURITY.md) | Vulnerability reporting |
+
+---
+
+## Code of Conduct
+
+Please read our [Code of Conduct](CODE_OF_CONDUCT.md) to keep our community friendly and welcoming.
+
+---
+
+*Last updated: 2026-04-12*

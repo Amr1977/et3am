@@ -187,3 +187,76 @@ TASK D — Clean up root-level dev artifacts
    - test_db.bat
 
 2. Add all of these patterns to .gitignore:
+
+Debug artifacts
+console_output.txt
+console_errors.txt
+page_content.html
+backend.tar.gz
+test-results/
+.pgpass
+pgpass.conf
+%TEMP%
+Root-level test scripts (use proper test directories)
+test-.js
+test_.py
+check_*.py
+
+3. Do NOT delete: README.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, LICENSE, CHANGELOG.md, TASKLIST.md, VERSION, deploy scripts, or any file inside /backend, /frontend, /docs, /.github.
+
+Commit message: "chore: remove dev artifacts from root, update .gitignore"
+
+---
+
+TASK E — Upgrade CONTRIBUTING.md
+
+Rewrite the existing CONTRIBUTING.md to include these sections:
+
+1. Welcome message (mention it's Arabic-first OSS, everyone is welcome)
+2. Ways to contribute: code, translations (Arabic/English), documentation, bug reports, testing
+3. Development setup (reference the README quick start, add: "run `npm test` to verify your setup")
+4. Branching strategy:
+   - main/master: stable, protected
+   - feature/your-feature-name: for new features
+   - fix/issue-number-description: for bug fixes
+5. Commit message convention (they already use conventional commits — document it):
+   - feat: new feature
+   - fix: bug fix
+   - docs: documentation
+   - chore: maintenance
+   - test: adding tests
+   - refactor: code restructure
+6. How to claim an issue: comment "I'd like to work on this" — maintainer will assign within 48 hours
+7. Pull request process: fork → branch → PR → review within 5 business days
+8. Contributor recognition: all contributors listed in README and CHANGELOG
+9. Getting help: GitHub Discussions for questions, Issues for bugs
+
+Commit message: "docs: upgrade CONTRIBUTING.md with full onboarding guide"
+
+---
+
+TASK F — Draft launch content files
+
+Create a new file docs/LAUNCH_POSTS.md containing ready-to-publish social media content:
+
+**X/Twitter thread (5 tweets):**
+Tweet 1: "We just open-sourced Et3am (إطعام) — a food donation platform connecting surplus food from restaurants, hotels & homes to families in need. Built in Egypt. Arabic-first. MIT licensed. 🧵"
+Tweet 2: "Egypt wastes ~35% of its food every year. Meanwhile 1 in 3 Egyptians face food insecurity. Et3am bridges this gap — zero fees, no middlemen, real-time matching. et3am.com"
+Tweet 3: "The stack: React 18 + TypeScript, Express, PostgreSQL, Socket.io for real-time, Leaflet maps, JWT + Firebase auth. 307 commits in. Now open for contributions. github.com/Amr1977/et3am"
+Tweet 4: "Looking for contributors: React/TypeScript devs, Arabic translators, testers, DevOps. Check the good-first-issue label. Every PR makes a real difference. 🫶"
+Tweet 5: "Star the repo if you believe food should reach people, not landfills. And if you want to support development: [Open Collective link]. Built with love. Made in Egypt."
+
+**LinkedIn post (long-form):**
+Write a 300-word LinkedIn post in a founder voice. Cover: the problem (food waste + hunger paradox in Egypt), the solution (Et3am platform), the open-source launch, a call for developers to contribute, and a call for donors/investors to reach out.
+
+**Dev.to / Hashnode article intro (first 3 paragraphs):**
+Write the opening of a technical blog post titled "Why I built Et3am: an open-source food donation platform for the Arab world" — founder story angle, technical choices explained briefly, call to contribute.
+
+Commit message: "docs: add launch post drafts for social media"
+
+---
+
+After completing all tasks:
+- Run a final check that no file contains hardcoded secrets, API keys, or database passwords
+- Ensure all new files are properly UTF-8 encoded (important for Arabic text)
+- Report a summary of all files changed/created/deleted
