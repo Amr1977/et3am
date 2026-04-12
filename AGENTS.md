@@ -57,8 +57,8 @@ A task is ONLY complete when ALL steps are done:
    - New cards in TODO: create in Trello
 5. **Update TASKLIST.md** with completed tasks
 6. **Create task docs** for any new in-progress tasks
-7. **MANDATORY: Update KB** - Document learnings, pitfalls, and patterns
-8. **Push KB updates** to remote submodule
+7. (Optional) Update KB - Document learnings, pitfalls, and patterns
+8. (Optional) Push KB updates to remote submodule
 
 ---
 
@@ -73,25 +73,23 @@ cd frontend && npm run build
 ```
 No exceptions - tests must pass before any commit.
 
-## CRITICAL - Session Start: Read KB First
-**At the START of every session, ALWAYS:**
+## Session Start: Read KB First (Optional)
+**At the START of a session, you MAY:**
 1. Read `docs/kb/README.md` to understand available patterns
 2. Read any recent additions in `docs/kb/deployment/`, `docs/kb/features/`, `docs/kb/bugs/`
 3. Check `docs/kb/deployment/workflow-guide.md` for current workflow
 4. Restore context from previous work - check `docs/tasks/` for any in-progress task docs
 
-This ensures continuity and avoids repeating work already documented in KB.
+This is optional but helps avoid repeating work already documented.
 
 ---
 
-## CRITICAL - KB Update After Every Task
-**MANDATORY - After completing ANY task, you MUST:**
+## KB Update After Tasks (Optional)
+**After completing NON-TRIVIAL tasks, you MAY:**
 1. Document the technique/pattern used in appropriate KB folder
 2. Document pitfalls encountered and how they were resolved
-3. If reusable, add to KB immediately (docs/kb/deployment/, docs/kb/features/, or docs/kb/bugs/)
+3. If reusable, add to KB (docs/kb/deployment/, docs/kb/features/, or docs/kb/bugs/)
 4. Update KB submodule and push to remote
-
-**If you skip KB update, the task is NOT complete.**
 
 ## Project Structure
 ```
@@ -99,8 +97,7 @@ et3am/
 ├── frontend/          # React + Vite + TypeScript
 ├── backend/           # Express + TypeScript + PostgreSQL
 ├── docs/              # Documentation
-│   ├── kb/           # Knowledge Base (git submodule)
-│   └── servers.md    # Server access info
+│   │   └── servers.md    # Server access info
 ├── TODO.md           # Tasks to process
 ├── TASKLIST.md       # Completed tasks
 ├── VERSION           # Version file
@@ -184,13 +181,13 @@ npm run trello sync --apply            # Sync with actual moves
 3. For each task in progress, create `docs/tasks/{task_id}.md`
 4. Track all actions in task doc
 5. On completion: mark `[x]` in TODO.md + DONE in Trello + update TASKLIST.md
-6. **CRITICAL: Ask - Can this be generalized? If yes → Update KB**
+6. (Optional) Ask - Can this be generalized? If yes → Update KB
 
 ---
 
-## Knowledge Base
-- **Location:** `docs/kb/` (git submodule)
-- **Update after any non-trivial task**
+## Knowledge Base (Optional)
+- **Location:** `docs/kb/` (git submodule - optional for open source)
+- **Optional:** Document learnings after non-trivial tasks
 
 ---
 
@@ -239,7 +236,7 @@ cd backend && npm run build
 4. **Run tests** → Fix any failures
 5. **Commit** → Update VERSION file
 6. **Deploy** → Both FE and BE
-7. **MANDATORY: Update KB** → Document learnings in docs/kb/, push to remote
+7. (Optional) Update KB → Document learnings in docs/kb/, push to remote
 8. **Update TASKLIST.md** → Mark complete
 9. **Move Trello** → To DONE
 
@@ -292,8 +289,7 @@ For each task, create a documentation file containing:
 | `TASKLIST.md` | Completed tasks history |
 | `docs/tasks/{task_id}.md` | Per-task documentation |
 | `VERSION` | Current version (MAJOR.MINOR.PATCH) |
-| `docs/servers.md` | Server SSH credentials |
-| `docs/kb/` | Knowledge Base submodule |
+| `docs/servers.md` | Server SSH credentials (remove before open source) |
 | `frontend/tests/e2e/` | E2E tests |
 
 ---
