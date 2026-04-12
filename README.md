@@ -120,8 +120,8 @@ If you believe in our mission, please consider supporting Et3am:
 - **GitHub Sponsors:** https://github.com/sponsors/Amr1977
 - **Open Collective:** https://opencollective.com/et3am
 - **PayPal:** amr.lotfy.othman@gmail.com
-- **Crypto:** [CRYPTO_WALLET_ADDRESS]
-- **InstaPay:** [INSTAPAY_ID]
+- **Crypto (TRON TRC20):** TACcgwLC4GeKzKGLWz14tiVahnpftHre1H
+- **InstaPay:** 01094450141
 
 ---
 
