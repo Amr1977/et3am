@@ -290,6 +290,11 @@ export default function Home() {
                     key={d.id}
                     position={[d.latitude!, d.longitude!]}
                     icon={createMarkerIcon(statusColors[d.status] || '#6b7280', d.food_type)}
+                    eventHandlers={{
+                      click: () => {
+                        console.log('Marker clicked:', d.id);
+                      },
+                    }}
                   >
                     <Popup>
                       <strong>{d.title}</strong>
