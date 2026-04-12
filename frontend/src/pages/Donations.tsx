@@ -685,7 +685,8 @@ export default function Donations() {
                   target.closest('.leaflet-popup') || 
                   target.closest('.leaflet-popup-close-button') || 
                   target.closest('.leaflet-popup-content a') ||
-                  target.closest('.leaflet-control-zoom')) {
+                  target.closest('.leaflet-control-zoom') ||
+                  target.closest('.custom-marker-container')) {
                 return;
               }
               if (!mapFullscreen) {

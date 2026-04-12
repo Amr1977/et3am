@@ -126,6 +126,30 @@ test.describe('Home Page Hero Map', () => {
     }
   });
 
+  test('should NOT trigger fullscreen when clicking marker on home page', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/');
+    await page.waitForTimeout(3000);
+    
+    const markers = page.locator('.hero-map .leaflet-marker-icon');
+    const markersCount = await markers.count();
+    
+    if (markersCount > 0) {
+      const heroMap = page.locator('.hero-map');
+      const isFullscreenBefore = await heroMap.evaluate(el => el.classList.contains('fullscreen'));
+      expect(isFullscreenBefore).toBe(false);
+      
+      await markers.first().click({ force: true });
+      await page.waitForTimeout(500);
+      
+      const isFullscreenAfter = await heroMap.evaluate(el => el.classList.contains('fullscreen'));
+      expect(isFullscreenAfter).toBe(false);
+      
+      const popup = page.locator('.hero-map .leaflet-popup');
+      await expect(popup).toBeVisible();
+    }
+  });
+
   test('should not have mouse flickering on marker hover', async ({ page }) => {
     await page.waitForTimeout(2000);
     

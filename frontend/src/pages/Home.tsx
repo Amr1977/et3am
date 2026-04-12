@@ -249,7 +249,20 @@ export default function Home() {
         <div className="hero-visual">
           <div 
             className={`hero-map ${mapFullscreen ? 'fullscreen' : ''}`}
-            onClick={() => !mapFullscreen && setMapFullscreen(true)}
+            onClick={(e) => {
+              const target = e.target as HTMLElement;
+              // Don't fullscreen when clicking on markers, popups, or popup controls
+              if (target.closest('.leaflet-marker-icon') || 
+                  target.closest('.leaflet-popup') || 
+                  target.closest('.leaflet-popup-close-button') ||
+                  target.closest('.leaflet-control-zoom') ||
+                  target.closest('.custom-marker-container')) {
+                return;
+              }
+              if (!mapFullscreen) {
+                setMapFullscreen(true);
+              }
+            }}
           >
             <MapContainer 
               center={[30.0444, 31.2357]} 
