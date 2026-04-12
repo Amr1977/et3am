@@ -403,6 +403,21 @@ export default function Home() {
             </div>
           </div>
           
+          <div className="support-crypto-section">
+            <span className="support-crypto-label">{t('home.support_crypto')}</span>
+            <div className="support-crypto-display">
+              <span className="support-crypto-number">TACcgwLC4GeKzKGLWz14tiVahnpftHre1H</span>
+              <button className="copy-btn" onClick={() => navigator.clipboard.writeText('TACcgwLC4GeKzKGLWz14tiVahnpftHre1H')}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2"/>
+                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                </svg>
+                <span>{t('home.support_copy')}</span>
+              </button>
+            </div>
+            <span className="support-crypto-network">{t('home.support_crypto_network')}</span>
+          </div>
+          
           <div className="support-methods-list">
             <div className="support-method-badge">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">

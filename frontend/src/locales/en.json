@@ -48,7 +48,10 @@
     "support_dev_title": "Support Project",
     "support_dev_desc": "Your generous contributions help us continue developing features that connect more people with surplus food to those in need.",
     "support_phone": "Phone Number",
-    "support_copy": "Copy"
+    "support_copy": "Copy",
+    "support_crypto": "Crypto Wallet (TRON TRC20)",
+    "support_crypto_wallet": "TACcgwLC4GeKzKGLWz14tiVahnpftHre1H",
+    "support_crypto_network": "Network: TRON (TRC20)"
   },
   "hadith": {
     "feed_believer": "Whoever feeds a believer until they are satiated, Allah will admit them through a gate of Paradise.",

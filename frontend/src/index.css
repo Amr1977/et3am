@@ -2619,7 +2619,64 @@ html[dir="rtl"] .step-flow-number {
 }
 
 .support-phone-section {
+  margin-bottom: 1rem;
+}
+
+.support-crypto-section {
   margin-bottom: 1.5rem;
+}
+
+.support-crypto-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.support-crypto-display {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--bg-card);
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1.25rem;
+}
+
+.support-crypto-number {
+  font-size: clamp(0.75rem, 2vw, 0.95rem);
+  font-weight: 700;
+  color: var(--primary);
+  font-family: var(--font-mono, monospace);
+  word-break: break-all;
+  max-width: 300px;
+}
+
+.support-crypto-display .copy-btn {
+  position: static;
+  transform: none;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  background: var(--primary-light);
+  white-space: nowrap;
+}
+
+.support-crypto-display .copy-btn span {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.support-crypto-network {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
 }
 
 .support-phone-label {

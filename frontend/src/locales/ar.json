@@ -48,7 +48,10 @@
     "support_dev_title": "ادعم التطوير",
     "support_dev_desc": "مساهماتكم الكريمة تساعدنا على مواصلة تطوير ميزات جديدة لربط المزيد من المتبرعين بالطعام للمحتاجين.",
     "support_phone": "رقم الجوال",
-    "support_copy": "نسخ"
+    "support_copy": "نسخ",
+    "support_crypto": "المحفظة الرقمية (TRC20)",
+    "support_crypto_wallet": "TACcgwLC4GeKzKGLWz14tiVahnpftHre1H",
+    "support_crypto_network": "الشبكة: ترون (TRC20)"
   },
   "hadith": {
     "feed_believer": "من أشبع مؤمناً حتى يَشْبَعَهAllah سيُدخله من باب من أبواب الجنة",
