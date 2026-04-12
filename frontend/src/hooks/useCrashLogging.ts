@@ -38,8 +38,8 @@ async function submitCrash(crash: CrashWithContext): Promise<string | null> {
       body: JSON.stringify(crash),
     });
     if (response.ok) {
-      const data = await response.json();
-      return data.id;
+      const data = await response.json().catch(() => null);
+      return data?.id;
     }
   } catch (e) {
     console.error('Failed to submit crash report:', e);

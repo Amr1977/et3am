@@ -51,9 +51,12 @@ export function SoundProvider({ children }: SoundProviderProps) {
     fetch(`/api/users/me`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) return null;
+        return res.json().catch(() => null);
+      })
       .then(data => {
-        if (data.user?.sound_enabled !== undefined) {
+        if (data?.user?.sound_enabled !== undefined) {
           setSoundEnabled(data.user.sound_enabled);
         }
       })

@@ -15,7 +15,8 @@ async function detectLanguageByIP(): Promise<string> {
       signal: AbortSignal.timeout(5000)
     });
     if (!response.ok) throw new Error('IP lookup failed');
-    const data = await response.json();
+    const data = await response.json().catch(() => null);
+    if (!data || !data.country_code) return 'en';
     const country = data.country_code;
     
     if (country && ARABIC_COUNTRIES.includes(country)) {
