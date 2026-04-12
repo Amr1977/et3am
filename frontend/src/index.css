@@ -1983,12 +1983,21 @@ html[dir="rtl"] .version-badge {
   border-radius: var(--radius-xl);
   height: 100% !important;
   width: 100% !important;
+  z-index: 1;
 }
 
 .hero-map .leaflet-pane,
 .hero-map .leaflet-marker-pane,
 .hero-map .leaflet-popup-pane {
   z-index: auto !important;
+}
+
+.hero-map .leaflet-marker-pane {
+  z-index: 100 !important;
+}
+
+.hero-map .leaflet-popup-pane {
+  z-index: 200 !important;
 }
 
 .hero-map .leaflet-control {
