@@ -1,12 +1,29 @@
 # Et3am (إطعام) - Food Donation Platform
 
 <p align="center">
+  <img src="et3am_snapshot.png" alt="Et3am Screenshot" width="800">
+</p>
+
+**English:** Connecting surplus food to families in need — free, open, and community-powered.  
+**العربية:** نربط الطعام الفائض بالعائلات المحتاجة — مجاناً، مفتوح المصدر، ومُدار من المجتمع.
+
+<p align="center">
   <img src="https://img.shields.io/badge/version-1.9.0-blue" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen" alt="PRs Welcome">
+  <a href="https://et3am.com"><img src="https://img.shields.io/badge/Live Demo-et3am.com-blue" alt="Live Demo"></a>
+  <a href="https://opencollective.com/et3am"><img src="https://img.shields.io/badge/Open Collective-et3am-orange" alt="Open Collective"></a>
+  <a href="https://github.com/sponsors/Amr1977"><img src="https://img.shields.io/badge/GitHub Sponsors-Sponsor-red" alt="GitHub Sponsors"></a>
 </p>
 
-A charitable platform connecting surplus food to those in need. Built with love for the community.
+---
+
+## 💡 Why Et3am?
+
+- **Egypt wastes ~35%** of food produced annually
+- **1 in 3 Egyptians** faces food insecurity
+- **Et3am bridges this gap** with zero fees and no middlemen
+- Inspired by the concept of **Sadaqah Jariyah** (continuous charity)
 
 ---
 
@@ -47,7 +64,7 @@ A charitable platform connecting surplus food to those in need. Built with love 
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/et3am.git
+git clone https://github.com/Amr1977/et3am.git
 cd et3am
 
 # Install backend dependencies
@@ -93,6 +110,24 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 5. **Open** a Pull Request
 
 Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
+
+---
+
+## 💰 Support the Project
+
+If you believe in our mission, please consider supporting Et3am:
+
+- **GitHub Sponsors:** https://github.com/sponsors/Amr1977
+- **Open Collective:** https://opencollective.com/et3am
+- **PayPal:** amr.lotfy.othman@gmail.com
+- **Crypto:** [CRYPTO_WALLET_ADDRESS]
+- **InstaPay:** [INSTAPAY_ID]
+
+---
+
+## 👥 Community
+
+Join the conversation on [GitHub Discussions](https://github.com/Amr1977/et3am/discussions)!
 
 ---
 
