@@ -2734,6 +2734,132 @@ html[dir="rtl"] .step-flow-number {
   color: var(--primary);
 }
 
+/* Open Source Section */
+.opensource-section {
+  padding: clamp(3rem, 8vw, 5rem) clamp(1rem, 5vw, 1.5rem);
+  background: var(--bg-pattern);
+  border-top: 1px solid var(--border-light);
+}
+
+.opensource-container {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.opensource-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+}
+
+.opensource-badge svg {
+  width: 16px;
+  height: 16px;
+}
+
+.opensource-title {
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  font-weight: 800;
+  color: var(--text);
+  font-family: var(--font-display);
+  margin-bottom: 1rem;
+  line-height: 1.1;
+}
+
+.opensource-desc {
+  color: var(--text-secondary);
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+.opensource-collab {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: start;
+}
+
+.collab-globe {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.collab-globe svg {
+  width: 32px;
+  height: 32px;
+}
+
+.collab-content h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.collab-content h3 svg {
+  width: 20px;
+  height: 20px;
+  color: var(--primary);
+}
+
+.collab-content p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.opensource-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.opensource-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+@media (max-width: 640px) {
+  .opensource-collab {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .collab-globe {
+    margin: 0 auto;
+  }
+  
+  .collab-content h3 {
+    justify-content: center;
+  }
+}
+
 /* CTA Section */
 .cta-section {
   padding: 6rem 0;
@@ -3326,12 +3452,6 @@ html[dir="rtl"] .step-flow-number {
 .custom-marker-container > div {
   pointer-events: auto !important;
   cursor: pointer !important;
-  z-index: auto !important;
-}
-
-.custom-marker-container .marker-icon {
-  cursor: pointer !important;
-  pointer-events: auto !important;
 }
 
 .leaflet-marker-icon {
@@ -3342,30 +3462,6 @@ html[dir="rtl"] .step-flow-number {
 .leaflet-marker-icon.leaflet-interactive {
   pointer-events: auto !important;
   cursor: pointer !important;
-}
-
-.leaflet-marker-icon:hover {
-  transform: scale(1.1);
-  z-index: 1001 !important;
-}
-
-/* Fix marker cursor flickering */
-.leaflet-marker-icon > div,
-.leaflet-marker-icon > img,
-.custom-marker-container,
-.custom-marker-container > div {
-  cursor: pointer !important;
-  pointer-events: auto !important;
-  pointer-events: unset !important;
-}
-
-/* Ensure markers can receive click events */
-.leaflet-marker-icon > div {
-  pointer-events: auto !important;
-}
-
-.custom-marker-container > div {
-  pointer-events: auto !important;
 }
 
 .leaflet-popup-close-button {

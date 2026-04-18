@@ -48,6 +48,7 @@ interface ClusterMapProps {
   onBoundsChange?: (bounds: L.LatLngBounds | null) => void;
   newDonationIds?: string[];
   fullscreen?: boolean;
+  onMapClick?: () => void;
 }
 
 const statusColors: Record<string, string> = {
@@ -104,7 +105,7 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
   });
 }
 
-export default function ClusterMap({ donations, userLocation, t, onReserve, isAuthenticated, onBoundsChange, newDonationIds, fullscreen }: ClusterMapProps) {
+export default function ClusterMap({ donations, userLocation, t, onReserve, isAuthenticated, onBoundsChange, newDonationIds, fullscreen, onMapClick }: ClusterMapProps) {
   const [tileUrl, setTileUrl] = useState<string>('');
   const geoDonations = donations.filter(d => d.latitude && d.longitude);
   const newDonationIdsSet = new Set(newDonationIds || []);
@@ -174,15 +175,30 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
     return null;
   }
 
-  return (
+   function MapClickHandler() {
+     const map = useMapEvents({
+       click: (e: L.LeafletMouseEvent) => {
+         const target = e.originalEvent.target as HTMLElement | null;
+         if (onMapClick && target?.classList.contains('leaflet-tile')) {
+           onMapClick();
+         }
+       },
+     });
+     return null;
+   }
+
+   return (
     <div className="map-container">
       <MapContainer
         center={defaultCenter}
         zoom={userLocation ? 13 : 10}
         style={{ height: '100%', width: '100%' }}
+        zoomControl={false}
+        attributionControl={false}
       >
         <BoundsTracker />
         <MapController />
+        <MapClickHandler />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url={tileUrl}
@@ -215,6 +231,22 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
           maxClusterRadius={50}
           disableClusteringAtZoom={16}
           iconCreateFunction={createClusterIcon}
+          onClick={(e: any) => {
+            console.log('[ClusterMap] Cluster clicked', e);
+            if (e.layer && e.layer.getAllChildMarkers) {
+              const markers = e.layer.getAllChildMarkers();
+              if (markers && markers.length > 0) {
+                // Open popup after zoom animation completes
+                setTimeout(() => {
+                  const firstMarker = markers[0];
+                  if (firstMarker.getPopup()) {
+                    console.log('[ClusterMap] Opening popup after zoom');
+                    firstMarker.openPopup();
+                  }
+                }, 500);
+              }
+            }
+          }}
         >
           {geoDonations.map(d => {
             const color = statusColors[d.status] || '#6b7280';
@@ -226,12 +258,27 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
                 key={d.id}
                 position={[d.latitude!, d.longitude!]}
                 icon={createMarkerIcon(color, d.food_type, newDonationIdsSet.has(d.id))}
+                eventHandlers={{
+                  click: (e: L.LeafletMouseEvent) => {
+                    console.log('[ClusterMap Marker] CLICKED!', d.id, e.latlng);
+                    // Open popup
+                    (e.target as L.Marker).openPopup();
+                    // Prevent event from bubbling to map (stop Leaflet event propagation)
+                    (e as any).stopPropagation?.();
+                    // Also stop DOM event propagation
+                    L.DomEvent.stopPropagation(e.originalEvent);
+                  },
+                  dblclick: (e: L.LeafletMouseEvent) => {
+                    console.log('[ClusterMap Marker] DOUBLE CLICKED!', d.id, e.latlng);
+                  },
+                  mouseover: () => console.log('[ClusterMap Marker] mouseover', d.id),
+                }}
               >
                 <Popup>
                   <div style={{ minWidth: '180px', padding: '8px' }}>
                     <div style={{ fontSize: '24px', marginBottom: '8px' }}>{foodIcon}</div>
                     <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '4px' }}>{d.title}</div>
-                    <div style={{ color: '#666', marginBottom: '8px' }}>{d.food_type} - {d.quantity} {d.unit}</div>
+                    <div style={{ color: '#666', marginBottom: '8px' }}>{d.food_type} - {d.quantity}</div>
                     <div style={{ color, fontWeight: 600, marginBottom: '8px' }}>{t(`donations.${d.status}`)}</div>
                     <div style={{ fontSize: '12px', color: '#888', marginBottom: '8px' }}>📍 {d.pickup_address || 'No address'}</div>
                     {canReserve && (
