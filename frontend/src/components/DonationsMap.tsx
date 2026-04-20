@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
@@ -7,6 +7,7 @@ import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import { getServerUrl } from '../services/api';
+import DebugLog from './DebugLog';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -47,6 +48,7 @@ interface DonationsMapProps {
   isAuthenticated?: boolean;
   newDonationIds?: string[];
   onBoundsChange?: (bounds: L.LatLngBounds | null) => void;
+  isFullscreen?: boolean;
 }
 
 const statusColors: Record<string, string> = {
@@ -82,8 +84,7 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
   const animationClass = isNew ? ' marker-bounce' : '';
   return L.divIcon({
     className: 'custom-marker-container' + animationClass,
-    html: `
-      <div style="
+    html: `<div style="
         background: ${color};
         width: 36px;
         height: 36px;
@@ -94,24 +95,44 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
         align-items: center;
         justify-content: center;
         font-size: 18px;
-        cursor: pointer;
-      ">${icon}</div>
-    `,
+      ">${icon}</div>`,
     iconSize: [36, 36],
     iconAnchor: [18, 18],
     popupAnchor: [0, -18],
   });
 }
 
-export default function DonationsMap({ donations, userLocation, t, onReserve, isAuthenticated, newDonationIds, onBoundsChange }: DonationsMapProps) {
+export default function DonationsMap({ donations, userLocation, t, onReserve, isAuthenticated, newDonationIds, onBoundsChange, isFullscreen }: DonationsMapProps) {
   const [tileUrl, setTileUrl] = useState<string>('');
-  const [mapFullscreen, setMapFullscreen] = useState(false);
+  const [internalFullscreen, setInternalFullscreen] = useState(false);
+  const mapFullscreen = isFullscreen !== undefined ? isFullscreen : internalFullscreen;
+  const debugLogsRef = useRef<string[]>([]);
+  const [, forceUpdate] = useState(0);
   const geoDonations = donations.filter(d => d.latitude && d.longitude);
   const newDonationIdsSet = new Set(newDonationIds || []);
 
+  const addLog = (msg: string) => {
+    const time = new Date().toLocaleTimeString();
+    const log = `[${time}] ${msg}`;
+    console.log(log);
+    debugLogsRef.current = [...debugLogsRef.current.slice(-20), log];
+    forceUpdate(n => n + 1);
+  };
+
+  const clearLogs = () => {
+    debugLogsRef.current = [];
+    forceUpdate(n => n + 1);
+  };
+
+  const logs = debugLogsRef.current;
+
   useEffect(() => {
+    addLog('DonationsMap component mounted');
     getServerUrl().then(url => {
+      addLog(`Server URL fetched, setting tile URL`);
       setTileUrl(`${url}/api/maps/tiles/{z}/{x}/{y}.png`);
+    }).catch(err => {
+      addLog(`Error fetching server URL: ${err.message}`);
     });
   }, []);
 
@@ -165,22 +186,6 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
   return (
     <div 
       className={`donations-map ${mapFullscreen ? 'fullscreen' : ''}`}
-      onClick={(e) => {
-        const target = e.target as HTMLElement;
-        if (target.closest('.leaflet-marker-icon') || 
-            target.closest('.leaflet-popup') || 
-            target.closest('.leaflet-popup-close-button') ||
-            target.closest('.leaflet-control-zoom') ||
-            target.closest('.custom-marker-container') ||
-            target.closest('.marker-cluster-custom') ||
-            target.closest('.cluster-marker')) {
-          e.stopPropagation();
-          return;
-        }
-        if (!mapFullscreen) {
-          setMapFullscreen(true);
-        }
-      }}
     >
       <MapContainer 
         center={defaultCenter}
@@ -188,7 +193,7 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
         style={{ height: '100%', width: '100%', minHeight: '300px' }}
         zoomControl={false}
         attributionControl={false}
-        closePopupOnClick={true}
+        closePopupOnClick={false}
       >
         <BoundsTracker />
         <TileLayer
@@ -222,16 +227,13 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
           disableClusteringAtZoom={15}
           iconCreateFunction={createClusterIcon}
           onClick={(e: any) => {
-            if (e.layer && e.layer.getAllChildMarkers) {
+            const isCluster = e.layer && typeof e.layer.getAllChildMarkers === 'function';
+            addLog(`ClusterGroup CLICK: ${isCluster ? 'CLUSTER' : 'MARKER'}, layer: ${e.layer?.constructor?.name}`);
+            
+            if (isCluster) {
               const markers = e.layer.getAllChildMarkers();
-              if (markers && markers.length > 0) {
-                setTimeout(() => {
-                  const firstMarker = markers[0];
-                  if (firstMarker.getPopup()) {
-                    firstMarker.openPopup();
-                  }
-                }, 500);
-              }
+              addLog(`Cluster has ${markers?.length} markers`);
+              // Let zoomToBoundsOnClick do its thing naturally
             }
           }}
         >
@@ -240,19 +242,34 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
             const canReserve = d.status === 'available' && isAuthenticated;
             
             return (
-               <Marker
-                 key={d.id}
-                 position={[d.latitude!, d.longitude!]}
-                 icon={createMarkerIcon(color, d.food_type, newDonationIdsSet.has(d.id))}
-                 eventHandlers={{
-                   click: (e: L.LeafletMouseEvent) => {
-                     (e.target as L.Marker).openPopup();
-                     (e as any).stopPropagation?.();
-                     L.DomEvent.stopPropagation(e.originalEvent);
-                   },
-                 }}
-               >
-               <Popup closeButton={true}>
+              <Marker
+                key={d.id}
+                position={[d.latitude!, d.longitude!]}
+                icon={createMarkerIcon(color, d.food_type, newDonationIdsSet.has(d.id))}
+                eventHandlers={{
+                  click: (e: L.LeafletMouseEvent) => {
+                    addLog(`Marker CLICK: ${d.id} (${d.title})`);
+                    const marker = e.target as L.Marker;
+                    
+                    // Manually open popup to be sure
+                    setTimeout(() => {
+                      marker.openPopup();
+                      addLog(`Manual popup open attempt for ${d.id}`);
+                    }, 50);
+
+                    if (e.originalEvent) {
+                      L.DomEvent.stopPropagation(e.originalEvent);
+                    }
+                  },
+                  popupopen: () => {
+                    addLog(`Popup opened: ${d.id}`);
+                  },
+                  popupclose: () => {
+                    addLog(`Popup closed: ${d.id}`);
+                  },
+                }}
+              >
+                <Popup closeButton={true}>
                   <div style={{ minWidth: '180px', padding: '8px' }}>
                     <div style={{ fontSize: '24px', marginBottom: '8px' }}>{getFoodIcon(d.food_type)}</div>
                     <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '4px' }}>{d.title}</div>
@@ -299,7 +316,7 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
       {mapFullscreen && (
         <button 
           className="map-fullscreen-close"
-          onClick={(e) => { e.stopPropagation(); setMapFullscreen(false); }}
+          onClick={(e) => { e.stopPropagation(); setInternalFullscreen(false); }}
           style={{
             position: 'absolute',
             top: '20px',
@@ -321,6 +338,23 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
           ✕
         </button>
       )}
+      <button 
+        onClick={() => { setInternalFullscreen(!internalFullscreen); }}
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          zIndex: 1000,
+          background: 'white',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+          padding: '4px 8px',
+          cursor: 'pointer',
+        }}
+      >
+        {mapFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+      </button>
+      <DebugLog logs={logs} onClear={clearLogs} />
     </div>
   );
 }

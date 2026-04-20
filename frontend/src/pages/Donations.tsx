@@ -701,7 +701,11 @@ export default function Donations() {
                 target.closest('.leaflet-popup-close-button') ||
                 target.closest('.leaflet-control-zoom') ||
                 target.closest('.custom-marker-container') ||
-                target.closest('.marker-cluster-custom')
+                target.closest('.marker-cluster-custom') ||
+                target.closest('.debug-log-container') ||
+                target.closest('.leaflet-interactive') ||
+                target.closest('.leaflet-bar') ||
+                target.closest('.leaflet-control')
               ) {
                 return;
               }
@@ -723,6 +727,7 @@ export default function Donations() {
               isAuthenticated={isAuthenticated}
               newDonationIds={newDonationIds}
               onBoundsChange={handleBoundsChange}
+              isFullscreen={mapFullscreen}
             />
           </div>
         ) : (
