@@ -171,7 +171,10 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
             target.closest('.leaflet-popup') || 
             target.closest('.leaflet-popup-close-button') ||
             target.closest('.leaflet-control-zoom') ||
-            target.closest('.custom-marker-container')) {
+            target.closest('.custom-marker-container') ||
+            target.closest('.marker-cluster-custom') ||
+            target.closest('.cluster-marker')) {
+          e.stopPropagation();
           return;
         }
         if (!mapFullscreen) {
@@ -218,6 +221,19 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
           maxClusterRadius={40}
           disableClusteringAtZoom={15}
           iconCreateFunction={createClusterIcon}
+          onClick={(e: any) => {
+            if (e.layer && e.layer.getAllChildMarkers) {
+              const markers = e.layer.getAllChildMarkers();
+              if (markers && markers.length > 0) {
+                setTimeout(() => {
+                  const firstMarker = markers[0];
+                  if (firstMarker.getPopup()) {
+                    firstMarker.openPopup();
+                  }
+                }, 500);
+              }
+            }
+          }}
         >
           {geoDonations.slice(0, 50).map(d => {
             const color = statusColors[d.status] || '#6b7280';
@@ -228,8 +244,15 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
                  key={d.id}
                  position={[d.latitude!, d.longitude!]}
                  icon={createMarkerIcon(color, d.food_type, newDonationIdsSet.has(d.id))}
+                 eventHandlers={{
+                   click: (e: L.LeafletMouseEvent) => {
+                     (e.target as L.Marker).openPopup();
+                     (e as any).stopPropagation?.();
+                     L.DomEvent.stopPropagation(e.originalEvent);
+                   },
+                 }}
                >
-                <Popup closeButton={true}>
+               <Popup closeButton={true}>
                   <div style={{ minWidth: '180px', padding: '8px' }}>
                     <div style={{ fontSize: '24px', marginBottom: '8px' }}>{getFoodIcon(d.food_type)}</div>
                     <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '4px' }}>{d.title}</div>
