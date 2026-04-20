@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
-import { getServerUrl } from '../services/api';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import { getServerUrl } from '../services/api';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -39,15 +39,14 @@ interface Donation {
   unit: string;
 }
 
-interface ClusterMapProps {
+interface DonationsMapProps {
   donations: Donation[];
   userLocation?: { lat: number; lng: number } | null;
   t: (key: string) => string;
   onReserve?: (id: string) => void;
   isAuthenticated?: boolean;
-  onBoundsChange?: (bounds: L.LatLngBounds | null) => void;
   newDonationIds?: string[];
-  fullscreen?: boolean;
+  onBoundsChange?: (bounds: L.LatLngBounds | null) => void;
 }
 
 const statusColors: Record<string, string> = {
@@ -104,8 +103,9 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
   });
 }
 
-export default function ClusterMap({ donations, userLocation, t, onReserve, isAuthenticated, onBoundsChange, newDonationIds, fullscreen }: ClusterMapProps) {
+export default function DonationsMap({ donations, userLocation, t, onReserve, isAuthenticated, newDonationIds, onBoundsChange }: DonationsMapProps) {
   const [tileUrl, setTileUrl] = useState<string>('');
+  const [mapFullscreen, setMapFullscreen] = useState(false);
   const geoDonations = donations.filter(d => d.latitude && d.longitude);
   const newDonationIdsSet = new Set(newDonationIds || []);
 
@@ -137,12 +137,6 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
     return null;
   }
 
-  const defaultCenter: [number, number] = userLocation 
-    ? [userLocation.lat, userLocation.lng]
-    : geoDonations.length > 0 
-      ? [geoDonations[0].latitude!, geoDonations[0].longitude!]
-      : [30.0444, 31.2357];
-
   const createClusterIcon = (cluster: any) => {
     const count = cluster.getChildCount();
     let size = 'small';
@@ -156,38 +150,46 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
     });
   };
 
-  const handlePopup = (id: string) => {
+  const handleReserveClick = (id: string) => {
     if (onReserve) {
       onReserve(id);
     }
   };
 
-  function MapController() {
-    const map = useMap();
-    
-    useEffect(() => {
-      if (userLocation) {
-        map.setView([userLocation.lat, userLocation.lng], 13);
-      }
-    }, [userLocation, map]);
-    
-    return null;
-  }
+  const defaultCenter: [number, number] = userLocation 
+    ? [userLocation.lat, userLocation.lng]
+    : geoDonations.length > 0 
+      ? [geoDonations[0].latitude!, geoDonations[0].longitude!]
+      : [30.0444, 31.2357];
 
   return (
-    <div className="map-container">
-      <MapContainer
+    <div 
+      className={`donations-map ${mapFullscreen ? 'fullscreen' : ''}`}
+      onClick={(e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest('.leaflet-marker-icon') || 
+            target.closest('.leaflet-popup') || 
+            target.closest('.leaflet-popup-close-button') ||
+            target.closest('.leaflet-control-zoom') ||
+            target.closest('.custom-marker-container')) {
+          return;
+        }
+        if (!mapFullscreen) {
+          setMapFullscreen(true);
+        }
+      }}
+    >
+      <MapContainer 
         center={defaultCenter}
-        zoom={userLocation ? 13 : 10}
-        style={{ height: '100%', width: '100%' }}
+        zoom={userLocation ? 13 : 11}
+        style={{ height: '100%', width: '100%', minHeight: '300px' }}
         zoomControl={false}
         attributionControl={false}
+        closePopupOnClick={true}
       >
         <BoundsTracker />
-        <MapController />
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url={tileUrl}
+          url={tileUrl || "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
         />
         {userLocation && (
           <>
@@ -213,31 +215,30 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
           spiderfyOnMaxZoom
           showCoverageOnHover={false}
           zoomToBoundsOnClick
-          maxClusterRadius={50}
-          disableClusteringAtZoom={16}
+          maxClusterRadius={40}
+          disableClusteringAtZoom={15}
           iconCreateFunction={createClusterIcon}
         >
-          {geoDonations.map(d => {
+          {geoDonations.slice(0, 50).map(d => {
             const color = statusColors[d.status] || '#6b7280';
-            const foodIcon = getFoodIcon(d.food_type);
             const canReserve = d.status === 'available' && isAuthenticated;
-
+            
             return (
-              <Marker
-                key={d.id}
-                position={[d.latitude!, d.longitude!]}
-                icon={createMarkerIcon(color, d.food_type, newDonationIdsSet.has(d.id))}
-              >
-                <Popup>
+               <Marker
+                 key={d.id}
+                 position={[d.latitude!, d.longitude!]}
+                 icon={createMarkerIcon(color, d.food_type, newDonationIdsSet.has(d.id))}
+               >
+                <Popup closeButton={true}>
                   <div style={{ minWidth: '180px', padding: '8px' }}>
-                    <div style={{ fontSize: '24px', marginBottom: '8px' }}>{foodIcon}</div>
+                    <div style={{ fontSize: '24px', marginBottom: '8px' }}>{getFoodIcon(d.food_type)}</div>
                     <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '4px' }}>{d.title}</div>
-                    <div style={{ color: '#666', marginBottom: '8px' }}>{d.food_type} - {d.quantity}</div>
+                    <div style={{ color: '#666', marginBottom: '8px' }}>{d.food_type} - {d.quantity} {d.unit}</div>
                     <div style={{ color, fontWeight: 600, marginBottom: '8px' }}>{t(`donations.${d.status}`)}</div>
                     <div style={{ fontSize: '12px', color: '#888', marginBottom: '8px' }}>📍 {d.pickup_address || 'No address'}</div>
                     {canReserve && (
                       <button
-                        onClick={() => handlePopup(d.id)}
+                        onClick={() => handleReserveClick(d.id)}
                         style={{
                           background: '#22c55e',
                           color: 'white',
@@ -272,6 +273,31 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
           })}
         </MarkerClusterGroup>
       </MapContainer>
+      {mapFullscreen && (
+        <button 
+          className="map-fullscreen-close"
+          onClick={(e) => { e.stopPropagation(); setMapFullscreen(false); }}
+          style={{
+            position: 'absolute',
+            top: '20px',
+            right: '20px',
+            zIndex: 1000,
+            background: 'white',
+            border: 'none',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            cursor: 'pointer',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '18px',
+          }}
+        >
+          ✕
+        </button>
+      )}
     </div>
   );
 }

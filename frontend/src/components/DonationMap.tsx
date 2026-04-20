@@ -65,11 +65,11 @@ export default function DonationMap({ donations, t }: DonationMapProps) {
           url={tileUrl}
         />
         {geoDonations.map(d => (
-          <Marker
-            key={d.id}
-            position={[d.latitude!, d.longitude!]}
-            icon={createColoredIcon(statusColors[d.status] || '#6b7280')}
-          >
+           <Marker
+             key={d.id}
+             position={[d.latitude!, d.longitude!]}
+             icon={createColoredIcon(statusColors[d.status] || '#6b7280')}
+           >
             <Popup>
               <strong>{d.title}</strong>
               <br />

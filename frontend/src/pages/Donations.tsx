@@ -5,7 +5,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useSocket } from '../context/SocketContext';
 import { useSound } from '../context/SoundContext';
 import LocationPicker from '../components/LocationPicker';
-import ClusterMap from '../components/ClusterMap';
+import DonationsMap from '../components/DonationsMap';
 import { fetchWithFailover } from '../services/api';
 import L from 'leaflet';
 import { formatDateTime, toISOStringWithOffset, fromUTCToLocal } from '../hooks/useTimezone';
@@ -180,7 +180,7 @@ export default function Donations() {
     });
 
     return () => unsubscribe();
-  }, [isAuthenticated, onAdminNotification, mapBounds, playSound]);
+  }, [isAuthenticated, onAdminNotification, playSound]);
 
   const handleBoundsChange = (bounds: L.LatLngBounds | null) => {
     setMapBounds(bounds);
@@ -393,12 +393,6 @@ export default function Donations() {
         </div>
         
         <div className="donations-actions">
-          <button
-            onClick={() => setViewMode(viewMode === 'grid' ? 'map' : 'grid')}
-            className="btn btn-outline btn-sm"
-          >
-            {viewMode === 'grid' ? '🗺️' : '📋'} {viewMode === 'grid' ? t('donations.view_map') : t('donations.view_grid')}
-          </button>
           {isAuthenticated && user?.can_donate && (
             <button
               onClick={() => setShowCreateForm(!showCreateForm)}
@@ -650,6 +644,7 @@ export default function Donations() {
         </div>
       )}
 
+      {/* Filter Tabs */}
       <div className="filter-tabs">
         {isAuthenticated ? (
           <>
@@ -674,19 +669,40 @@ export default function Donations() {
         )}
       </div>
 
+      {/* View Mode Toggle */}
+      <div className="view-mode-toggle" style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem' }}>
+        <button
+          onClick={() => setViewMode('grid')}
+          className={viewMode === 'grid' ? 'btn btn-primary' : 'btn btn-outline'}
+          style={{ padding: '0.5rem 1rem' }}
+        >
+          📋 Grid
+        </button>
+        <button
+          onClick={() => setViewMode('map')}
+          className={viewMode === 'map' ? 'btn btn-primary' : 'btn btn-outline'}
+          style={{ padding: '0.5rem 1rem' }}
+        >
+          🗺️ Map
+        </button>
+      </div>
+
+      {/* Main Content: Map or Grid */}
       {viewMode === 'map' ? (
         donations.some(d => d.latitude && d.longitude) || user?.latitude ? (
           <div 
-            className={`map-container-wrapper ${mapFullscreen ? 'fullscreen' : ''}`} 
+            className={`map-container-wrapper ${mapFullscreen ? 'fullscreen' : ''}`}
+            style={{ marginBottom: '1rem' }}
             onClick={(e) => {
               const target = e.target as HTMLElement;
-              // Don't fullscreen when clicking on markers, popups, or popup controls
-              if (target.closest('.leaflet-marker-icon') || 
-                  target.closest('.leaflet-popup') || 
-                  target.closest('.leaflet-popup-close-button') || 
-                  target.closest('.leaflet-popup-content a') ||
-                  target.closest('.leaflet-control-zoom') ||
-                  target.closest('.custom-marker-container')) {
+              if (
+                target.closest('.leaflet-marker-icon') ||
+                target.closest('.leaflet-popup') ||
+                target.closest('.leaflet-popup-close-button') ||
+                target.closest('.leaflet-control-zoom') ||
+                target.closest('.custom-marker-container') ||
+                target.closest('.marker-cluster-custom')
+              ) {
                 return;
               }
               if (!mapFullscreen) {
@@ -699,19 +715,18 @@ export default function Donations() {
                 ✕
               </button>
             )}
-            <ClusterMap 
+            <DonationsMap 
               donations={donations} 
               userLocation={user?.latitude && user?.longitude ? { lat: user.latitude, lng: user.longitude } : null}
               t={t}
               onReserve={handleReserve}
               isAuthenticated={isAuthenticated}
-              onBoundsChange={handleBoundsChange}
               newDonationIds={newDonationIds}
-              fullscreen={mapFullscreen}
+              onBoundsChange={handleBoundsChange}
             />
           </div>
         ) : (
-          <div className="donations-map-placeholder">
+          <div className="donations-map-placeholder" style={{ height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f5f5', borderRadius: 'var(--radius)' }}>
             <div className="map-placeholder-content">
               <span>🗺️</span>
               <p>No donations with location data yet</p>
@@ -719,7 +734,7 @@ export default function Donations() {
           </div>
         )
       ) : (
-        <>
+        <div className="donations-grid-view">
           {paginatedDonations.length === 0 ? (
             <div className="empty-state-container">
               <div className="empty-state-icon">🍽️</div>
@@ -827,7 +842,6 @@ export default function Donations() {
               ))}
             </div>
           )}
-
           {totalPages > 1 && (
             <div className="pagination">
               <button 
@@ -849,7 +863,106 @@ export default function Donations() {
               </button>
             </div>
           )}
-        </>
+        </div>
+      )}
+
+      {/* Edit Donation Modal */}
+      {editingDonation && (
+        <div className="modal-overlay" onClick={() => setEditingDonation(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h3>{t('donations.edit_title')}</h3>
+            <form onSubmit={(e) => { e.preventDefault(); handleEditSave(); }}>
+              <div className="form-group">
+                <label>{t('donations.title')}</label>
+                <input 
+                  name="title" 
+                  type="text" 
+                  value={editFormData.title} 
+                  onChange={(e) => setEditFormData({...editFormData, title: e.target.value})}
+                  className="form-input"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>{t('donations.description')}</label>
+                <textarea 
+                  name="description" 
+                  value={editFormData.description} 
+                  onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
+                  className="form-input"
+                  rows={3}
+                />
+              </div>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>{t('donations.food_type')}</label>
+                  <select 
+                    name="food_type" 
+                    value={editFormData.food_type} 
+                    onChange={(e) => setEditFormData({...editFormData, food_type: e.target.value})}
+                    className="form-input"
+                  >
+                    <option value="">Select type</option>
+                    {['meat', 'chicken', 'fish', 'vegetables', 'fruits', 'bread', 'rice', 'pasta', 'soup', 'dessert', 'other'].map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>{t('donations.quantity')}</label>
+                  <input 
+                    name="quantity" 
+                    type="number" 
+                    min="1"
+                    value={editFormData.quantity} 
+                    onChange={(e) => setEditFormData({...editFormData, quantity: e.target.value})}
+                    className="form-input"
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>{t('donations.pickup_address')}</label>
+                <input 
+                  name="pickup_address" 
+                  type="text" 
+                  value={editFormData.pickup_address} 
+                  onChange={(e) => setEditFormData({...editFormData, pickup_address: e.target.value})}
+                  className="form-input"
+                />
+              </div>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>{t('donations.pickup_date')}</label>
+                  <input 
+                    name="pickup_date" 
+                    type="datetime-local" 
+                    value={editFormData.pickup_date} 
+                    onChange={(e) => setEditFormData({...editFormData, pickup_date: e.target.value})}
+                    className="form-input" 
+                  />
+                </div>
+                <div className="form-group">
+                  <label>{t('donations.expiry_date')}</label>
+                  <input 
+                    name="expiry_date" 
+                    type="datetime-local" 
+                    value={editFormData.expiry_date} 
+                    onChange={(e) => setEditFormData({...editFormData, expiry_date: e.target.value})}
+                    className="form-input" 
+                  />
+                </div>
+              </div>
+              <div className="form-actions">
+                <button type="button" onClick={() => setEditingDonation(null)} className="btn btn-outline">
+                  {t('donations.cancel')}
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  {t('donations.save')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {selectedDonation && (

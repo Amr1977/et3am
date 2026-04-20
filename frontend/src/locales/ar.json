@@ -51,7 +51,19 @@
     "support_copy": "نسخ",
     "support_crypto": "المحفظة الرقمية (TRC20)",
     "support_crypto_wallet": "TACcgwLC4GeKzKGLWz14tiVahnpftHre1H",
-    "support_crypto_network": "الشبكة: ترون (TRC20)"
+    "support_crypto_network": "الشبكة: ترون (TRC20)",
+    "opensource_badge": "مشروع مفتوح المصدر",
+    "opensource_title": "انضم إلى رحلتنا مفتوحة المصدر",
+    "opensource_desc": "هذا المشروع مفتوح المصدر ونرحب بالمساهمات من المطورين حول العالم. ساعدنا في مكافحة هدر الطعام وإطعام المحتاجين.",
+    "opensource_bug_title": "الإبلاغ عن الأخطاء",
+    "opensource_bug_desc": "اعثر على المشكلات وأبلغ عنها لتحسين استقرار المشروع",
+    "opensource_feature_title": "ميزات جديدة",
+    "opensource_feature_desc": "اقترح وطور ميزات تحدث فرقاً حقيقياً",
+    "opensource_collab_title": "تعاون معنا",
+    "opensource_collab_desc": "انضم إلى مجتمع المطورين ونمُ معاً",
+    "opensource_view_repo": "عرض المستودع",
+    "opensource_star": "قيّم على GitHub",
+    "opensource_license": "مرخص بموجب MIT - مجاني للجميع للمساهمة والاستخدام"
   },
   "hadith": {
     "feed_believer": "من أشبع مؤمناً حتى يَشْبَعَهAllah سيُدخله من باب من أبواب الجنة",

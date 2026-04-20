@@ -51,7 +51,19 @@
     "support_copy": "Copy",
     "support_crypto": "Crypto Wallet (TRON TRC20)",
     "support_crypto_wallet": "TACcgwLC4GeKzKGLWz14tiVahnpftHre1H",
-    "support_crypto_network": "Network: TRON (TRC20)"
+    "support_crypto_network": "Network: TRON (TRC20)",
+    "opensource_badge": "Open Source",
+    "opensource_title": "Join Our Open Source Journey",
+    "opensource_desc": "This project is open source and we welcome contributions from developers worldwide. Help us fight food waste and feed those in need.",
+    "opensource_bug_title": "Report Bugs",
+    "opensource_bug_desc": "Find and report issues to help us improve stability",
+    "opensource_feature_title": "New Features",
+    "opensource_feature_desc": "Suggest and implement features that make a difference",
+    "opensource_collab_title": "Collaborate",
+    "opensource_collab_desc": "Join our developer community and grow together",
+    "opensource_view_repo": "View Repository",
+    "opensource_star": "Star on GitHub",
+    "opensource_license": "Licensed under MIT - Free for everyone to use and contribute"
   },
   "hadith": {
     "feed_believer": "Whoever feeds a believer until they are satiated, Allah will admit them through a gate of Paradise.",

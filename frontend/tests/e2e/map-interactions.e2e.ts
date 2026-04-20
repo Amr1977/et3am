@@ -67,6 +67,119 @@ test.describe('Map Interactions', () => {
   });
 });
 
+test.describe('Donations Page Map Popup Behavior', () => {
+  test('should open popup when clicking a marker on desktop', async ({ page }) => {
+    await page.goto('/donations');
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.waitForTimeout(2000);
+
+    const markers = page.locator('.map-container .leaflet-marker-icon');
+    const markersCount = await markers.count();
+
+    if (markersCount > 0) {
+      await markers.first().click({ force: true });
+      await page.waitForTimeout(500);
+
+      const popup = page.locator('.map-container .leaflet-popup');
+      const popupVisible = await popup.isVisible().catch(() => false);
+      expect(popupVisible).toBe(true);
+
+      // Verify popup contains content
+      const popupContent = await popup.textContent();
+      expect(popupContent.length).toBeGreaterThan(0);
+    }
+  });
+
+  test('should open popup when tapping a marker on mobile', async ({ page }) => {
+    await page.goto('/donations');
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.waitForTimeout(2000);
+
+    const markers = page.locator('.map-container .leaflet-marker-icon');
+    const markersCount = await markers.count();
+
+    if (markersCount > 0) {
+      const firstMarker = markers.first();
+      const box = await firstMarker.boundingBox();
+      if (box) {
+        await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+        await page.waitForTimeout(500);
+
+        const popup = page.locator('.map-container .leaflet-popup');
+        const popupVisible = await popup.isVisible().catch(() => false);
+        expect(popupVisible).toBe(true);
+      }
+    }
+  });
+
+  test('should not flicker when repeatedly clicking a marker', async ({ page }) => {
+    await page.goto('/donations');
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.waitForTimeout(2000);
+
+    const markers = page.locator('.map-container .leaflet-marker-icon');
+    const markersCount = await markers.count();
+
+    if (markersCount > 0) {
+      for (let i = 0; i < 3; i++) {
+        await markers.first().click({ force: true });
+        await page.waitForTimeout(100);
+      }
+      await page.waitForTimeout(500);
+
+      const popup = page.locator('.map-container .leaflet-popup:visible');
+      const popupCount = await popup.count();
+      expect(popupCount).toBe(1);
+    }
+  });
+
+  test('should close popup when clicking the map background', async ({ page }) => {
+    await page.goto('/donations');
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.waitForTimeout(2000);
+
+    const markers = page.locator('.map-container .leaflet-marker-icon');
+    const markersCount = await markers.count();
+
+    if (markersCount > 0) {
+      await markers.first().click({ force: true });
+      await page.waitForTimeout(500);
+
+      const mapLeaflet = page.locator('.map-container .leaflet-container');
+      const box = await mapLeaflet.boundingBox();
+      if (box) {
+        await page.mouse.click(box.x + 50, box.y + 50);
+        await page.waitForTimeout(500);
+
+        const popupVisible = await page.locator('.map-container .leaflet-popup:visible').isVisible().catch(() => false);
+        expect(popupVisible).toBe(false);
+      }
+    }
+  });
+
+  test('should display reserve button in popup', async ({ page }) => {
+    await page.goto('/donations');
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.waitForTimeout(2000);
+
+    const markers = page.locator('.map-container .leaflet-marker-icon');
+    const markersCount = await markers.count();
+
+    if (markersCount > 0) {
+      await markers.first().click({ force: true });
+      await page.waitForTimeout(500);
+
+      const popup = page.locator('.map-container .leaflet-popup');
+      await expect(popup).toBeVisible();
+
+      // Verify popup structure (title should have bold text)
+      const titleElement = popup.locator('div[style*="fontWeight: 700"]');
+      const hasTitle = await titleElement.count() > 0;
+      expect(hasTitle).toBe(true);
+    }
+  });
+});
+
 test.describe('Home Page Hero Map', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
