@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMap, useMapEvents } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -126,6 +126,15 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
 
   const logs = debugLogsRef.current;
 
+  // Prevent map clicks when interacting with the debug log
+  useEffect(() => {
+    const logContainer = document.querySelector('.debug-log-container');
+    if (logContainer) {
+      L.DomEvent.disableClickPropagation(logContainer as HTMLElement);
+      L.DomEvent.disableScrollPropagation(logContainer as HTMLElement);
+    }
+  }, [logs]);
+
   useEffect(() => {
     addLog('DonationsMap component mounted');
     getServerUrl().then(url => {
@@ -158,6 +167,23 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
     return null;
   }
 
+  function MapEventsLogger() {
+    useMapEvents({
+      click: (e) => {
+        const target = e.originalEvent.target as HTMLElement;
+        const classes = target.className || 'no-class';
+        addLog(`MAP click at [${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}], target class: ${classes}`);
+      },
+      popupopen: (e) => {
+        addLog(`MAP popupopen event`);
+      },
+      popupclose: (e) => {
+        addLog(`MAP popupclose event`);
+      }
+    });
+    return null;
+  }
+
   const createClusterIcon = (cluster: any) => {
     const count = cluster.getChildCount();
     let size = 'small';
@@ -187,7 +213,7 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
     <div 
       className={`donations-map ${mapFullscreen ? 'fullscreen' : ''}`}
     >
-      <MapContainer 
+      <MapContainer
         center={defaultCenter}
         zoom={userLocation ? 13 : 11}
         style={{ height: '100%', width: '100%', minHeight: '300px' }}
@@ -196,9 +222,11 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
         closePopupOnClick={false}
       >
         <BoundsTracker />
+        <MapEventsLogger />
         <TileLayer
           url={tileUrl || "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
         />
+
         {userLocation && (
           <>
             <Marker 
@@ -250,22 +278,23 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
                   click: (e: L.LeafletMouseEvent) => {
                     addLog(`Marker CLICK: ${d.id} (${d.title})`);
                     const marker = e.target as L.Marker;
+                    marker.openPopup();
                     
-                    // Manually open popup to be sure
-                    setTimeout(() => {
-                      marker.openPopup();
-                      addLog(`Manual popup open attempt for ${d.id}`);
-                    }, 50);
-
+                    if (e.originalEvent) {
+                      L.DomEvent.stopPropagation(e.originalEvent);
+                    }
+                  },
+                  mousedown: (e: L.LeafletMouseEvent) => {
+                    addLog(`Marker MOUSEDOWN: ${d.id}`);
                     if (e.originalEvent) {
                       L.DomEvent.stopPropagation(e.originalEvent);
                     }
                   },
                   popupopen: () => {
-                    addLog(`Popup opened: ${d.id}`);
+                    addLog(`Marker POPUPOPEN: ${d.id}`);
                   },
                   popupclose: () => {
-                    addLog(`Popup closed: ${d.id}`);
+                    addLog(`Marker POPUPCLOSE: ${d.id}`);
                   },
                 }}
               >

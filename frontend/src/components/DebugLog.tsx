@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 interface DebugLogProps {
   logs: string[];
@@ -19,7 +20,7 @@ export default function DebugLog({ logs, maxLogs = 20, onClear }: DebugLogProps)
     navigator.clipboard.writeText(logs.join('\n'));
   };
 
-  return (
+  return createPortal(
     <div
       className="debug-log-container"
       style={{
@@ -27,30 +28,32 @@ export default function DebugLog({ logs, maxLogs = 20, onClear }: DebugLogProps)
         bottom: 0,
         left: 0,
         right: 0,
-        background: 'rgba(0, 0, 0, 0.9)',
+        background: 'rgba(0, 0, 0, 0.95)',
         color: '#0f0',
         fontSize: '11px',
         fontFamily: 'monospace',
         padding: '8px',
         paddingBottom: '36px',
         maxHeight: '120px',
-        overflow: 'auto',
-        zIndex: 99999,
+        overflowY: 'auto',
+        zIndex: 2147483647, // Maximum possible z-index
         borderTop: '2px solid #333',
+        pointerEvents: 'auto',
       }}
       ref={containerRef}
     >
       <div style={{ 
-        position: 'absolute', 
-        top: '4px', 
-        right: '4px', 
+        position: 'sticky', 
+        top: 0, 
+        right: 0, 
         display: 'flex', 
+        justifyContent: 'flex-end',
         gap: '4px',
         zIndex: 100000 
       }}>
         {logs.length > 0 && (
           <button
-            onClick={handleCopy}
+            onClick={(e) => { e.stopPropagation(); handleCopy(); }}
             style={{
               background: '#0066cc',
               color: '#fff',
@@ -64,9 +67,9 @@ export default function DebugLog({ logs, maxLogs = 20, onClear }: DebugLogProps)
             COPY
           </button>
         )}
-        {logs.length > 0 && (
+        {logs.length > 0 && onClear && (
           <button
-            onClick={onClear}
+            onClick={(e) => { e.stopPropagation(); onClear(); }}
             style={{
               background: '#cc3300',
               color: '#fff',
@@ -85,11 +88,12 @@ export default function DebugLog({ logs, maxLogs = 20, onClear }: DebugLogProps)
         DEBUG LOGS: {logs.length === 0 && <span style={{ color: '#888', fontWeight: 'normal' }}>(no events detected yet - try clicking map)</span>}
       </div>
       {logs.slice(-maxLogs).map((log, i) => (
-        <div key={i} style={{ marginBottom: '2px' }}>
+        <div key={i} style={{ marginBottom: '2px', borderBottom: '1px solid #222' }}>
           {log}
         </div>
       ))}
-    </div>
+    </div>,
+    document.body
   );
 }
 
