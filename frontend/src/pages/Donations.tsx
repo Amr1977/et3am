@@ -694,21 +694,7 @@ export default function Donations() {
             className={`map-container-wrapper ${mapFullscreen ? 'fullscreen' : ''}`}
             style={{ marginBottom: '1rem' }}
             onClick={(e) => {
-              const target = e.target as HTMLElement;
-              if (
-                target.closest('.leaflet-marker-icon') ||
-                target.closest('.leaflet-popup') ||
-                target.closest('.leaflet-popup-close-button') ||
-                target.closest('.leaflet-control-zoom') ||
-                target.closest('.custom-marker-container') ||
-                target.closest('.marker-cluster-custom') ||
-                target.closest('.debug-log-container') ||
-                target.closest('.leaflet-interactive') ||
-                target.closest('.leaflet-bar') ||
-                target.closest('.leaflet-control')
-              ) {
-                return;
-              }
+              if (e.target !== e.currentTarget) return;
               if (!mapFullscreen) {
                 setMapFullscreen(true);
               }

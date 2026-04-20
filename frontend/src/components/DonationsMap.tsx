@@ -107,6 +107,7 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
   const [internalFullscreen, setInternalFullscreen] = useState(false);
   const mapFullscreen = isFullscreen !== undefined ? isFullscreen : internalFullscreen;
   const debugLogsRef = useRef<string[]>([]);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
   const [, forceUpdate] = useState(0);
   const geoDonations = donations.filter(d => d.latitude && d.longitude);
   const newDonationIdsSet = new Set(newDonationIds || []);
@@ -134,6 +135,14 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
       L.DomEvent.disableScrollPropagation(logContainer as HTMLElement);
     }
   }, [logs]);
+
+  // Prevent map clicks from bubbling to parent components
+  useEffect(() => {
+    if (mapContainerRef.current) {
+      L.DomEvent.disableClickPropagation(mapContainerRef.current);
+      L.DomEvent.disableScrollPropagation(mapContainerRef.current);
+    }
+  }, []);
 
   useEffect(() => {
     addLog('DonationsMap component mounted');
@@ -174,8 +183,13 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
         const classes = target.className || 'no-class';
         addLog(`MAP click at [${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}], target class: ${classes}`);
       },
+      mousedown: (e) => {
+        const target = e.originalEvent.target as HTMLElement;
+        const classes = target.className || 'no-class';
+        addLog(`MAP mousedown at [${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}], target class: ${classes}`);
+      },
       popupopen: (e) => {
-        addLog(`MAP popupopen event`);
+        addLog(`MAP popupopen event from ${e.popup?.getContent() ? 'content' : 'unknown'}`);
       },
       popupclose: (e) => {
         addLog(`MAP popupclose event`);
@@ -212,6 +226,7 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
   return (
     <div 
       className={`donations-map ${mapFullscreen ? 'fullscreen' : ''}`}
+      ref={mapContainerRef}
     >
       <MapContainer
         center={defaultCenter}
@@ -261,7 +276,12 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
             if (isCluster) {
               const markers = e.layer.getAllChildMarkers();
               addLog(`Cluster has ${markers?.length} markers`);
-              // Let zoomToBoundsOnClick do its thing naturally
+            } else {
+              // It's a marker click coming through the cluster group
+              if (e.originalEvent) {
+                e.originalEvent.stopPropagation();
+                L.DomEvent.stopPropagation(e.originalEvent);
+              }
             }
           }}
         >
@@ -275,25 +295,28 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
                 position={[d.latitude!, d.longitude!]}
                 icon={createMarkerIcon(color, d.food_type, newDonationIdsSet.has(d.id))}
                 eventHandlers={{
-                  click: (e: L.LeafletMouseEvent) => {
-                    addLog(`Marker CLICK: ${d.id} (${d.title})`);
+                  mousedown: (e: L.LeafletMouseEvent) => {
+                    addLog(`Marker MOUSEDOWN: ${d.id} (${d.title})`);
                     const marker = e.target as L.Marker;
                     marker.openPopup();
                     
                     if (e.originalEvent) {
+                      e.originalEvent.preventDefault();
+                      e.originalEvent.stopPropagation();
                       L.DomEvent.stopPropagation(e.originalEvent);
                     }
                   },
-                  mousedown: (e: L.LeafletMouseEvent) => {
-                    addLog(`Marker MOUSEDOWN: ${d.id}`);
+                  click: (e: L.LeafletMouseEvent) => {
+                    addLog(`Marker CLICK: ${d.id}`);
                     if (e.originalEvent) {
-                      L.DomEvent.stopPropagation(e.originalEvent);
+                      e.originalEvent.preventDefault();
+                      e.originalEvent.stopPropagation();
                     }
                   },
-                  popupopen: () => {
+                  popupopen: (e) => {
                     addLog(`Marker POPUPOPEN: ${d.id}`);
                   },
-                  popupclose: () => {
+                  popupclose: (e) => {
                     addLog(`Marker POPUPCLOSE: ${d.id}`);
                   },
                 }}

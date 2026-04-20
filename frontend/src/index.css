@@ -3534,11 +3534,7 @@ html[dir="rtl"] .step-flow-number {
 .map-container .leaflet-container {
   height: 100%;
   width: 100%;
-  cursor: pointer;
-}
-
-.map-container .leaflet-container * {
-  pointer-events: auto;
+  cursor: default;
 }
 
 /* Marker Cluster Styles */
@@ -3555,6 +3551,7 @@ html[dir="rtl"] .step-flow-number {
   color: white;
   font-weight: 700;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
 }
 
 .cluster-small {
@@ -3581,18 +3578,16 @@ html[dir="rtl"] .step-flow-number {
   border: none !important;
 }
 
-.custom-marker-container > div {
-  pointer-events: auto !important;
-  cursor: pointer !important;
+.custom-marker-container div {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.custom-marker-container:hover div {
+  transform: scale(1.1);
 }
 
 .leaflet-marker-icon {
-  cursor: pointer !important;
-  pointer-events: auto !important;
-}
-
-.leaflet-marker-icon.leaflet-interactive {
-  pointer-events: auto !important;
   cursor: pointer !important;
 }
 
@@ -3602,7 +3597,7 @@ html[dir="rtl"] .step-flow-number {
 }
 
 .leaflet-popup-content-wrapper {
-  cursor: default !important;
+  cursor: default;
 }
 
 .leaflet-popup {
