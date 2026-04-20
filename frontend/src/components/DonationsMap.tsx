@@ -269,21 +269,6 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
           maxClusterRadius={40}
           disableClusteringAtZoom={15}
           iconCreateFunction={createClusterIcon}
-          onClick={(e: any) => {
-            const isCluster = e.layer && typeof e.layer.getAllChildMarkers === 'function';
-            addLog(`ClusterGroup CLICK: ${isCluster ? 'CLUSTER' : 'MARKER'}, layer: ${e.layer?.constructor?.name}`);
-            
-            if (isCluster) {
-              const markers = e.layer.getAllChildMarkers();
-              addLog(`Cluster has ${markers?.length} markers`);
-            } else {
-              // It's a marker click coming through the cluster group
-              if (e.originalEvent) {
-                e.originalEvent.stopPropagation();
-                L.DomEvent.stopPropagation(e.originalEvent);
-              }
-            }
-          }}
         >
           {geoDonations.slice(0, 50).map(d => {
             const color = statusColors[d.status] || '#6b7280';
@@ -294,9 +279,10 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
                 key={d.id}
                 position={[d.latitude!, d.longitude!]}
                 icon={createMarkerIcon(color, d.food_type, newDonationIdsSet.has(d.id))}
+                bubblingMouseEvents={false}
                 eventHandlers={{
-                  mousedown: (e: L.LeafletMouseEvent) => {
-                    addLog(`Marker MOUSEDOWN: ${d.id} (${d.title})`);
+                  click: (e: L.LeafletMouseEvent) => {
+                    addLog(`Marker CLICK: ${d.id} (${d.title})`);
                     const marker = e.target as L.Marker;
                     marker.openPopup();
                     
@@ -306,11 +292,12 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
                       L.DomEvent.stopPropagation(e.originalEvent);
                     }
                   },
-                  click: (e: L.LeafletMouseEvent) => {
-                    addLog(`Marker CLICK: ${d.id}`);
+                  mousedown: (e: L.LeafletMouseEvent) => {
+                    addLog(`Marker MOUSEDOWN: ${d.id}`);
                     if (e.originalEvent) {
-                      e.originalEvent.preventDefault();
+                      // Don't preventDefault here as it might break Leaflet's internal click detection
                       e.originalEvent.stopPropagation();
+                      L.DomEvent.stopPropagation(e.originalEvent);
                     }
                   },
                   popupopen: (e) => {

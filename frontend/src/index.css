@@ -3580,11 +3580,6 @@ html[dir="rtl"] .step-flow-number {
 
 .custom-marker-container div {
   cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.custom-marker-container:hover div {
-  transform: scale(1.1);
 }
 
 .leaflet-marker-icon {
