@@ -22,9 +22,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const touchStartRef = useRef<number | null>(null);
-  const [touchDelta, setTouchDelta] = useState(0);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme');
@@ -34,8 +32,6 @@ export default function Navbar() {
     return 'dark';
   });
 
-  const userMenuRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     document.body.style.background = theme === 'dark' ? '#0F1419' : '#FDFCF8';
@@ -44,18 +40,7 @@ export default function Navbar() {
   }, [theme]);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
-        setUserMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  useEffect(() => {
     setMobileMenuOpen(false);
-    setUserMenuOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -90,20 +75,11 @@ export default function Navbar() {
   const handleLogout = () => {
     logout();
     navigate('/');
-    setUserMenuOpen(false);
   };
 
   const handleLanguageSwitch = () => {
     const newLang = isRTL ? 'en' : 'ar';
     updateLanguage(newLang);
-  };
-
-  const toggleSound = () => {
-    setSoundEnabled(!soundEnabled);
-  };
-
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
   };
 
   const navItems: NavItem[] = [
@@ -129,7 +105,7 @@ export default function Navbar() {
       <div className="navbar-container">
         <button 
           className={`hamburger ${mobileMenuOpen ? 'active' : ''}`} 
-          onClick={toggleMobileMenu}
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Menu"
           aria-expanded={mobileMenuOpen}
         >
@@ -145,34 +121,15 @@ export default function Navbar() {
           </div>
         </Link>
 
-        <div 
-          className={`navbar-links ${mobileMenuOpen ? 'mobile-open' : ''}`}
-          onTouchStart={(e) => {
-            touchStartRef.current = e.touches[0].clientX;
-          }}
-          onTouchMove={(e) => {
-            if (touchStartRef.current === null) return;
-            const currentX = e.touches[0].clientX;
-            const delta = isRTL ? touchStartRef.current - currentX : currentX - touchStartRef.current;
-            setTouchDelta(delta);
-          }}
-          onTouchEnd={() => {
-            if (touchStartRef.current === null) return;
-            if (isRTL ? touchDelta > 75 : touchDelta > 75) {
-              setMobileMenuOpen(false);
-            }
-            touchStartRef.current = null;
-            setTouchDelta(0);
-          }}
-        >
-          {isAuthenticated && mobileMenuOpen && (
-            <div className="mobile-user-section">
-              <div className="mobile-user-avatar">
+        <div className={`navbar-links ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+          {isAuthenticated && (
+            <div className="user-section">
+              <div className="user-avatar">
                 {user?.name?.charAt(0).toUpperCase() || '👤'}
               </div>
-              <div className="mobile-user-info">
-                <div className="mobile-user-name">{user?.name}</div>
-                <div className="mobile-user-email">{user?.email}</div>
+              <div className="user-info">
+                <div className="user-name">{user?.name}</div>
+                <div className="user-email">{user?.email}</div>
               </div>
             </div>
           )}
@@ -201,6 +158,7 @@ export default function Navbar() {
                     key={item.path} 
                     to={item.path} 
                     className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
+                    onClick={() => setMobileMenuOpen(false)}
                   >
                     <span className="nav-icon">{item.icon}</span>
                     <span className="nav-label">{item.label}</span>
@@ -211,6 +169,17 @@ export default function Navbar() {
           )}
 
           <div className="nav-footer">
+            <div className="nav-actions">
+              <button onClick={handleLanguageSwitch} className="nav-item" title={isRTL ? 'Switch to English' : 'التبديل للعربية'}>
+                <span className="nav-icon">{isRTL ? '🇪🇬' : '🇸🇦'}</span>
+                <span className="nav-label">{isRTL ? 'English' : 'العربية'}</span>
+              </button>
+              <button onClick={toggleTheme} className="nav-item" title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}>
+                <span className="nav-icon">{theme === 'dark' ? '☀️' : '🌙'}</span>
+                <span className="nav-label">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+              </button>
+            </div>
+
             {isAuthenticated ? (
               <button onClick={handleLogout} className="nav-item logout">
                 <span className="nav-icon">🚪</span>
@@ -218,97 +187,11 @@ export default function Navbar() {
               </button>
             ) : (
               <div className="nav-auth-buttons">
-                <button 
-                  onClick={() => { handleLanguageSwitch(); setMobileMenuOpen(false); }}
-                  className="lang-switch-btn"
-                  style={{ width: '100%', justifyContent: 'center' }}
-                  title={isRTL ? 'Switch to English' : 'التبديل للعربية'}
-                >
-                  <span className="lang-icon">{isRTL ? '🇪🇬' : '🇸🇦'}</span>
-                  <span>{isRTL ? 'Switch to English' : 'التبديل للعربية'}</span>
-                  <span className="lang-arrow">▼</span>
-                </button>
                 <Link to="/login" className="btn btn-ghost">{t('nav.login')}</Link>
                 <Link to="/register" className="btn btn-primary">{t('nav.register')}</Link>
               </div>
             )}
           </div>
-        </div>
-
-        <div className="navbar-actions">
-          {isAuthenticated ? (
-            <div className="user-menu-container" ref={userMenuRef}>
-              <button 
-                className="user-avatar-btn"
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
-                aria-expanded={userMenuOpen}
-              >
-                <div className="avatar">
-                  {user?.name?.charAt(0).toUpperCase() || '👤'}
-                </div>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`chevron ${userMenuOpen ? 'open' : ''}`}>
-                  <polyline points="6 9 12 15 18 9"/>
-                </svg>
-              </button>
-              
-              {userMenuOpen && (
-                <div className="user-dropdown">
-                  <div className="user-info">
-                    <div className="user-avatar-lg">
-                      {user?.name?.charAt(0).toUpperCase() || '👤'}
-                    </div>
-                    <div className="user-details">
-                      <span className="user-name">{user?.name}</span>
-                      <span className="user-email">{user?.email}</span>
-                    </div>
-                  </div>
-                  <div className="dropdown-divider"></div>
-                  <Link to="/settings" className="dropdown-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="3"/>
-                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                    </svg>
-                    <span>{t('nav.settings')}</span>
-                  </Link>
-                  {user?.role === 'admin' && (
-                    <Link to="/admin" className="dropdown-item admin">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                      </svg>
-                      <span>{t('admin.tabs.dashboard')}</span>
-                    </Link>
-                  )}
-                  <div className="dropdown-divider"></div>
-                  <button onClick={handleLanguageSwitch} className="dropdown-item">
-                    <span style={{ fontSize: '1.2rem' }}>{isRTL ? '🇪🇬' : '🇸🇦'}</span>
-                    <span>{isRTL ? 'English' : 'العربية'}</span>
-                  </button>
-                  <button onClick={handleLogout} className="dropdown-item logout">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                      <polyline points="16 17 21 12 16 7"/>
-                      <line x1="21" y1="12" x2="9" y2="12"/>
-                    </svg>
-                    <span>{t('nav.logout')}</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="auth-buttons">
-              <button 
-                onClick={handleLanguageSwitch}
-                className="lang-switch-btn"
-                title={isRTL ? 'Switch to English' : 'التبديل للعربية'}
-              >
-                <span className="lang-icon">{isRTL ? '🇪🇬' : '🇸🇦'}</span>
-                <span>{isRTL ? 'EN' : 'عربي'}</span>
-                <span className="lang-arrow">▼</span>
-              </button>
-              <Link to="/login" className="btn btn-ghost">{t('nav.login')}</Link>
-              <Link to="/register" className="btn btn-primary">{t('nav.register')}</Link>
-            </div>
-          )}
         </div>
       </div>
 
