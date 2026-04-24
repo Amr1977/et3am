@@ -27,14 +27,23 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-
+          node-version: '20'
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '9'
+      
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-store
+      
       - name: Install dependencies
         working-directory: ./frontend
-        run: npm install --legacy-peer-deps --force
-
+        run: pnpm install
+      
       - name: Detect output directory
         id: output-dir
         run: |
@@ -43,14 +52,14 @@ jobs:
           else
             echo "dir=build" >> $GITHUB_OUTPUT
           fi
-
+      
       - name: Build frontend
         working-directory: ./frontend
-        run: npm run build
-
+        run: pnpm run build
+      
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
-
+      
       - name: Deploy to Firebase Hosting
         run: firebase deploy --only hosting --dir ${{ steps.output-dir.outputs.dir }}
         working-directory: ./frontend
