@@ -44,7 +44,7 @@ jobs:
         working-directory: ./frontend
         run: pnpm install
       
-- name: Build frontend
+      - name: Build frontend
         working-directory: ./frontend
         run: pnpm run build
       
