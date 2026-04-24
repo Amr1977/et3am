@@ -44,16 +44,7 @@ jobs:
         working-directory: ./frontend
         run: pnpm install
       
-      - name: Detect output directory
-        id: output-dir
-        run: |
-          if [ -f "frontend/vite.config.*" ]; then
-            echo "dir=dist" >> $GITHUB_OUTPUT
-          else
-            echo "dir=build" >> $GITHUB_OUTPUT
-          fi
-      
-      - name: Build frontend
+- name: Build frontend
         working-directory: ./frontend
         run: pnpm run build
       
@@ -61,5 +52,5 @@ jobs:
         run: npm install -g firebase-tools
       
       - name: Deploy to Firebase Hosting
-        run: firebase deploy --only hosting --dir ${{ steps.output-dir.outputs.dir }}
+        run: firebase deploy --only hosting
         working-directory: ./frontend
