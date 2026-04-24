@@ -51,7 +51,7 @@
 - [x] meal baloon: own meal actions should be cancel, delivered, no reserve action button should show, and address and time should show up to signed in users
 - [x] My reservations page: on user cancelling a reservation do not navigate to donation page.
 - [x] My donations page: should have grid view and map view with this donor specific donations (available/reserved)
-- [ ] create and use placeholder mp3 files for events, i will overwrite later with proper mp3 files
+- [x] create and use placeholder mp3 files for events, i will overwrite later with proper mp3 files
 - [x] Home page: hero map: on click/tap: show full baloon same design as in donations page map , currently it shows minimal baloon
 - [x] As a donor I should be able to pause a donation so that it is temporarily not listed publicly, if reserved then cancel reservation.
 - [x] As a user when i reserve a donation i should see a unique 5 digit hashcode in order fields, this code will be used to pickup that donation

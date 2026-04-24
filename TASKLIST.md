@@ -21,6 +21,8 @@
 - [x] BUG-001: Donation timezone display
 - [x] BUG-002: Preserve description formatting
 - [x] BUG-003: RTL text direction in descriptions
+- [x] INFRA-001: CI workflow - switch from npm to pnpm
+- [x] ET3AM-011: Create placeholder mp3 sound files for events
 
 ## Trello Board
 - All pending tasks created as cards in Trello
@@ -42,6 +44,11 @@
 
 | Commit | Description |
 |--------|-------------|
+| 7c51829 | fix: switch from npm to pnpm in CI workflow |
+| bcd02c9 | fix: replace npm ci with npm install in lint and security jobs |
+| c8897cd | fix: add legacy-peer-deps for frontend install |
+| 8d03acc | fix: use npm install for frontend in CI |
+| 44f42ad | fix: remove npm caching from CI workflow |
 | 6fb0dcf | docs: update shared KB |
 | a57e437 | release: bump version to 1.4.4 |
 | d00d9e6 | fix: add UUID type casts for donation_id queries |
