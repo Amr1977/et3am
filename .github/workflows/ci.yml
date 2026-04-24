@@ -64,13 +64,13 @@ jobs:
       - name: Backend lint
         run: |
           cd backend
-          npm ci
+          npm install
           npm run lint || true
       
       - name: Frontend lint
         run: |
           cd frontend
-          npm ci
+          npm install --legacy-peer-deps
           npm run lint || true
 
   security:
@@ -88,11 +88,11 @@ jobs:
       - name: Backend security audit
         run: |
           cd backend
-          npm ci
+          npm install
           npm audit --audit-level=high
       
       - name: Frontend security audit
         run: |
           cd frontend
-          npm ci
+          npm install --legacy-peer-deps
           npm audit --audit-level=high
