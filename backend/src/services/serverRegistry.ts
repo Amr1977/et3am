@@ -76,13 +76,18 @@ async function healthCheckAndClean(): Promise<void> {
     if (useFirestore) {
       try {
         const db = initFirestore();
-        await db?.collection('servers').doc(server.id).set({
-          serverId: server.id,
-          url: server.url,
-          isHealthy,
-          lastHealthCheck: Date.now(),
-          lastHealthCheckTime: new Date().toISOString(),
-        }, { merge: true });
+        if (isHealthy) {
+          await db?.collection('servers').doc(server.id).set({
+            serverId: server.id,
+            url: server.url,
+            isHealthy,
+            lastHealthCheck: Date.now(),
+            lastHealthCheckTime: new Date().toISOString(),
+          }, { merge: true });
+        } else {
+          await db?.collection('servers').doc(server.id).delete();
+          console.log(`[${SERVER_ID}] Removed unhealthy server ${server.id} from Firestore`);
+        }
       } catch (err) {
         console.warn(`[${SERVER_ID}] Failed to update health in Firestore:`, err);
       }
