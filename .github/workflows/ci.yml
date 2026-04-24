@@ -24,23 +24,18 @@ jobs:
         with:
           version: '9'
       
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "STORE_DIR=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
-        
-      - name: Setup pnpm cache
+      - name: Get pnpm directory
+        run: echo "$(pnpm store path --silent)" > pnpm-store.txt
+      
+      - name: Cache pnpm store
         uses: actions/cache@v4
         with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_DIR }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-store
       
       - name: Install dependencies
         working-directory: backend
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
       
       - name: Run tests
         working-directory: backend
@@ -67,23 +62,15 @@ jobs:
         with:
           version: '9'
       
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "STORE_DIR=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
-        
-      - name: Setup pnpm cache
+      - name: Cache pnpm store
         uses: actions/cache@v4
         with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_DIR }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-store
       
       - name: Install dependencies
         working-directory: frontend
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
       
       - name: Build
         working-directory: frontend
@@ -110,23 +97,15 @@ jobs:
         with:
           version: '9'
       
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "STORE_DIR=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
-        
-      - name: Setup pnpm cache
+      - name: Cache pnpm store
         uses: actions/cache@v4
         with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_DIR }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-store
       
       - name: Install dependencies
         working-directory: backend
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
       
       - name: Backend lint
         working-directory: backend
@@ -134,7 +113,7 @@ jobs:
       
       - name: Install dependencies
         working-directory: frontend
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
       
       - name: Frontend lint
         working-directory: frontend
@@ -157,23 +136,15 @@ jobs:
         with:
           version: '9'
       
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "STORE_DIR=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
-        
-      - name: Setup pnpm cache
+      - name: Cache pnpm store
         uses: actions/cache@v4
         with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_DIR }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-store
       
       - name: Install dependencies
         working-directory: backend
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
       
       - name: Backend security audit
         working-directory: backend
@@ -181,7 +152,7 @@ jobs:
       
       - name: Install dependencies
         working-directory: frontend
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
       
       - name: Frontend security audit
         working-directory: frontend
