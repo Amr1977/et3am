@@ -185,9 +185,30 @@ npm run trello sync --apply            # Sync with actual moves
 
 ---
 
+## Required Tools on VPS Servers
+
+Install on any new server before starting work:
+
+```bash
+# Install required tools
+sudo apt-get update
+sudo apt-get install -y tmux gh
+```
+
+**Why:**
+- **tmux**: Keeps processes running after SSH disconnect
+- **gh**: Check CI/CD status, deployment results
+
+See KB docs: `docs/kb/tmux-setup.md`, `docs/kb/github-cli-install.md`
+
+---
+
 ## Knowledge Base (Optional)
 - **Location:** `docs/kb/` (git submodule - optional for open source)
-- **Optional:** Document learnings after non-trivial tasks
+- **Required:** Document all infrastructure/setup tasks in KB
+- **Apply:** Use documented patterns in all projects/sessions
+
+See KB docs: `docs/kb/tmux-setup.md`, `docs/kb/github-cli-install.md`
 
 ---
 
