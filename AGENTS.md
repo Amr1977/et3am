@@ -204,7 +204,7 @@ See KB docs: `docs/kb/tmux-setup.md`, `docs/kb/github-cli-install.md`
 ---
 
 ## Knowledge Base (Optional)
-- **Location:** `docs/kb/` (git submodule - optional for open source)
+- **Location:** `docs/kb/` (git submodule to shared-knowledge-base) or `docs/` for local KB
 - **Required:** Document all infrastructure/setup tasks in KB
 - **Apply:** Use documented patterns in all projects/sessions
 
