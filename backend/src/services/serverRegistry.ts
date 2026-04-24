@@ -81,6 +81,7 @@ async function healthCheckAndClean(): Promise<void> {
           url: server.url,
           isHealthy,
           lastHealthCheck: Date.now(),
+          lastHealthCheckTime: new Date().toISOString(),
         }, { merge: true });
       } catch (err) {
         console.warn(`[${SERVER_ID}] Failed to update health in Firestore:`, err);
@@ -113,6 +114,7 @@ async function registerServer(): Promise<void> {
         url: SERVER_URL,
         isHealthy: true,
         lastHealthCheck: Date.now(),
+        lastHealthCheckTime: new Date().toISOString(),
       }, { merge: true });
       console.log(`[${SERVER_ID}] Registered in Firestore`);
     }
