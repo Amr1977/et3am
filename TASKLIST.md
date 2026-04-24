@@ -24,6 +24,8 @@
 - [x] INFRA-001: CI workflow - switch from npm to pnpm
 - [x] ET3AM-011: Create placeholder mp3 sound files for events
 - [x] INFRA-002: Install GitHub CLI (gh) on server
+- [x] INFRA-003: Authenticate GitHub CLI (gh token)
+- [x] INFRA-004: Fix CI pnpm cache issues
 
 ## Trello Board
 - All pending tasks created as cards in Trello

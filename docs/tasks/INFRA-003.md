@@ -1,29 +1,19 @@
 # INFRA-003: Authenticate GitHub CLI
 
-**Status:** PENDING
+**Status:** DONE
 
 ## Description
 Authenticate gh CLI on matrix-vps server to check CI runs.
 
-## Steps
-
-Run on the server:
+## Solution
 ```bash
-gh auth login --web
-# Use code: 6A4F-AE08 (from previous attempt)
-# Follow browser prompts
+gh auth login --with-token
+# Paste your GitHub PAT token
 ```
 
-## Alternative (if no browser)
-
-```bash
-gh auth login
-# Select: HTTPS, Login with web browser
-# Or use: gh auth token (if you have a token)
-```
+Token stored in `~/.bashrc` as `GH_TOKEN`.
 
 ## Verify
-
 ```bash
 gh run list -L 3
 gh auth status
