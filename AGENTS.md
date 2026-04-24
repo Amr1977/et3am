@@ -203,6 +203,28 @@ See KB docs: `docs/kb/tmux-setup.md`, `docs/kb/github-cli-install.md`
 
 ---
 
+## Required: CI/CD Workflow Patterns
+
+### pnpm in GitHub Actions
+
+When using pnpm instead of npm in CI:
+
+1. Add `pnpm/action-setup@v4` to install pnpm
+2. Use simple cache: `actions/cache@v4` for pnpm store
+3. Don't use `cache: 'pnpm'` in setup-node (incompatible)
+4. Don't use `--frozen-lockfile` unless you have lock files for all packages
+5. Set security audit to moderate level (high will fail on transitive vulnerabilities)
+
+### Firebase Deploy in Actions
+
+```bash
+firebase deploy --only hosting --project <project-id>
+```
+
+Never use `--dir` flag - it's not valid for hosting.
+
+---
+
 ## Knowledge Base (Optional)
 - **Location:** `docs/kb/` (git submodule to shared-knowledge-base) or `docs/` for local KB
 - **Required:** Document all infrastructure/setup tasks in KB

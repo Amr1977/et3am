@@ -47,11 +47,16 @@
 
 | Commit | Description |
 |--------|-------------|
-| 7c51829 | fix: switch from npm to pnpm in CI workflow |
-| bcd02c9 | fix: replace npm ci with npm install in lint and security jobs |
-| c8897cd | fix: add legacy-peer-deps for frontend install |
-| 8d03acc | fix: use npm install for frontend in CI |
-| 44f42ad | fix: remove npm caching from CI workflow |
+| 44f5530 | docs: update INFRA-005 as done |
+| 9f7aab2 | trigger: final deploy test |
+| 558e21f | fix: add --project flag to firebase deploy |
+| 5b0aabc | trigger: frontend deploy |
+| ce64328 | fix: frontend-deploy workflow |
+| bbf38d7 | docs: add INFRA-005 task |
+| 141c938 | trigger: final frontend deploy test |
+| 9544f42 | fix: remove invalid --dir flag from firebase deploy |
+| 7dd89ad | trigger: test frontend deploy |
+| 688536c | fix: update frontend deploy to use pnpm |
 | 6fb0dcf | docs: update shared KB |
 | a57e437 | release: bump version to 1.4.4 |
 | d00d9e6 | fix: add UUID type casts for donation_id queries |
