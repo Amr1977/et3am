@@ -279,32 +279,10 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
                 key={d.id}
                 position={[d.latitude!, d.longitude!]}
                 icon={createMarkerIcon(color, d.food_type, newDonationIdsSet.has(d.id))}
-                bubblingMouseEvents={false}
                 eventHandlers={{
                   click: (e: L.LeafletMouseEvent) => {
                     addLog(`Marker CLICK: ${d.id} (${d.title})`);
-                    const marker = e.target as L.Marker;
-                    marker.openPopup();
-                    
-                    if (e.originalEvent) {
-                      e.originalEvent.preventDefault();
-                      e.originalEvent.stopPropagation();
-                      L.DomEvent.stopPropagation(e.originalEvent);
-                    }
-                  },
-                  mousedown: (e: L.LeafletMouseEvent) => {
-                    addLog(`Marker MOUSEDOWN: ${d.id}`);
-                    if (e.originalEvent) {
-                      // Don't preventDefault here as it might break Leaflet's internal click detection
-                      e.originalEvent.stopPropagation();
-                      L.DomEvent.stopPropagation(e.originalEvent);
-                    }
-                  },
-                  popupopen: (e) => {
-                    addLog(`Marker POPUPOPEN: ${d.id}`);
-                  },
-                  popupclose: (e) => {
-                    addLog(`Marker POPUPCLOSE: ${d.id}`);
+                    e.target.openPopup();
                   },
                 }}
               >
