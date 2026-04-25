@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 
+const BASE_URL = process.env.BASE_URL || 'http://localhost:5173';
+
 async function highlightElement(page: any, selector: string) {
   await page.evaluate((sel: string) => {
     const el = document.querySelector(sel);
@@ -43,12 +45,13 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     
     console.log('\n========== STARTING DONATION FLOW TEST ==========\n');
+    console.log('BASE_URL:', BASE_URL);
     
     // ===== STEP 1: SIGN UP =====
     console.log('📝 STEP 1: Sign Up');
     
     // Navigate directly to register page
-    await page.goto('http://localhost:5173/register');
+    await page.goto(`${BASE_URL}/register`);
     await page.waitForTimeout(2000);
     
     // Fill registration form
@@ -73,7 +76,7 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     // ===== STEP 2: CREATE DONATION =====
     console.log('\n📝 STEP 2: Create Donation');
     
-    await page.goto('http://localhost:5173/donations');
+    await page.goto('BASE_URL}/donations');
     await page.waitForTimeout(2000);
     
     // Look for create donation button - use first match
@@ -123,7 +126,7 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     }
     
     // Go to login
-    await page.goto('http://localhost:5173/login');
+    await page.goto('BASE_URL}/login');
     await page.waitForTimeout(1500);
     
     // Login (use existing test account)
@@ -135,7 +138,7 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     // ===== STEP 4: RESERVE DONATION =====
     console.log('\n📝 STEP 4: Reserve Donation');
     
-    await page.goto('http://localhost:5173/donations');
+    await page.goto('BASE_URL}/donations');
     await page.waitForTimeout(2000);
     
     // Look for reserve button - use first match
@@ -160,7 +163,7 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     // ===== STEP 5: CHECK HASH CODE =====
     console.log('\n📝 STEP 5: Check Hash Code');
     
-    await page.goto('http://localhost:5173/my-reservations');
+    await page.goto('BASE_URL}/my-reservations');
     await page.waitForTimeout(1500);
     
     // Look for hash code display
@@ -195,7 +198,7 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     // ===== STEP 7: MARK AS RECEIVED =====
     console.log('\n📝 STEP 7: Mark as Received');
     
-    await page.goto('http://localhost:5173/my-reservations');
+    await page.goto('BASE_URL}/my-reservations');
     await page.waitForTimeout(1500);
     
     // Click on reservation to open details
@@ -225,7 +228,7 @@ test.describe('Mobile Navigation Test', () => {
     
     console.log('\n========== MOBILE NAVIGATION TEST ==========\n');
     
-    await page.goto('http://localhost:5173/');
+    await page.goto('BASE_URL}/');
     await page.waitForTimeout(2000);
     
     // Check if hamburger menu is visible on mobile
