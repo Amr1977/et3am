@@ -38,10 +38,28 @@ async function safeFill(page: any, selector: string, value: string, description:
   console.log(`🔍 Filling ${description}: ${value}`);
   await highlightElement(page, selector);
   
-  // Wait for element to be visible and attached before filling
   const element = page.locator(selector).first();
-  await element.waitFor({ state: 'attached', timeout: 10000 });
+  
+  // Wait up to 15 seconds for element to be visible
+  try {
+    await element.waitFor({ state: 'visible', timeout: 15000 });
+  } catch (e) {
+    // Debug: log page content on failure
+    const html = await page.content();
+    console.log(`❌ Element not visible: ${description}, page length: ${html.length}`);
+    throw e;
+  }
+  
+  // Scroll into view and click to focus
+  await element.evaluate((el: HTMLElement) => el.scrollIntoViewIfNeeded());
+  await element.click({ timeout: 5000 });
+  
+  // Fill with type to trigger input events
   await element.fill(value);
+  
+  // Force input/change events for React
+  await element.dispatchEvent('input');
+  await element.dispatchEvent('change');
 }
 
 test.describe('Complete Donation Flow - Full Happy Path', () => {
