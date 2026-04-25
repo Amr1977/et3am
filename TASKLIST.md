@@ -28,6 +28,7 @@
 - [x] INFRA-005: Fix frontend-deploy workflow for pnpm
 - [x] INFRA-006: Configure OpenCode to use AgentRouter
 - [x] INFRA-007: Install AI coding CLI tools (Claude Code, Copilot, Forge, Gemini, KiloCode)
+- [ ] INFRA-008: Clone matrix-delivery and configure AI CLI tools
 
 ## Trello Board
 - All pending tasks created as cards in Trello
