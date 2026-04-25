@@ -37,7 +37,11 @@ async function safeClick(page: any, selector: string, description: string) {
 async function safeFill(page: any, selector: string, value: string, description: string) {
   console.log(`🔍 Filling ${description}: ${value}`);
   await highlightElement(page, selector);
-  await page.locator(selector).first().fill(value, { timeout: 5000 });
+  
+  // Wait for element to be visible and attached before filling
+  const element = page.locator(selector).first();
+  await element.waitFor({ state: 'visible', timeout: 10000 });
+  await element.fill(value);
 }
 
 test.describe('Complete Donation Flow - Full Happy Path', () => {
