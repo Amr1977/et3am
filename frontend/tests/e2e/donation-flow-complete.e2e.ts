@@ -40,7 +40,7 @@ async function safeFill(page: any, selector: string, value: string, description:
   
   // Wait for element to be visible and attached before filling
   const element = page.locator(selector).first();
-  await element.waitFor({ state: 'visible', timeout: 10000 });
+  await element.waitFor({ state: 'attached', timeout: 10000 });
   await element.fill(value);
 }
 
