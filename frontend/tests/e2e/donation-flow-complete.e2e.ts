@@ -66,8 +66,13 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
   test('Complete flow: Sign up → Create donation → Reserve → Chat → Complete', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     
+    // Store credentials for reuse in test
+    const testEmail = `test${Date.now()}@test.com`;
+    const testPassword = 'Test123456!';
+    
     console.log('\n========== STARTING DONATION FLOW TEST ==========\n');
     console.log('BASE_URL:', BASE_URL);
+    console.log('Test email:', testEmail);
     
     // ===== STEP 1: SIGN UP =====
     console.log('📝 STEP 1: Sign Up');
@@ -137,8 +142,8 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
       console.log('⚠️ Could not find create button, page might need login first');
     }
     
-    // ===== STEP 3: LOGOUT AND LOGIN AS RECEIVER =====
-    console.log('\n📝 STEP 3: Logout and login as receiver');
+    // ===== STEP 3: LOGOUT AND SIGN UP AS RECEIVER =====
+    console.log('\n📝 STEP 3: Logout and sign up as receiver');
     
     // Logout - look for logout button
     const logoutBtn = page.locator('button:has-text("Logout")').first();
@@ -147,15 +152,31 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
       await page.waitForTimeout(1000);
     }
     
-    // Go to login
-    await page.goto('BASE_URL}/login');
+    // Sign up as new receiver user
+    const receiverEmail = `receiver${Date.now()}@test.com`;
+    console.log('Signing up as receiver:', receiverEmail);
+    
+    await page.goto(`${BASE_URL}/register`);
     await page.waitForTimeout(1500);
     
-    // Login (use existing test account)
-    await safeFill(page, 'input[type="email"]', 'receiver@test.com', 'Receiver email');
-    await safeFill(page, 'input[type="password"]', 'password123', 'Password');
-    await safeClick(page, 'button[type="submit"]', 'Login button');
-    await page.waitForTimeout(2000);
+    // Register as receiver
+    await safeFill(page, 'input[name="name"]', 'Test Receiver', 'Name');
+    await safeFill(page, 'input[type="email"]', receiverEmail, 'Email');
+    await safeFill(page, 'input[type="password"]', 'Test123456!', 'Password');
+    await safeFill(page, 'input[name="confirmPassword"]', 'Test123456!', 'Confirm Password');
+    
+    // Accept terms if checkbox exists
+    const termsCheckbox2 = page.locator('input[type="checkbox"]').first();
+    if (await termsCheckbox2.isVisible()) {
+      await termsCheckbox2.check();
+    }
+    
+    // Submit registration
+    const registerBtn2 = page.locator('button[type="submit"]').first();
+    if (await registerBtn2.isVisible({ timeout: 5000 })) {
+      await registerBtn2.click();
+      await page.waitForTimeout(3000);
+    }
     
     // ===== STEP 4: RESERVE DONATION =====
     console.log('\n📝 STEP 4: Reserve Donation');
