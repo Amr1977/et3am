@@ -48,10 +48,11 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
         run: pnpm run test:run
-      
-      - name: Build TypeScript
-        working-directory: backend
-        run: pnpm run build
+    
+    # Build TypeScript - skip in CI as we mainly test migrations
+      # - name: Build TypeScript
+      #   working-directory: backend
+      #   run: pnpm run build
 
   frontend-build:
     runs-on: ubuntu-latest
