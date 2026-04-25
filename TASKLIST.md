@@ -26,6 +26,7 @@
 - [x] INFRA-003: Authenticate GitHub CLI (gh token)
 - [x] INFRA-004: Fix CI pnpm cache issues
 - [x] INFRA-005: Fix frontend-deploy workflow for pnpm
+- [x] INFRA-006: Configure OpenCode to use AgentRouter
 
 ## Trello Board
 - All pending tasks created as cards in Trello

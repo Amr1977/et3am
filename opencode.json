@@ -4,5 +4,14 @@
     "AGENTS.md",
     "docs/kb/README.md"
   ],
-  "autoupdate": true
+  "autoupdate": true,
+  "provider": {
+    "openai": {
+      "options": {
+        "baseURL": "{env:OPENAI_BASE_URL}",
+        "apiKey": "{env:OPENAI_API_KEY}"
+      }
+    }
+  },
+  "model": "{env:MODEL}"
 }
