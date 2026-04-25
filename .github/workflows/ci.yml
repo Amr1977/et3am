@@ -37,8 +37,43 @@ jobs:
         working-directory: backend
         run: pnpm install
       
+      - name: Run migrations on test DB
+        working-directory: backend
+        env:
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+        run: node -e "
+          const { Pool } = require('pg');
+          const fs = require('fs');
+          const path = require('path');
+          async function migrate() {
+            const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+            await pool.query(\`CREATE TABLE IF NOT EXISTS migrations (id SERIAL PRIMARY KEY, migration_name VARCHAR(255) NOT NULL UNIQUE, applied_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP)\`);
+            const result = await pool.query('SELECT migration_name FROM migrations');
+            const applied = result.rows.map(r => r.migration_name);
+            const files = fs.readdirSync('./migrations').filter(f => f.endsWith('.sql')).sort();
+            for (const file of files) {
+              const name = file.replace('.sql', '');
+              if (!applied.includes(name)) {
+                console.log('Running:', name);
+                const sql = fs.readFileSync(path.join('./migrations', file), 'utf8');
+                const client = await pool.connect();
+                await client.query('BEGIN');
+                await client.query(sql);
+                await client.query('INSERT INTO migrations VALUES (NULL, \$1, NOW())', [name]);
+                await client.query('COMMIT');
+                client.release();
+              }
+            }
+            await pool.end();
+            console.log('Migrations complete');
+          }
+          migrate().catch(e => { console.error(e); process.exit(1); });
+        "
+      
       - name: Run tests
         working-directory: backend
+        env:
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
         run: pnpm run test:run
       
       - name: Build TypeScript
@@ -226,16 +261,54 @@ jobs:
           path: ~/.pnpm-store
           key: ${{ runner.os }}-pnpm-store
       
-      - name: Install dependencies
+      - name: Install frontend dependencies
         working-directory: frontend
+        run: pnpm install
+      
+      - name: Install backend dependencies
+        working-directory: backend
         run: pnpm install
       
       - name: Install Playwright browsers
         working-directory: frontend
         run: npx playwright install chromium --with-deps
       
+      - name: Run migrations on test DB
+        working-directory: backend
+        env:
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+        run: node -e "
+          const { Pool } = require('pg');
+          const fs = require('fs');
+          const path = require('path');
+          async function migrate() {
+            const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+            await pool.query(\`CREATE TABLE IF NOT EXISTS migrations (id SERIAL PRIMARY KEY, migration_name VARCHAR(255) NOT NULL UNIQUE, applied_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP)\`);
+            const result = await pool.query('SELECT migration_name FROM migrations');
+            const applied = result.rows.map(r => r.migration_name);
+            const files = fs.readdirSync('./migrations').filter(f => f.endsWith('.sql')).sort();
+            for (const file of files) {
+              const name = file.replace('.sql', '');
+              if (!applied.includes(name)) {
+                console.log('Running:', name);
+                const sql = fs.readFileSync(path.join('./migrations', file), 'utf8');
+                const client = await pool.connect();
+                await client.query('BEGIN');
+                await client.query(sql);
+                await client.query('INSERT INTO migrations VALUES (NULL, \$1, NOW())', [name]);
+                await client.query('COMMIT');
+                client.release();
+              }
+            }
+            await pool.end();
+            console.log('Migrations complete');
+          }
+          migrate().catch(e => { console.error(e); process.exit(1); });
+        "
+      
       - name: Run E2E tests against production
         working-directory: frontend
         env:
-          BASE_URL: https://foodshare777.web.app
+          BASE_URL: ${{ secrets.USE_STATIC_URL || 'https://foodshare777.web.app' }}
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
         run: pnpm playwright test tests/e2e/donation-flow-complete.e2e.ts --project=chromium
