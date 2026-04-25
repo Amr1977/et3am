@@ -253,6 +253,12 @@ jobs:
           DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
         run: node src/ci-migrate.js
       
+      - name: Seed test data
+        working-directory: backend
+        env:
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+        run: node src/seed-test-data.js
+      
       - name: Run E2E tests against production
         working-directory: frontend
         env:
