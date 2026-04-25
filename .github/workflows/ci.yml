@@ -158,9 +158,52 @@ jobs:
         working-directory: frontend
         run: pnpm audit --audit-level=moderate || true
 
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: [backend-test, frontend-build, lint, security]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '9'
+      
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-store
+      
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: pnpm install
+      
+      - name: Build frontend
+        working-directory: ./frontend
+        run: pnpm run build
+      
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+      
+      - name: Deploy to Firebase Hosting
+        run: firebase deploy --only hosting --project foodshare777
+
   e2e-production:
     runs-on: ubuntu-latest
-    needs: [frontend-build]
+    needs: [deploy-frontend]
     
     steps:
       - name: Checkout code
