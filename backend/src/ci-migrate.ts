@@ -27,7 +27,7 @@ async function migrate() {
 
     // Run each migration
     const migrationsDir = './migrations';
-    const files = fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql')).sort();
+    const files = fs.readdirSync(migrationsDir).filter((f: string) => f.endsWith('.sql')).sort();
 
     for (const file of files) {
       const name = file.replace('.sql', '');
