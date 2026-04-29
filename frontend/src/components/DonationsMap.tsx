@@ -7,7 +7,6 @@ import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import { getServerUrl } from '../services/api';
-import DebugLog from './DebugLog';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -320,13 +319,10 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
                         textDecoration: 'none',
                         fontSize: '13px',
                       }}
-                    >
-                      {t('donations.view_card') || 'View Details'} →
-                    </a>
-                  </div>
-                </Popup>
-              </Marker>
-            );
+>
+      </button>
+    </div>
+  );
           })}
         </MarkerClusterGroup>
       </MapContainer>
