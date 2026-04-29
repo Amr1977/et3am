@@ -11,6 +11,7 @@ export interface ServerInfo {
 const SERVERS_COLLECTION = 'servers';
 
 const FALLBACK_SERVERS: ServerInfo[] = [
+  { id: 'et3am-gcp', url: 'https://et3am-api.mywire.org' },
   { id: 'et3am-aws', url: 'https://api.et3am.com' },
   { id: 'et3am-aws-fallback', url: 'https://et3am-api.matrix-delivery.com' },
 ];
