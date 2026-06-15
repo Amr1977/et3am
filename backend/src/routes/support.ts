@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { dbOps } from '../database';
 import { authenticate, AuthRequest } from '../middleware/auth';
+import logger from '../config/logger';
 
 const router = Router();
 
@@ -21,7 +22,7 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
     const ticket = await dbOps.support.createTicket(req.userId!, type, title, description);
     res.status(201).json({ messageKey: 'support.ticket_created', ticket });
   } catch (err) {
-    console.error('Create ticket error:', err);
+    logger.error('Create ticket error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -31,7 +32,7 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
     const tickets = await dbOps.support.findByUser(req.userId!);
     res.json({ tickets });
   } catch (err) {
-    console.error('Get tickets error:', err);
+    logger.error('Get tickets error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -51,7 +52,7 @@ router.get('/:id', authenticate, async (req: AuthRequest, res: Response) => {
 
     res.json({ ticket });
   } catch (err) {
-    console.error('Get ticket error:', err);
+    logger.error('Get ticket error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });

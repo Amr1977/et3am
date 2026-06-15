@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { pool } from '../database';
 import { sendTelegramMessage } from '../services/telegram';
+import logger from '../config/logger';
 
 const router = Router();
 
@@ -23,7 +24,7 @@ router.post('/link-telegram', authenticate, async (req: AuthRequest, res: Respon
 
     res.json({ success: true, message: 'Telegram account linked successfully' });
   } catch (error) {
-    console.error('Link telegram error:', error);
+    logger.error('Link telegram error:', error);
     res.status(500).json({ message: 'Failed to link telegram account' });
   }
 });
@@ -37,7 +38,7 @@ router.delete('/unlink-telegram', authenticate, async (req: AuthRequest, res: Re
 
     res.json({ success: true, message: 'Telegram account unlinked successfully' });
   } catch (error) {
-    console.error('Unlink telegram error:', error);
+    logger.error('Unlink telegram error:', error);
     res.status(500).json({ message: 'Failed to unlink telegram account' });
   }
 });

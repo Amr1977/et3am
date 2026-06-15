@@ -4,6 +4,7 @@ import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { pool } from '../database';
+import logger from '../config/logger';
 
 const router = Router();
 
@@ -64,7 +65,7 @@ router.get('/stats', async (req, res) => {
       totalReceivers: parseInt(stats.total_recipients) || 0,
     });
   } catch (error) {
-    console.error('Public stats error:', error);
+    logger.error('Public stats error:', error);
     res.status(500).json({ message: 'server.error' });
   }
 });
@@ -103,7 +104,7 @@ router.get('/donations', async (req, res) => {
       offset: Number(offset),
     });
   } catch (error) {
-    console.error('Public donations error:', error);
+    logger.error('Public donations error:', error);
     res.status(500).json({ message: 'server.error' });
   }
 });
@@ -133,7 +134,7 @@ router.get('/donations/:id', async (req, res) => {
       longitude: donation.longitude ? Number(donation.longitude) : null,
     });
   } catch (error) {
-    console.error('Public donation detail error:', error);
+    logger.error('Public donation detail error:', error);
     res.status(500).json({ message: 'server.error' });
   }
 });
@@ -174,7 +175,7 @@ router.post('/auth/register', authLimiter, async (req, res) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ message: 'validation.error', errors: error.errors });
     }
-    console.error('Public register error:', error);
+    logger.error('Public register error:', error);
     res.status(500).json({ message: 'server.error' });
   }
 });
@@ -219,7 +220,7 @@ router.post('/auth/login', authLimiter, async (req, res) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ message: 'validation.error', errors: error.errors });
     }
-    console.error('Public login error:', error);
+    logger.error('Public login error:', error);
     res.status(500).json({ message: 'server.error' });
   }
 });

@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { readdirSync, readFileSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
+import logger from './config/logger';
 
 // Load environment file - prefer .env.production in production
 // Use require to get __dirname at runtime (works with ts-node and compiled JS)
@@ -626,7 +627,7 @@ export async function runMigrations(): Promise<void> {
       }
     }
   } catch (err) {
-    console.error('Migration error:', err);
+    logger.error('Migration error:', err);
     throw err;
   }
 }

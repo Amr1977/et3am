@@ -111,13 +111,13 @@ router.post('/crash', async (req: Request<{}, {}, {
           });
         }
       } catch (e) {
-        console.error('Failed to emit crash notification:', e);
+        logger.error('Failed to emit crash notification:', e);
       }
     }
 
     res.status(201).json({ id: crashId, fingerprint });
   } catch (err) {
-    console.error('Crash logging error:', err);
+    logger.error('Crash logging error:', err);
     res.status(500).json({ error: 'Failed to log crash' });
   }
 });
@@ -133,7 +133,7 @@ router.get('/crash', authenticate, requireAdmin, async (req: AuthRequest, res: R
 
     res.json(result);
   } catch (err) {
-    console.error('Get crash logs error:', err);
+    logger.error('Get crash logs error:', err);
     res.status(500).json({ error: 'Failed to fetch crash logs' });
   }
 });
@@ -151,7 +151,7 @@ router.patch('/crash/:id/resolve', authenticate, requireAdmin, async (req: AuthR
     await dbOps.crashLogs.resolve(id, adminId);
     res.json({ success: true });
   } catch (err) {
-    console.error('Resolve crash log error:', err);
+    logger.error('Resolve crash log error:', err);
     res.status(500).json({ error: 'Failed to resolve crash log' });
   }
 });
@@ -166,7 +166,7 @@ router.get('/crash/stats', authenticate, requireAdmin, async (req: AuthRequest, 
 
     res.json({ frontend, backend, total: frontend + backend, unresolved });
   } catch (err) {
-    console.error('Get crash stats error:', err);
+    logger.error('Get crash stats error:', err);
     res.status(500).json({ error: 'Failed to fetch crash stats' });
   }
 });

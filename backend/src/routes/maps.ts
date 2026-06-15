@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import axios from 'axios';
 import Database from 'better-sqlite3';
+import logger from '../config/logger';
 
 const router = express.Router();
 
@@ -84,7 +85,7 @@ router.get('/tiles/:z/:x/:y.png', async (req, res) => {
     if (axios.isAxiosError(error) && error.response?.status === 404) {
       return res.status(404).send('Tile not found');
     }
-    console.error(`Tile fetch error [${z}/${x}/${y}]:`, error);
+    logger.error(`Tile fetch error [${z}/${x}/${y}]:`, error);
     res.status(500).send('Error fetching tile');
   }
 });

@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import { dbOps, pool } from '../database';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { reverseGeocode, getCachedLocation } from '../services/geocoding';
+import logger from '../config/logger';
 
 const router = Router();
 
@@ -36,7 +37,7 @@ router.get('/public-stats', async (_req, res: Response) => {
       totalReceivers: recipientsCount,
     });
   } catch (err) {
-    console.error('Public stats error:', err);
+    logger.error('Public stats error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -113,7 +114,7 @@ router.get('/geo-stats', async (_req, res: Response) => {
       areas,
     });
   } catch (err) {
-    console.error('Geo stats error:', err);
+    logger.error('Geo stats error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -143,7 +144,7 @@ router.get('/stats', authenticate, async (req: AuthRequest, res: Response) => {
       }
     });
   } catch (err) {
-    console.error('Stats error:', err);
+    logger.error('Stats error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -174,7 +175,7 @@ router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
       }
     });
   } catch (err) {
-    console.error('Get me error:', err);
+    logger.error('Get me error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -197,7 +198,7 @@ router.put('/me', authenticate, async (req: AuthRequest, res: Response) => {
 
     res.json({ messageKey: 'user.updated', user: updated });
   } catch (err) {
-    console.error('Update me error:', err);
+    logger.error('Update me error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });

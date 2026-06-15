@@ -33,6 +33,7 @@ import {
   validateSecurityConfig 
 } from './middleware/security';
 import { authLimiter, apiLimiter, createDonationLimiter } from './middleware/rateLimit';
+import { errorHandler } from './middleware/errorHandler';
 
 import http from 'http';
 
@@ -234,5 +235,7 @@ initDb().then(async () => {
   logger.error('Failed to initialize database:', err);
   process.exit(1);
 });
+
+app.use(errorHandler);
 
 export default app;

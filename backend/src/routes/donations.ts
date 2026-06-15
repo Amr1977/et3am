@@ -151,7 +151,7 @@ router.get('/', optionalAuth, async (req: AuthRequest, res: Response) => {
       }
     });
   } catch (err) {
-    console.error('Get donations error:', err);
+    logger.error('Get donations error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -169,7 +169,7 @@ router.get('/my-donations', authenticate, async (req: AuthRequest, res: Response
 
     res.json({ donations: enriched });
   } catch (err) {
-    console.error('My donations error:', err);
+    logger.error('My donations error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -187,7 +187,7 @@ router.get('/my-reservations', authenticate, async (req: AuthRequest, res: Respo
 
     res.json({ donations: enriched });
   } catch (err) {
-    console.error('My reservations error:', err);
+    logger.error('My reservations error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -238,7 +238,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 
     res.json({ donation: responseData });
   } catch (err) {
-    console.error('Get donation error:', err);
+    logger.error('Get donation error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -321,7 +321,7 @@ router.put('/:id', authenticate, async (req: AuthRequest, res: Response) => {
 
     res.json({ messageKey: 'donation.updated', donation: updated });
   } catch (err) {
-    console.error('Update donation error:', err);
+    logger.error('Update donation error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -396,7 +396,7 @@ router.post('/:id/reserve', authenticate, async (req: AuthRequest, res: Response
       hash_code: hashCode 
     });
   } catch (err) {
-    console.error('Reserve error:', err);
+    logger.error('Reserve error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -423,7 +423,7 @@ router.post('/:id/verify-hash', authenticate, async (req: AuthRequest, res: Resp
 
     res.json({ messageKey: 'donation.hash_verified', valid: true });
   } catch (err) {
-    console.error('Verify hash error:', err);
+    logger.error('Verify hash error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -584,7 +584,7 @@ router.post('/:id/complete', authenticate, async (req: AuthRequest, res: Respons
     
     res.json({ messageKey: 'donation.completed', donation: updated });
   } catch (err) {
-    console.error('Complete error:', err);
+    logger.error('Complete error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -605,7 +605,7 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res: Response) => {
     await dbOps.donations.delete(req.params.id);
     res.json({ messageKey: 'donation.deleted' });
   } catch (err) {
-    console.error('Delete error:', err);
+    logger.error('Delete error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -632,7 +632,7 @@ router.post('/:id/report', authenticate, async (req: AuthRequest, res: Response)
     await dbOps.donationReports.create(req.userId!, req.params.id, reason, description);
     res.json({ messageKey: 'donation.reported' });
   } catch (err) {
-    console.error('Report error:', err);
+    logger.error('Report error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });

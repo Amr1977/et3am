@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { dbOps } from '../database';
 import { authenticate, AuthRequest } from '../middleware/auth';
+import logger from '../config/logger';
 
 function requireAdmin(req: AuthRequest, res: Response, next: Function): void {
   if (!req.userId || req.userRole !== 'admin') {
@@ -97,7 +98,7 @@ router.get('/stats', authenticate, requireAdmin, async (req: AuthRequest, res: R
 
     res.json(stats);
   } catch (err) {
-    console.error('Admin stats error:', err);
+    logger.error('Admin stats error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -132,7 +133,7 @@ router.get('/users', authenticate, requireAdmin, async (req: AuthRequest, res: R
       return res.json({ users: result.rows });
     }
   } catch (err) {
-    console.error('Admin users error:', err);
+    logger.error('Admin users error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -155,7 +156,7 @@ router.put('/users/:id', authenticate, requireAdmin, async (req: AuthRequest, re
 
     res.json({ messageKey: 'user.updated', user: updated });
   } catch (err) {
-    console.error('Admin update user error:', err);
+    logger.error('Admin update user error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -171,7 +172,7 @@ router.get('/donations', authenticate, requireAdmin, async (req: AuthRequest, re
 
     res.json({ donations, pagination: { page: parseInt(page as string), limit: parseInt(limit as string), total } });
   } catch (err) {
-    console.error('Admin donations error:', err);
+    logger.error('Admin donations error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -192,7 +193,7 @@ router.put('/donations/:id', authenticate, requireAdmin, async (req: AuthRequest
 
     res.json({ messageKey: 'donation.updated', donation: updated });
   } catch (err) {
-    console.error('Admin update donation error:', err);
+    logger.error('Admin update donation error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -208,7 +209,7 @@ router.get('/tickets', authenticate, requireAdmin, async (req: AuthRequest, res:
 
     res.json({ tickets, pagination: { page: parseInt(page as string), limit: parseInt(limit as string), total } });
   } catch (err) {
-    console.error('Admin tickets error:', err);
+    logger.error('Admin tickets error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -229,7 +230,7 @@ router.put('/tickets/:id', authenticate, requireAdmin, async (req: AuthRequest, 
 
     res.json({ messageKey: 'support.ticket_updated', ticket: updated });
   } catch (err) {
-    console.error('Admin update ticket error:', err);
+    logger.error('Admin update ticket error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -239,7 +240,7 @@ router.get('/audit-log', authenticate, requireAdmin, async (req: AuthRequest, re
     const logs = await dbOps.adminAudit.getRecent(50);
     res.json({ logs });
   } catch (err) {
-    console.error('Admin audit log error:', err);
+    logger.error('Admin audit log error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -249,7 +250,7 @@ router.get('/reports', authenticate, requireAdmin, async (req: AuthRequest, res:
     const reports = await dbOps.donationReports.findPending();
     res.json({ reports });
   } catch (err) {
-    console.error('Admin reports error:', err);
+    logger.error('Admin reports error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -260,7 +261,7 @@ router.put('/reports/:id/resolve', authenticate, requireAdmin, async (req: AuthR
     await dbOps.adminAudit.log(req.userId!, 'resolve_report', 'report', req.params.id, {});
     res.json({ messageKey: 'report.resolved' });
   } catch (err) {
-    console.error('Admin resolve report error:', err);
+    logger.error('Admin resolve report error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });

@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { dbOps } from '../database';
 import { authenticate, AuthRequest } from '../middleware/auth';
+import logger from '../config/logger';
 
 const router = Router();
 
@@ -21,7 +22,7 @@ router.get('/:donationId', authenticate, async (req: AuthRequest, res: Response)
     const messages = await dbOps.chat.findByDonation(req.params.donationId);
     res.json({ messages });
   } catch (err) {
-    console.error('Get chat messages error:', err);
+    logger.error('Get chat messages error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -63,7 +64,7 @@ router.post('/:donationId', authenticate, async (req: AuthRequest, res: Response
       }
     });
   } catch (err) {
-    console.error('Send chat message error:', err);
+    logger.error('Send chat message error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -73,7 +74,7 @@ router.put('/:donationId/read', authenticate, async (req: AuthRequest, res: Resp
     await dbOps.chat.markAsRead(req.params.donationId, req.userId!);
     res.json({ message: 'Messages marked as read' });
   } catch (err) {
-    console.error('Mark read error:', err);
+    logger.error('Mark read error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -83,7 +84,7 @@ router.get('/unread/count', authenticate, async (req: AuthRequest, res: Response
     const count = await dbOps.chat.getUnreadCount(req.userId!);
     res.json({ unreadCount: count });
   } catch (err) {
-    console.error('Unread count error:', err);
+    logger.error('Unread count error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });

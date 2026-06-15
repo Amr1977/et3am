@@ -76,7 +76,7 @@ router.post('/register', async (req: AuthRequest, res: Response) => {
       user: { id, name: sanitizedName, email: sanitizedEmail, role: user.role, can_donate: user.can_donate, can_receive: user.can_receive, preferred_language: lang }
     });
   } catch (err) {
-    console.error('Register error:', err);
+    logger.error('Register error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -123,7 +123,7 @@ router.post('/login', async (req: AuthRequest, res: Response) => {
       }
     });
   } catch (err) {
-    console.error('Login error:', err);
+    logger.error('Login error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -152,7 +152,7 @@ router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
       }
     });
   } catch (err) {
-    console.error('Me error:', err);
+    logger.error('Me error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -169,7 +169,7 @@ router.put('/language', authenticate, async (req: AuthRequest, res: Response) =>
     await dbOps.users.update(req.userId!, { preferred_language });
     res.json({ messageKey: 'user.language_updated', preferred_language });
   } catch (err) {
-    console.error('Language update error:', err);
+    logger.error('Language update error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -224,7 +224,7 @@ router.put('/location', authenticate, async (req: AuthRequest, res: Response) =>
       },
     });
   } catch (err) {
-    console.error('Location update error:', err);
+    logger.error('Location update error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -281,46 +281,7 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
     const tokenHash = crypto.createHash('sha256').update(idToken).digest('hex');
     const tokenMd5 = crypto.createHash('md5').update(idToken).digest('hex');
     
-    console.log('[AUTH] ========== BACKEND RAW TOKEN ==========');
-    console.log('[AUTH] Token length:', idToken.length);
-    console.log('[AUTH] Token hash SHA256:', tokenHash);
-    console.log('[AUTH] Token hash MD5:', tokenMd5);
-    console.log('[AUTH] First 100 chars:', idToken.substring(0, 100));
-    console.log('[AUTH] Last 100 chars:', idToken.substring(idToken.length - 100));
-    console.log('[AUTH] ======================================');
-    
-    // Decode and log token details from frontend
-    try {
-      const tokenParts = idToken.split('.');
-      console.log('[AUTH] Token has', tokenParts.length, 'parts');
-      
-      // Header
-      const header = JSON.parse(Buffer.from(tokenParts[0], 'base64').toString());
-      console.log('[AUTH] ===== BACKEND TOKEN HEADER =====');
-      console.log('[AUTH] alg:', header.alg);
-      console.log('[AUTH] kid:', header.kid);
-      console.log('[AUTH] typ:', header.typ);
-      console.log('[AUTH] Raw header base64:', tokenParts[0]);
-      
-      // Payload
-      const payload = JSON.parse(Buffer.from(tokenParts[1], 'base64').toString());
-      console.log('[AUTH] ===== BACKEND TOKEN PAYLOAD =====');
-      console.log('[AUTH] aud:', payload.aud);
-      console.log('[AUTH] iss:', payload.iss);
-      console.log('[AUTH] sub:', payload.sub);
-      console.log('[AUTH] auth_time:', payload.auth_time);
-      console.log('[AUTH] email:', payload.email);
-      console.log('[AUTH] email_verified:', payload.email_verified);
-      console.log('[AUTH] iat:', payload.iat);
-      console.log('[AUTH] exp:', payload.exp);
-      
-      // Signature
-      console.log('[AUTH] ===== BACKEND TOKEN SIGNATURE =====');
-      console.log('[AUTH] Signature base64:', tokenParts[2]);
-      console.log('[AUTH] Signature length:', tokenParts[2].length);
-    } catch (e: any) {
-      console.log('[AUTH] Failed to decode token:', e.message);
-    }
+    (logger as any).auth('Token hash SHA256', { tokenHash });
     
     if (!firebaseInitialized || !admin.apps.length) {
       (logger as any).auth('Google auth failed - Firebase not initialized', { 
@@ -521,12 +482,10 @@ router.post('/reset-password-request', async (req: AuthRequest, res: Response) =
     (logger as any).auth('Password reset requested', { userId: user.id, email: sanitizedEmail });
 
     // In production, send email with reset link
-    // For now, log the token (development only)
-    console.log(`🔐 Password reset for ${sanitizedEmail}: ${resetToken}`);
 
     res.json({ messageKey: 'auth.reset_email_sent' });
   } catch (err) {
-    console.error('Password reset request error:', err);
+    logger.error('Password reset request error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -573,7 +532,7 @@ router.post('/reset-password', async (req: AuthRequest, res: Response) => {
 
     res.json({ messageKey: 'auth.password_reset_success' });
   } catch (err) {
-    console.error('Password reset error:', err);
+    logger.error('Password reset error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });

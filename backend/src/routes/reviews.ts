@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { dbOps } from '../database';
 import { authenticate, AuthRequest } from '../middleware/auth';
+import logger from '../config/logger';
 
 const router = Router();
 
@@ -45,7 +46,7 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
       res.status(400).json({ messageKey: 'review.already_exists' });
       return;
     }
-    console.error('Create review error:', err);
+    logger.error('Create review error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -56,7 +57,7 @@ router.get('/user/:userId', async (req: AuthRequest, res: Response) => {
     const ratingStats = await dbOps.reviews.getUserRating(req.params.userId);
     res.json({ reviews, ratingStats });
   } catch (err) {
-    console.error('Get user reviews error:', err);
+    logger.error('Get user reviews error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
@@ -66,7 +67,7 @@ router.get('/donation/:donationId', authenticate, async (req: AuthRequest, res: 
     const reviews = await dbOps.reviews.findByDonation(req.params.donationId);
     res.json({ reviews });
   } catch (err) {
-    console.error('Get donation reviews error:', err);
+    logger.error('Get donation reviews error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });
