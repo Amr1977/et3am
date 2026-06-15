@@ -1,5 +1,6 @@
 import { Router, Response } from 'express';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { dbOps, User } from '../database';
 import { authenticate, generateToken, AuthRequest } from '../middleware/auth';
@@ -277,7 +278,6 @@ router.post('/google', async (req: AuthRequest, res: Response) => {
     });
     
     // Hash for comparison
-    const crypto = require('crypto');
     const tokenHash = crypto.createHash('sha256').update(idToken).digest('hex');
     const tokenMd5 = crypto.createHash('md5').update(idToken).digest('hex');
     
@@ -545,7 +545,6 @@ router.post('/test-db-user', async (req, res) => {
   const hashFromDb = user?.password;
   
   // Test bcryptjs directly in the endpoint
-  const bcrypt = require('bcryptjs');
   const testResult1 = bcrypt.compareSync('TestPass123', hashFromDb || '');
   const testResult2 = bcrypt.compareSync('TestPass123', '$2a$10$VamOWtj1Z2AQYOtEmTgrKezQwQIkqKsvXC0RIDLGDf6hrJE3Sid6m');
   

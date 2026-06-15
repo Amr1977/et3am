@@ -4,7 +4,7 @@ import { dbOps } from '../database';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import logger from '../config/logger';
 
-function requireAdmin(req: AuthRequest, res: Response, next: Function): void {
+function requireAdmin(req: AuthRequest, res: Response, next: () => void): void {
   if (!req.userId || req.userRole !== 'admin') {
     res.status(403).json({ error: 'Admin required' });
     return;
@@ -21,7 +21,7 @@ function generateFingerprint(stackTrace?: string, message?: string): string | nu
   return crypto.createHash('sha256').update(normalized).digest('hex').substring(0, 64);
 }
 
-router.post('/crash', async (req: Request<{}, {}, {
+router.post('/crash', async (req: Request<Record<string, never>, Record<string, never>, {
   crash_type?: string;
   severity?: string;
   title?: string;

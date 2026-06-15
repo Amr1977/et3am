@@ -3,7 +3,7 @@ import { dbOps } from '../database';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import logger from '../config/logger';
 
-function requireAdmin(req: AuthRequest, res: Response, next: Function): void {
+function requireAdmin(req: AuthRequest, res: Response, next: () => void): void {
   if (!req.userId || req.userRole !== 'admin') {
     res.status(403).json({ messageKey: 'auth.admin_required' });
     return;

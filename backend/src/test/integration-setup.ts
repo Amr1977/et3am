@@ -1,6 +1,7 @@
 import { Pool, PoolClient } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const TEST_DB_URL = process.env.TEST_DATABASE_URL || 'postgresql://postgres:REDACTED_PASSWORD@localhost:5433/et3am_test';
 
@@ -234,7 +235,7 @@ export async function createTestUser(client: PoolClient, overrides?: Partial<Tes
     [user.id, user.name, user.email, user.password, user.role, true, true, 'en']
   );
 
-  const token = require('jsonwebtoken').sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+  const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
   
   return { ...user, token };
 }

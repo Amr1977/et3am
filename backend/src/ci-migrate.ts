@@ -1,6 +1,6 @@
-const { Pool } = require('pg');
-const fs = require('fs');
-const path = require('path');
+import { Pool } from 'pg';
+import * as fs from 'fs';
+import * as path from 'path';
 
 async function migrate() {
   const connectionString = process.env.DATABASE_URL;
@@ -23,7 +23,7 @@ async function migrate() {
 
     // Get applied migrations
     const result = await pool.query('SELECT migration_name FROM migrations ORDER BY applied_at ASC');
-    const applied = result.rows.map(row => row.migration_name);
+    const applied = result.rows.map((row: { migration_name: string }) => row.migration_name);
 
     // Run each migration
     const migrationsDir = './migrations';

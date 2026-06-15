@@ -21,7 +21,8 @@
     "migrate:run": "ts-node src/migrate.ts",
     "migrate:staging": "ts-node -r dotenv/config src/migrate.ts dotenv_config_path=.env.staging",
     "migrate:test": "ts-node -r dotenv/config src/migrate.ts dotenv_config_path=.env.testing",
-    "trello": "node trello-cli.js"
+    "trello": "node trello-cli.js",
+    "lint": "eslint src/ --ext .ts"
   },
   "dependencies": {
     "@types/passport": "^1.0.17",
@@ -59,8 +60,11 @@
     "@types/jsonwebtoken": "^9.0.5",
     "@types/supertest": "^6.0.2",
     "@types/uuid": "^9.0.7",
+    "@typescript-eslint/eslint-plugin": "^8.61.0",
+    "@typescript-eslint/parser": "^8.61.0",
     "@vitest/coverage-v8": "^1.6.1",
     "@vitest/ui": "^1.6.1",
+    "eslint": "^10.5.0",
     "supertest": "^6.3.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
