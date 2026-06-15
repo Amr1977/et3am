@@ -50,7 +50,6 @@
     "@typescript-eslint/parser": "^8.61.0",
     "@vitejs/plugin-react": "^4.2.1",
     "eslint": "^10.5.0",
-    "eslint-plugin-react-hooks": "^7.1.1",
     "jsdom": "^23.0.1",
     "sharp": "^0.34.5",
     "typescript": "^5.3.3",
