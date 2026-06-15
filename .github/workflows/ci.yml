@@ -67,33 +67,17 @@ jobs:
         with:
           node-version: '20'
       
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: '9'
-      
-      - name: Get pnpm store directory
-        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-      
-      - name: Cache pnpm store
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-      
       - name: Install dependencies
         working-directory: frontend
-        run: pnpm install
+        run: npm install --legacy-peer-deps
       
       - name: Build
         working-directory: frontend
-        run: pnpm run build
+        run: npm run build
       
       - name: Run tests
         working-directory: frontend
-        run: pnpm run test:run
+        run: npm run test:run
 
   lint:
     runs-on: ubuntu-latest
@@ -133,11 +117,11 @@ jobs:
       
       - name: Install dependencies
         working-directory: frontend
-        run: pnpm install
+        run: npm install --legacy-peer-deps
       
       - name: Frontend lint
         working-directory: frontend
-        run: pnpm run lint
+        run: npm run lint
 
   security:
     runs-on: ubuntu-latest
@@ -177,11 +161,11 @@ jobs:
       
       - name: Install dependencies
         working-directory: frontend
-        run: pnpm install
+        run: npm install --legacy-peer-deps
       
       - name: Frontend security audit
         working-directory: frontend
-        run: pnpm audit --audit-level=critical || true
+        run: npm audit --audit-level=critical || true
 
   deploy-frontend:
     runs-on: ubuntu-latest
@@ -201,29 +185,13 @@ jobs:
         with:
           node-version: '20'
       
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: '9'
-      
-      - name: Get pnpm store directory
-        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-      
-      - name: Cache pnpm store
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-      
       - name: Install dependencies
         working-directory: ./frontend
-        run: pnpm install
+        run: npm install --legacy-peer-deps
       
       - name: Build frontend
         working-directory: ./frontend
-        run: pnpm run build
+        run: npm run build
       
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
@@ -250,20 +218,9 @@ jobs:
         with:
           version: '9'
       
-      - name: Get pnpm store directory
-        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-      
-      - name: Cache pnpm store
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-      
       - name: Install frontend dependencies
         working-directory: frontend
-        run: pnpm install
+        run: npm install --legacy-peer-deps
       
       - name: Install backend dependencies
         working-directory: backend
@@ -284,4 +241,4 @@ jobs:
         env:
           BASE_URL: ${{ secrets.USE_STATIC_URL || 'https://foodshare777.web.app' }}
           DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
-        run: pnpm playwright test tests/e2e/donation-flow-complete.e2e.ts --project=chromium
+        run: npx playwright test tests/e2e/donation-flow-complete.e2e.ts --project=chromium
