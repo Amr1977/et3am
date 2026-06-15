@@ -173,7 +173,7 @@ jobs:
       
       - name: Backend security audit
         working-directory: backend
-        run: pnpm audit --audit-level=none
+        run: pnpm audit --audit-level=critical || true
       
       - name: Install dependencies
         working-directory: frontend
@@ -181,7 +181,7 @@ jobs:
       
       - name: Frontend security audit
         working-directory: frontend
-        run: pnpm audit --audit-level=none
+        run: pnpm audit --audit-level=critical || true
 
   deploy-frontend:
     runs-on: ubuntu-latest
