@@ -6,7 +6,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
-import { getServerUrl } from '../services/api';
+import { getServerUrl, getInitialTileUrl } from '../services/api';
 import DebugLog from './DebugLog';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -103,7 +103,7 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
 }
 
 export default function DonationsMap({ donations, userLocation, t, onReserve, isAuthenticated, newDonationIds, onBoundsChange, isFullscreen }: DonationsMapProps) {
-  const [tileUrl, setTileUrl] = useState<string>('');
+  const [tileUrl, setTileUrl] = useState<string>(getInitialTileUrl());
   const [internalFullscreen, setInternalFullscreen] = useState(false);
   const mapFullscreen = isFullscreen !== undefined ? isFullscreen : internalFullscreen;
   const debugLogsRef = useRef<string[]>([]);
@@ -239,7 +239,7 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
         <BoundsTracker />
         <MapEventsLogger />
         <TileLayer
-          url={tileUrl || "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
+          url={tileUrl}
         />
 
         {userLocation && (

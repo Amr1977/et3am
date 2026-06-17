@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { getServerUrl } from '../services/api';
+import { getServerUrl, getInitialTileUrl } from '../services/api';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -44,7 +44,7 @@ function createColoredIcon(color: string) {
 }
 
 export default function DonationMap({ donations, t }: DonationMapProps) {
-  const [tileUrl, setTileUrl] = useState<string>('');
+  const [tileUrl, setTileUrl] = useState<string>(getInitialTileUrl());
   const geoDonations = donations.filter(d => d.latitude && d.longitude);
 
   useEffect(() => {

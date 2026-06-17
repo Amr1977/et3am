@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { fetchWithFailover, getServerUrl } from '../services/api';
+import { fetchWithFailover, getServerUrl, getInitialTileUrl } from '../services/api';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
@@ -126,7 +126,7 @@ export default function Home() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tileUrl, setTileUrl] = useState<string>('');
+  const [tileUrl, setTileUrl] = useState<string>(getInitialTileUrl());
   const [statsChanged, setStatsChanged] = useState(false);
   const prevStatsRef = useRef<Stats | null>(null);
   const [launchInfo, setLaunchInfo] = useState(getLaunchProgress());
@@ -274,7 +274,7 @@ export default function Home() {
               attributionControl={false}
             >
               <TileLayer
-                url={tileUrl || "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
+                url={tileUrl}
               />
               <MarkerClusterGroup
                 chunkedLoading

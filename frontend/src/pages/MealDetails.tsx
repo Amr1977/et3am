@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
-import { fetchWithFailover } from '../services/api';
+import { fetchWithFailover, getServerUrl, getInitialTileUrl } from '../services/api';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -103,6 +103,13 @@ export default function MealDetails() {
   const [reviewData, setReviewData] = useState({ rating: 5, comment: '' });
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [mapFullscreen, setMapFullscreen] = useState(false);
+  const [tileUrl, setTileUrl] = useState<string>(getInitialTileUrl());
+
+  useEffect(() => {
+    getServerUrl().then(url => {
+      setTileUrl(`${url}/api/maps/tiles/{z}/{x}/{y}.png`);
+    });
+  }, []);
 
   useEffect(() => {
     const fetchDonation = async () => {
@@ -336,7 +343,7 @@ export default function MealDetails() {
                 >
                   <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    url={tileUrl}
                   />
                   
                   {userLat && userLng && (

@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { getServerUrl } from '../services/api';
+import { getServerUrl, getInitialTileUrl } from '../services/api';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -28,7 +28,7 @@ function MapClickHandler({ onLocationChange }: { onLocationChange: (lat: number,
 }
 
 export default function LocationPicker({ latitude, longitude, onLocationChange, t }: LocationPickerProps) {
-  const [tileUrl, setTileUrl] = useState<string>('');
+  const [tileUrl, setTileUrl] = useState<string>(getInitialTileUrl());
   const hasLocation = latitude && longitude;
   const [position, setPosition] = useState<[number, number] | null>(
     hasLocation ? [parseFloat(latitude), parseFloat(longitude)] : null

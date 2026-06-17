@@ -96,6 +96,14 @@ export function getCurrentServer(): ServerInfo | null {
   return currentServer;
 }
 
+export function getInitialTileUrl(): string {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl) {
+    return `${envUrl}/api/maps/tiles/{z}/{x}/{y}.png`;
+  }
+  return '';
+}
+
 export function clearServerCache(): void {
   serverCache = null;
   cacheTimestamp = null;

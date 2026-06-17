@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
-import { getServerUrl } from '../services/api';
+import { getServerUrl, getInitialTileUrl } from '../services/api';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -105,7 +105,7 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
 }
 
 export default function ClusterMap({ donations, userLocation, t, onReserve, isAuthenticated, onBoundsChange, newDonationIds, fullscreen }: ClusterMapProps) {
-  const [tileUrl, setTileUrl] = useState<string>('');
+  const [tileUrl, setTileUrl] = useState<string>(getInitialTileUrl());
   const geoDonations = donations.filter(d => d.latitude && d.longitude);
   const newDonationIdsSet = new Set(newDonationIds || []);
 
