@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useSound } from '../context/SoundContext';
@@ -96,6 +97,81 @@ export default function Navbar() {
 
   const isActive = (path: string) => location.pathname === path;
 
+  const navbarLinksMarkup = (
+    <div className={`navbar-links ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+      {isAuthenticated && (
+        <div className="user-section">
+          <div className="user-avatar">
+            {user?.name?.charAt(0).toUpperCase() || '👤'}
+          </div>
+          <div className="user-info">
+            <div className="user-name">{user?.name}</div>
+            <div className="user-email">{user?.email}</div>
+          </div>
+        </div>
+      )}
+
+      <div className="nav-section">
+        <span className="nav-section-title">{t('nav.home')}</span>
+        {navItems.slice(0, 2).map(item => (
+          <Link 
+            key={item.path} 
+            to={item.path} 
+            className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <span className="nav-icon">{item.icon}</span>
+            <span className="nav-label">{item.label}</span>
+          </Link>
+        ))}
+      </div>
+
+      {isAuthenticated && (
+        <div className="nav-section">
+          <span className="nav-section-title">{t('nav.dashboard')}</span>
+          {navItems.slice(2, 9).map(item => (
+            (!item.requiresAdmin || user?.role === 'admin') && (
+              <Link 
+                key={item.path} 
+                to={item.path} 
+                className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <span className="nav-icon">{item.icon}</span>
+                <span className="nav-label">{item.label}</span>
+              </Link>
+            )
+          ))}
+        </div>
+      )}
+
+      <div className="nav-footer">
+        <div className="nav-actions">
+          <button onClick={handleLanguageSwitch} className="nav-item" title={isRTL ? 'Switch to English' : 'التبديل للعربية'}>
+            <span className="nav-icon">{isRTL ? '🇪🇬' : '🇸🇦'}</span>
+            <span className="nav-label">{isRTL ? 'English' : 'العربية'}</span>
+          </button>
+          <button onClick={toggleTheme} className="nav-item" title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}>
+            <span className="nav-icon">{theme === 'dark' ? '☀️' : '🌙'}</span>
+            <span className="nav-label">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+          </button>
+        </div>
+
+        {isAuthenticated ? (
+          <button onClick={handleLogout} className="nav-item logout">
+            <span className="nav-icon">🚪</span>
+            <span className="nav-label">{t('nav.logout')}</span>
+          </button>
+        ) : (
+          <div className="nav-auth-buttons">
+            <Link to="/login" className="btn btn-ghost">{t('nav.login')}</Link>
+            <Link to="/register" className="btn btn-primary">{t('nav.register')}</Link>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <nav className="navbar">
       <div 
@@ -121,78 +197,10 @@ export default function Navbar() {
           </div>
         </Link>
 
-        <div className={`navbar-links ${mobileMenuOpen ? 'mobile-open' : ''}`}>
-          {isAuthenticated && (
-            <div className="user-section">
-              <div className="user-avatar">
-                {user?.name?.charAt(0).toUpperCase() || '👤'}
-              </div>
-              <div className="user-info">
-                <div className="user-name">{user?.name}</div>
-                <div className="user-email">{user?.email}</div>
-              </div>
-            </div>
-          )}
-
-          <div className="nav-section">
-            <span className="nav-section-title">{t('nav.home')}</span>
-            {navItems.slice(0, 2).map(item => (
-              <Link 
-                key={item.path} 
-                to={item.path} 
-                className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <span className="nav-icon">{item.icon}</span>
-                <span className="nav-label">{item.label}</span>
-              </Link>
-            ))}
-          </div>
-
-          {isAuthenticated && (
-            <div className="nav-section">
-              <span className="nav-section-title">{t('nav.dashboard')}</span>
-              {navItems.slice(2, 9).map(item => (
-                (!item.requiresAdmin || user?.role === 'admin') && (
-                  <Link 
-                    key={item.path} 
-                    to={item.path} 
-                    className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <span className="nav-icon">{item.icon}</span>
-                    <span className="nav-label">{item.label}</span>
-                  </Link>
-                )
-              ))}
-            </div>
-          )}
-
-          <div className="nav-footer">
-            <div className="nav-actions">
-              <button onClick={handleLanguageSwitch} className="nav-item" title={isRTL ? 'Switch to English' : 'التبديل للعربية'}>
-                <span className="nav-icon">{isRTL ? '🇪🇬' : '🇸🇦'}</span>
-                <span className="nav-label">{isRTL ? 'English' : 'العربية'}</span>
-              </button>
-              <button onClick={toggleTheme} className="nav-item" title={theme === 'dark' ? 'Light Mode' : 'Dark Mode'}>
-                <span className="nav-icon">{theme === 'dark' ? '☀️' : '🌙'}</span>
-                <span className="nav-label">{theme === 'dark' ? 'Light' : 'Dark'}</span>
-              </button>
-            </div>
-
-            {isAuthenticated ? (
-              <button onClick={handleLogout} className="nav-item logout">
-                <span className="nav-icon">🚪</span>
-                <span className="nav-label">{t('nav.logout')}</span>
-              </button>
-            ) : (
-              <div className="nav-auth-buttons">
-                <Link to="/login" className="btn btn-ghost">{t('nav.login')}</Link>
-                <Link to="/register" className="btn btn-primary">{t('nav.register')}</Link>
-              </div>
-            )}
-          </div>
-        </div>
+        {mobileMenuOpen
+          ? createPortal(navbarLinksMarkup, document.body)
+          : navbarLinksMarkup
+        }
       </div>
 
       {mobileMenuOpen && <div className="mobile-overlay" onClick={() => setMobileMenuOpen(false)} />}

@@ -116,7 +116,7 @@ body {
   padding: 0 clamp(1rem, 5vw, 1.5rem);
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 1001;
   backdrop-filter: blur(20px);
   transition: all var(--transition);
 }
@@ -1033,11 +1033,6 @@ html[dir="rtl"] .version-badge {
   animation: fadeIn 0.3s ease;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 /* Button styles */
 .btn-ghost {
   background: transparent;
@@ -1358,7 +1353,7 @@ html[dir="rtl"] .version-badge {
   gap: 0.5rem;
   box-shadow: var(--shadow-lg);
   animation: slideUp 0.3s ease;
-  z-index: 1000;
+  z-index: 1003;
 }
 
 @keyframes slideUp {
@@ -3796,7 +3791,8 @@ html[dir="rtl"] .step-flow-number {
 
 .custom-marker-container div,
 .custom-marker div {
-  pointer-events: none;
+  user-select: none;
+  cursor: pointer;
 }
 
 .leaflet-marker-icon {
@@ -4049,7 +4045,7 @@ html[dir="rtl"] .step-flow-number {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 1002;
   padding: 1rem;
   animation: fadeIn 0.2s ease;
 }
@@ -5371,6 +5367,135 @@ html[dir="rtl"] .step-flow-number {
   max-height: 200px;
   white-space: pre-wrap;
   word-break: break-all;
+}
+
+/* Hackathon Voting Banner */
+.hackathon-banner {
+  position: relative;
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background-size: 200% 200%;
+  animation: hackathonGradient 4s ease infinite;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+@keyframes hackathonGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.hackathon-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  animation: hackathonShine 3s ease-in-out infinite;
+}
+
+@keyframes hackathonShine {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+.hackathon-banner-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  flex-wrap: wrap;
+}
+
+.hackathon-banner-icon {
+  font-size: 1.5rem;
+  animation: hackathonBounce 2s ease infinite;
+}
+
+@keyframes hackathonBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.hackathon-banner-text {
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.hackathon-banner-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #fff;
+  color: #764ba2;
+  padding: 0.35rem 1rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  animation: hackathonPulse 2s ease-in-out infinite;
+}
+
+@keyframes hackathonPulse {
+  0%, 100% { box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+  50% { box-shadow: 0 4px 20px rgba(255,255,255,0.4); }
+}
+
+.hackathon-banner-link:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+
+.hackathon-banner-close {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.hackathon-banner-close:hover {
+  background: rgba(255,255,255,0.35);
+}
+
+html[dir="rtl"] .hackathon-banner-close {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+@media (max-width: 640px) {
+  .hackathon-banner-content {
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+  .hackathon-banner-text {
+    font-size: 0.8rem;
+  }
+  .hackathon-banner-link {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.75rem;
+  }
 }
 
 /* Print */

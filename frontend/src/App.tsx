@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useSearchParams, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
@@ -65,11 +65,46 @@ function OAuthCallbackHandler() {
 }
 
 function AppContent() {
-  useRTL();
+  const { isRTL } = useRTL();
+  const [bannerDismissed, setBannerDismissed] = useState(() => {
+    return sessionStorage.getItem('hackathon_banner_dismissed') === 'true';
+  });
+
+  const dismissBanner = () => {
+    setBannerDismissed(true);
+    sessionStorage.setItem('hackathon_banner_dismissed', 'true');
+  };
 
   return (
     <div className="app">
       <Navbar />
+      {!bannerDismissed && (
+        <div className="hackathon-banner" role="banner">
+          <div className="hackathon-banner-content">
+            <span className="hackathon-banner-icon">🏆</span>
+            <span className="hackathon-banner-text">
+              {isRTL
+                ? 'صوّت لمشروع إطعام في هاكاثون قبيلة!'
+                : 'Vote for إطعام in the Qabila Hackathon!'}
+            </span>
+            <a
+              href="https://qabilah.com/hackathon/255665101472799432/projects/256831120698511360"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hackathon-banner-link"
+            >
+              {isRTL ? 'صوّت الآن 🗳️' : 'Vote Now 🗳️'}
+            </a>
+            <button
+              className="hackathon-banner-close"
+              onClick={dismissBanner}
+              aria-label={isRTL ? 'إغلاق' : 'Close'}
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
       <main className="main-content">
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
