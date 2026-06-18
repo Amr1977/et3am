@@ -85,6 +85,7 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
   return L.divIcon({
     className: 'custom-marker-container leaflet-interactive' + animationClass,
     html: `<div style="
+        box-sizing: border-box;
         background: ${color};
         width: 36px;
         height: 36px;
@@ -163,6 +164,21 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
     navigate(`/donations/${id}`);
   }, [navigate]);
 
+  const handleClusterClick = useCallback((e: any) => {
+    const cluster = e.layer;
+    const markers = cluster.getAllChildMarkers();
+    const map = cluster._map;
+    if (!map) return;
+
+    if (markers.length === 1) {
+      const marker = markers[0];
+      map.setView(marker.getLatLng(), 16, { animate: true });
+      setTimeout(() => marker.openPopup(), 300);
+    } else {
+      map.fitBounds(cluster.getBounds(), { maxZoom: 16 });
+    }
+  }, []);
+
   const defaultCenter: [number, number] = userLocation
     ? [userLocation.lat, userLocation.lng]
     : geoDonations.length > 0
@@ -204,10 +220,11 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
           chunkedLoading
           spiderfyOnMaxZoom
           showCoverageOnHover={false}
-          zoomToBoundsOnClick
+          zoomToBoundsOnClick={false}
           maxClusterRadius={40}
           disableClusteringAtZoom={15}
           iconCreateFunction={createClusterIcon}
+          onClick={handleClusterClick}
         >
           {geoDonations.slice(0, 50).map(d => {
             const color = statusColors[d.status] || '#6b7280';

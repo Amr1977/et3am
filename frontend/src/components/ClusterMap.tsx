@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
@@ -85,6 +85,7 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
     className: 'custom-marker-container leaflet-interactive' + animationClass,
     html: `
       <div style="
+        box-sizing: border-box;
         background: ${color};
         width: 36px;
         height: 36px;
@@ -164,6 +165,21 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
     }
   };
 
+  const handleClusterClick = useCallback((e: any) => {
+    const cluster = e.layer;
+    const markers = cluster.getAllChildMarkers();
+    const map = cluster._map;
+    if (!map) return;
+
+    if (markers.length === 1) {
+      const marker = markers[0];
+      map.setView(marker.getLatLng(), 16, { animate: true });
+      setTimeout(() => marker.openPopup(), 300);
+    } else {
+      map.fitBounds(cluster.getBounds(), { maxZoom: 16 });
+    }
+  }, []);
+
   function MapController() {
     const map = useMap();
     
@@ -214,10 +230,11 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
           chunkedLoading
           spiderfyOnMaxZoom
           showCoverageOnHover={false}
-          zoomToBoundsOnClick
+          zoomToBoundsOnClick={false}
           maxClusterRadius={50}
           disableClusteringAtZoom={16}
           iconCreateFunction={createClusterIcon}
+          onClick={handleClusterClick}
         >
           {geoDonations.map(d => {
             const color = statusColors[d.status] || '#6b7280';
