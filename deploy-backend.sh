@@ -15,10 +15,10 @@ git commit -m "release: bump version to $NEW_MAJOR.$NEW_MINOR.$NEW_PATCH" || tru
 
 # Server 1: AWS (api.et3am.com)
 echo "📦 Deploying to AWS (api.et3am.com)..."
-ssh ubuntu@api.et3am.com "cd /home/ubuntu/et3am && git fetch origin master && git reset --hard origin/master && cd backend && npm install && npm run build"
+ssh ec2-user@api.et3am.com "cd /home/ec2-user/et3am && git fetch origin master && git reset --hard origin/master && cd backend && npm install && npm run build"
 
 echo "🔄 Starting AWS backend with ecosystem.config.js..."
-ssh ubuntu@api.et3am.com "cd /home/ubuntu/et3am && pm2 stop et3am-backend 2>/dev/null || true && pm2 delete et3am-backend 2>/dev/null || true && pm2 start ecosystem.config.js"
+ssh ec2-user@api.et3am.com "cd /home/ec2-user/et3am && pm2 stop et3am-backend 2>/dev/null || true && pm2 delete et3am-backend 2>/dev/null || true && pm2 start ecosystem.config.js"
 
 echo "✅ AWS deployment complete"
 
