@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -7,7 +7,7 @@ import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import { getServerUrl, getInitialTileUrl } from '../services/api';
-import DebugLog from './DebugLog';
+import { useNavigate } from 'react-router-dom';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -58,17 +58,17 @@ const statusColors: Record<string, string> = {
 };
 
 const foodIcons: Record<string, string> = {
-  'meat': '🥩',
-  'chicken': '🍗',
-  'fish': '🐟',
-  'vegetables': '🥬',
-  'fruits': '🍎',
-  'bread': '🍞',
-  'rice': '🍚',
-  'pasta': '🍝',
-  'soup': '🥣',
-  'dessert': '🍰',
-  'other': '🍽️',
+  meat: '🥩',
+  chicken: '🍗',
+  fish: '🐟',
+  vegetables: '🥬',
+  fruits: '🍎',
+  bread: '🍞',
+  rice: '🍚',
+  pasta: '🍝',
+  soup: '🥣',
+  dessert: '🍰',
+  other: '🍽️',
 };
 
 function getFoodIcon(type: string): string {
@@ -96,7 +96,7 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
         justify-content: center;
         font-size: 18px;
         user-select: none;
-      cursor: pointer;
+        cursor: pointer;
       ">${icon}</div>`,
     iconSize: [36, 36],
     iconAnchor: [18, 18],
@@ -104,149 +104,85 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
   });
 }
 
+function BoundsTracker({ onBoundsChange }: { onBoundsChange?: (bounds: L.LatLngBounds | null) => void }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (onBoundsChange) {
+      const bounds = map.getBounds();
+      onBoundsChange(bounds);
+
+      const moveEndHandler = () => {
+        onBoundsChange(map.getBounds());
+      };
+
+      map.on('moveend', moveEndHandler);
+      return () => {
+        map.off('moveend', moveEndHandler);
+      };
+    }
+  }, [map, onBoundsChange]);
+
+  return null;
+}
+
+const createClusterIcon = (cluster: any) => {
+  const count = cluster.getChildCount();
+  let size = 'small';
+  if (count > 10) size = 'medium';
+  if (count > 50) size = 'large';
+
+  return L.divIcon({
+    html: `<div class="cluster-marker cluster-${size}"><span>${count}</span></div>`,
+    className: 'marker-cluster-custom',
+    iconSize: L.point(40, 40),
+  });
+};
+
 export default function DonationsMap({ donations, userLocation, t, onReserve, isAuthenticated, newDonationIds, onBoundsChange, isFullscreen }: DonationsMapProps) {
   const [tileUrl, setTileUrl] = useState<string>(getInitialTileUrl());
   const [internalFullscreen, setInternalFullscreen] = useState(false);
   const mapFullscreen = isFullscreen !== undefined ? isFullscreen : internalFullscreen;
-  const debugLogsRef = useRef<string[]>([]);
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const [, forceUpdate] = useState(0);
+  const navigate = useNavigate();
+
   const geoDonations = donations.filter(d => d.latitude && d.longitude);
   const newDonationIdsSet = new Set(newDonationIds || []);
 
-  const addLog = (msg: string) => {
-    const time = new Date().toLocaleTimeString();
-    const log = `[${time}] ${msg}`;
-    console.log(log);
-    debugLogsRef.current = [...debugLogsRef.current.slice(-20), log];
-    forceUpdate(n => n + 1);
-  };
-
-  const clearLogs = () => {
-    debugLogsRef.current = [];
-    forceUpdate(n => n + 1);
-  };
-
-  const logs = debugLogsRef.current;
-
-  // Prevent map clicks when interacting with the debug log
   useEffect(() => {
-    const logContainer = document.querySelector('.debug-log-container');
-    if (logContainer) {
-      L.DomEvent.disableClickPropagation(logContainer as HTMLElement);
-      L.DomEvent.disableScrollPropagation(logContainer as HTMLElement);
-    }
-  }, [logs]);
-
-  // Prevent map clicks from bubbling to parent components
-  useEffect(() => {
-    if (mapContainerRef.current) {
-      L.DomEvent.disableClickPropagation(mapContainerRef.current);
-      L.DomEvent.disableScrollPropagation(mapContainerRef.current);
-    }
-  }, []);
-
-  useEffect(() => {
-    addLog('DonationsMap component mounted');
     getServerUrl().then(url => {
-      addLog(`Server URL fetched, setting tile URL`);
       setTileUrl(`${url}/api/maps/tiles/{z}/{x}/{y}.png`);
-    }).catch(err => {
-      addLog(`Error fetching server URL: ${err.message}`);
-    });
+    }).catch(() => {});
   }, []);
 
-  function BoundsTracker() {
-    const map = useMap();
-    
-    useEffect(() => {
-      if (onBoundsChange) {
-        const bounds = map.getBounds();
-        onBoundsChange(bounds);
-        
-        const moveEndHandler = () => {
-          onBoundsChange(map.getBounds());
-        };
-        
-        map.on('moveend', moveEndHandler);
-        return () => {
-          map.off('moveend', moveEndHandler);
-        };
-      }
-    }, [map, onBoundsChange]);
-    
-    return null;
-  }
+  const handleReserveClick = useCallback((id: string) => {
+    if (onReserve) onReserve(id);
+  }, [onReserve]);
 
-  function MapEventsLogger() {
-    useMapEvents({
-      click: (e) => {
-        const target = e.originalEvent.target as HTMLElement;
-        const classes = target.className || 'no-class';
-        addLog(`MAP click at [${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}], target class: ${classes}`);
-      },
-      mousedown: (e) => {
-        const target = e.originalEvent.target as HTMLElement;
-        const classes = target.className || 'no-class';
-        addLog(`MAP mousedown at [${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)}], target class: ${classes}`);
-      },
-      popupopen: (e) => {
-        addLog(`MAP popupopen event from ${e.popup?.getContent() ? 'content' : 'unknown'}`);
-      },
-      popupclose: (e) => {
-        addLog(`MAP popupclose event`);
-      }
-    });
-    return null;
-  }
+  const handlePopupClick = useCallback((id: string) => {
+    navigate(`/donations/${id}`);
+  }, [navigate]);
 
-  const createClusterIcon = (cluster: any) => {
-    const count = cluster.getChildCount();
-    let size = 'small';
-    if (count > 10) size = 'medium';
-    if (count > 50) size = 'large';
-    
-    return L.divIcon({
-      html: `<div class="cluster-marker cluster-${size}"><span>${count}</span></div>`,
-      className: 'marker-cluster-custom',
-      iconSize: L.point(40, 40),
-    });
-  };
-
-  const handleReserveClick = (id: string) => {
-    if (onReserve) {
-      onReserve(id);
-    }
-  };
-
-  const defaultCenter: [number, number] = userLocation 
+  const defaultCenter: [number, number] = userLocation
     ? [userLocation.lat, userLocation.lng]
-    : geoDonations.length > 0 
+    : geoDonations.length > 0
       ? [geoDonations[0].latitude!, geoDonations[0].longitude!]
       : [30.0444, 31.2357];
 
   return (
-    <div 
-      className={`donations-map ${mapFullscreen ? 'fullscreen' : ''}`}
-      ref={mapContainerRef}
-    >
+    <div className={`donations-map ${mapFullscreen ? 'fullscreen' : ''}`}>
       <MapContainer
         center={defaultCenter}
         zoom={userLocation ? 13 : 11}
         style={{ height: '100%', width: '100%', minHeight: '300px' }}
         zoomControl={false}
         attributionControl={false}
-        closePopupOnClick={false}
       >
-        <BoundsTracker />
-        <MapEventsLogger />
-        <TileLayer
-          url={tileUrl}
-        />
+        <BoundsTracker onBoundsChange={onBoundsChange} />
+        <TileLayer url={tileUrl} />
 
         {userLocation && (
           <>
-            <Marker 
+            <Marker
               position={[userLocation.lat, userLocation.lng]}
               icon={userLocationIcon}
             />
@@ -275,20 +211,14 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
           {geoDonations.slice(0, 50).map(d => {
             const color = statusColors[d.status] || '#6b7280';
             const canReserve = d.status === 'available' && isAuthenticated;
-            
+
             return (
               <Marker
                 key={d.id}
                 position={[d.latitude!, d.longitude!]}
                 icon={createMarkerIcon(color, d.food_type, newDonationIdsSet.has(d.id))}
-                eventHandlers={{
-                  click: (e: L.LeafletMouseEvent) => {
-                    addLog(`Marker CLICK: ${d.id} (${d.title})`);
-                    e.target.openPopup();
-                  },
-                }}
               >
-                <Popup closeButton={true}>
+                <Popup>
                   <div style={{ minWidth: '180px', padding: '8px' }}>
                     <div style={{ fontSize: '24px', marginBottom: '8px' }}>{getFoodIcon(d.food_type)}</div>
                     <div style={{ fontWeight: 700, fontSize: '16px', marginBottom: '4px' }}>{d.title}</div>
@@ -297,7 +227,7 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
                     <div style={{ fontSize: '12px', color: '#888', marginBottom: '8px' }}>📍 {d.pickup_address || 'No address'}</div>
                     {canReserve && (
                       <button
-                        onClick={() => handleReserveClick(d.id)}
+                        onClick={(e) => { e.stopPropagation(); handleReserveClick(d.id); }}
                         style={{
                           background: '#22c55e',
                           color: 'white',
@@ -312,19 +242,22 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
                         {t('donations.reserve')}
                       </button>
                     )}
-                    <a
-                      href={`/donations/${d.id}`}
+                    <div
+                      onClick={() => handlePopupClick(d.id)}
                       style={{
-                        display: 'block',
                         textAlign: 'center',
                         marginTop: '8px',
                         color: '#3b82f6',
-                        textDecoration: 'none',
+                        cursor: 'pointer',
                         fontSize: '13px',
+                        fontWeight: 600,
+                        padding: '6px',
+                        borderRadius: '4px',
+                        background: '#f0f7ff',
                       }}
                     >
-                      {t('donations.view_details')}
-                    </a>
+                      {t('donations.view_details')} →
+                    </div>
                   </div>
                 </Popup>
               </Marker>
@@ -333,7 +266,7 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
         </MarkerClusterGroup>
       </MapContainer>
       {mapFullscreen && (
-        <button 
+        <button
           className="map-fullscreen-close"
           onClick={(e) => { e.stopPropagation(); setInternalFullscreen(false); }}
           style={{
@@ -357,7 +290,7 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
           ✕
         </button>
       )}
-      <button 
+      <button
         onClick={() => { setInternalFullscreen(!internalFullscreen); }}
         style={{
           position: 'absolute',
@@ -373,7 +306,6 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
       >
         {mapFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
       </button>
-      <DebugLog logs={logs} onClear={clearLogs} />
     </div>
   );
 }
