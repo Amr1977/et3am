@@ -1,0 +1,7 @@
+#!/bin/sh
+# Commit-msg hook: Auto-bump VERSION based on Conventional Commit message
+
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+COMMIT_MSG_FILE="$1"
+
+node "$PROJECT_ROOT/scripts/bump-version.cjs" "$COMMIT_MSG_FILE"

@@ -1,10 +1,5 @@
 import { useTranslation } from 'react-i18next';
-
-let gitInfo = { commit: 'dev', date: new Date().toISOString() };
-try {
-    gitInfo = require('../git-info.json');
-} catch (e) {
-}
+import gitInfo from '../git-info.json';
 
 export default function Footer() {
   const { t } = useTranslation();
@@ -39,7 +34,7 @@ export default function Footer() {
         <div className="footer-bottom">
           <p>&copy; {new Date().getFullYear()} {t('app.name')}. {t('footer.rights')}</p>
           <p className="footer-commit">
-            commit: {commit} | {date} {time}
+            v{gitInfo.version} | {commit} | {date} {time}
           </p>
         </div>
       </div>
