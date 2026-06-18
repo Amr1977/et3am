@@ -167,7 +167,7 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
   const handleClusterClick = useCallback((e: any) => {
     const cluster = e.layer;
     const markers = cluster.getAllChildMarkers();
-    const map = cluster._map;
+    const map = cluster._map || (e.target && e.target._map);
     if (!map) return;
 
     if (markers.length === 1) {

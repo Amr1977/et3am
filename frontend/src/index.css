@@ -2635,8 +2635,6 @@ html[dir="rtl"] .step-flow-number {
   height: 500px;
   position: relative;
   border-radius: 12px;
-  overflow: hidden;
-  cursor: pointer;
   transition: all 0.3s ease;
 }
 
@@ -3738,7 +3736,6 @@ html[dir="rtl"] .step-flow-number {
   overflow: hidden;
   border: 1px solid var(--border);
   position: relative;
-  z-index: 1;
 }
 
 .map-container .leaflet-container {
@@ -3809,7 +3806,7 @@ html[dir="rtl"] .step-flow-number {
 }
 
 .leaflet-popup {
-  z-index: 1000 !important;
+  z-index: 10000 !important;
 }
 
 /* Leaflet Popup Styles */
