@@ -95,7 +95,7 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
         align-items: center;
         justify-content: center;
         font-size: 18px;
-        cursor: pointer;
+        pointer-events: none;
       ">${icon}</div>
     `,
     iconSize: [36, 36],

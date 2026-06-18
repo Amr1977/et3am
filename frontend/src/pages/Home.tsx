@@ -82,7 +82,7 @@ function createMarkerIcon(color: string, foodType: string) {
         align-items: center;
         justify-content: center;
         font-size: 18px;
-        cursor: pointer;
+        pointer-events: none;
       ">${icon}</div>
     `,
     iconSize: [36, 36],
@@ -404,17 +404,35 @@ export default function Home() {
             {t('home.support_dev_desc')}
           </p>
           
-          <div className="support-phone-section">
-            <span className="support-phone-label">{t('home.support_phone')}</span>
-            <div className="support-phone-display">
-              <span className="support-phone-number">01094450141</span>
-              <button className="copy-btn" onClick={() => navigator.clipboard.writeText('01094450141')}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="9" y="9" width="13" height="13" rx="2"/>
-                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+          <div className="support-phone-group">
+            <div className="support-phone-section">
+              <span className="support-phone-label">{t('home.support_phone')}</span>
+              <div className="support-phone-display">
+                <span className="support-phone-number">01094450141</span>
+                <button className="copy-btn" onClick={() => navigator.clipboard.writeText('01094450141')}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2"/>
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                  </svg>
+                  <span>{t('home.support_copy')}</span>
+                </button>
+              </div>
+            </div>
+            
+            <div className="support-methods-list">
+              <div className="support-method-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <rect x="3" y="5" width="18" height="14" rx="2"/>
+                  <path d="M3 10h18"/>
                 </svg>
-                <span>{t('home.support_copy')}</span>
-              </button>
+                <span>Instapay</span>
+              </div>
+              <div className="support-method-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+                </svg>
+                <span>Vodafone Cash</span>
+              </div>
             </div>
           </div>
           
@@ -431,22 +449,6 @@ export default function Home() {
               </button>
             </div>
             <span className="support-crypto-network">{t('home.support_crypto_network')}</span>
-          </div>
-          
-          <div className="support-methods-list">
-            <div className="support-method-badge">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <rect x="3" y="5" width="18" height="14" rx="2"/>
-                <path d="M3 10h18"/>
-              </svg>
-              <span>Instapay</span>
-            </div>
-            <div className="support-method-badge">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
-              </svg>
-              <span>Vodafone Cash</span>
-            </div>
           </div>
           
           <p className="support-dev-thanks">{t('home.support_thanks')}</p>

@@ -210,6 +210,12 @@ body {
   border: none !important;
 }
 
+.user-marker-pulse,
+.user-marker-dot,
+.user-marker-inner {
+  pointer-events: none;
+}
+
 .user-marker-pulse {
   position: absolute;
   width: 48px;
@@ -2643,8 +2649,20 @@ html[dir="rtl"] .step-flow-number {
   margin-top: 1rem;
 }
 
+.support-phone-group {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .support-phone-section {
-  margin-bottom: 1rem;
+  margin-bottom: 0;
 }
 
 .support-crypto-section {
@@ -2753,6 +2771,10 @@ html[dir="rtl"] .step-flow-number {
   gap: 1rem;
   flex-wrap: wrap;
   margin-bottom: 2rem;
+}
+
+.support-phone-group .support-methods-list {
+  margin-bottom: 0;
 }
 
 .support-method-badge {
@@ -3573,13 +3595,15 @@ html[dir="rtl"] .step-flow-number {
 }
 
 /* Custom Marker Styles */
-.custom-marker-container {
+.custom-marker-container,
+.custom-marker {
   background: transparent !important;
   border: none !important;
 }
 
-.custom-marker-container div {
-  cursor: pointer;
+.custom-marker-container div,
+.custom-marker div {
+  pointer-events: none;
 }
 
 .leaflet-marker-icon {
