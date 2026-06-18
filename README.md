@@ -1,7 +1,7 @@
 # Et3am (إطعام) - Food Donation Platform
 
 <p align="center">
-  <img src="artifacts/images/donations-map.png" alt="Et3am Screenshot" width="800">
+  <img src="frontend/public/et3am-og.png" alt="Et3am Screenshot" width="800">
 </p>
 
 **English:** Connecting surplus food to families in need — free, open, and community-powered.  
