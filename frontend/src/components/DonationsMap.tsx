@@ -83,7 +83,7 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
   const icon = getFoodIcon(foodType);
   const animationClass = isNew ? ' marker-bounce' : '';
   return L.divIcon({
-    className: 'custom-marker-container' + animationClass,
+    className: 'custom-marker-container leaflet-interactive' + animationClass,
     html: `<div style="
         background: ${color};
         width: 36px;
@@ -97,6 +97,7 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
         font-size: 18px;
         user-select: none;
         cursor: pointer;
+        pointer-events: auto;
       ">${icon}</div>`,
     iconSize: [36, 36],
     iconAnchor: [18, 18],
@@ -217,6 +218,7 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
                 key={d.id}
                 position={[d.latitude!, d.longitude!]}
                 icon={createMarkerIcon(color, d.food_type, newDonationIdsSet.has(d.id))}
+                eventHandlers={{ click: (e) => e.target.openPopup() }}
               >
                 <Popup>
                   <div style={{ minWidth: '180px', padding: '8px' }}>

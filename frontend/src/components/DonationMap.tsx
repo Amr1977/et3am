@@ -35,8 +35,8 @@ const statusColors: Record<string, string> = {
 
 function createColoredIcon(color: string) {
   return L.divIcon({
-    className: 'custom-marker',
-    html: `<div style="background:${color};width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);user-select:none;cursor:pointer;"></div>`,
+    className: 'custom-marker leaflet-interactive',
+    html: `<div style="background:${color};width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);user-select:none;cursor:pointer;pointer-events:auto;"></div>`,
     iconSize: [28, 28],
     iconAnchor: [14, 14],
     popupAnchor: [0, -14],
@@ -69,6 +69,7 @@ export default function DonationMap({ donations, t }: DonationMapProps) {
              key={d.id}
              position={[d.latitude!, d.longitude!]}
              icon={createColoredIcon(statusColors[d.status] || '#6b7280')}
+             eventHandlers={{ click: (e) => e.target.openPopup() }}
            >
             <Popup>
               <strong>{d.title}</strong>
