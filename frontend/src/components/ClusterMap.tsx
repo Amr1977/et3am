@@ -85,7 +85,6 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
     className: 'custom-marker-container leaflet-interactive' + animationClass,
     html: `
       <div style="
-        box-sizing: border-box;
         background: ${color};
         width: 36px;
         height: 36px;
@@ -101,9 +100,9 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
         pointer-events: auto;
       ">${icon}</div>
     `,
-    iconSize: [36, 36],
-    iconAnchor: [18, 18],
-    popupAnchor: [0, -18],
+    iconSize: [42, 42],
+    iconAnchor: [21, 21],
+    popupAnchor: [0, -21],
   });
 }
 
@@ -174,7 +173,7 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
     if (markers.length === 1) {
       const marker = markers[0];
       map.setView(marker.getLatLng(), 16, { animate: true });
-      setTimeout(() => marker.openPopup(), 300);
+      map.once('moveend', () => marker.openPopup());
     } else {
       map.fitBounds(cluster.getBounds(), { maxZoom: 16 });
     }
