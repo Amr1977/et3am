@@ -116,7 +116,7 @@ et3am/
 
 **AWS Server (api.et3am.com) — SSH user MUST be `ec2-user`, NOT `ubuntu`:**
 ```bash
-ssh ec2-user@commerce-api.et3am.com
+ssh ec2-user@api.et3am.com
 # Project: /home/ec2-user/et3am
 # PM2: et3am-backend
 ```
@@ -131,7 +131,7 @@ ssh amr_lotfy_othman@matrix-delivery-api-gc.mywire.org
 ### Check Backend Logs
 ```bash
 # AWS
-ssh ec2-user@commerce-api.et3am.com "tail -50 /home/ec2-user/et3am/backend/logs/combined.log"
+ssh ec2-user@api.et3am.com "tail -50 /home/ec2-user/et3am/backend/logs/combined.log"
 
 # GCP
 ssh amr_lotfy_othman@matrix-delivery-api-gc.mywire.org "tail -50 /home/amr_lotfy_othman/et3am/backend/logs/combined.log"
