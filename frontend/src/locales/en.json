@@ -4,6 +4,11 @@
     "tagline": "Food Donation Platform",
     "description": "A charitable platform connecting surplus food to those in need"
   },
+  "footer": {
+    "links": "Links",
+    "creator": "Creator",
+    "rights": "All rights reserved."
+  },
   "nav": {
     "home": "Home",
     "donations": "Food Donations",

@@ -174,10 +174,6 @@ export default function Navbar() {
 
   return (
     <nav className="navbar">
-      <div 
-        className={`mobile-menu-overlay ${mobileMenuOpen ? 'active' : ''}`}
-        onClick={() => setMobileMenuOpen(false)}
-      />
       <div className="navbar-container">
         <button 
           className={`hamburger ${mobileMenuOpen ? 'active' : ''}`} 
@@ -198,12 +194,16 @@ export default function Navbar() {
         </Link>
 
         {mobileMenuOpen
-          ? createPortal(navbarLinksMarkup, document.body)
+          ? createPortal(
+              <>
+                <div className="mobile-overlay" onClick={() => setMobileMenuOpen(false)} />
+                {navbarLinksMarkup}
+              </>,
+              document.body
+            )
           : navbarLinksMarkup
         }
       </div>
-
-      {mobileMenuOpen && <div className="mobile-overlay" onClick={() => setMobileMenuOpen(false)} />}
     </nav>
   );
 }

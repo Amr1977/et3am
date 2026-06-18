@@ -11,16 +11,21 @@ function renderWithI18n(ui: React.ReactElement) {
 describe('Footer', () => {
   it('renders footer with app name', () => {
     renderWithI18n(<Footer />);
-    expect(screen.getByText(/et3am/i)).toBeInTheDocument();
+    expect(screen.getByText(/إطعام/i)).toBeInTheDocument();
   });
 
-  it('renders footer links section', () => {
+  it('renders et3am.com link', () => {
     renderWithI18n(<Footer />);
     expect(screen.getByText(/et3am.com/)).toBeInTheDocument();
   });
 
+  it('renders portfolio link', () => {
+    renderWithI18n(<Footer />);
+    expect(screen.getByText(/Amr Lotfy/)).toBeInTheDocument();
+  });
+
   it('renders copyright notice', () => {
     renderWithI18n(<Footer />);
-    expect(screen.getByText(/© 2025/)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(String(new Date().getFullYear())))).toBeInTheDocument();
   });
 });
