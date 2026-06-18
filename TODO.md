@@ -26,7 +26,7 @@
 ---
 
 ## Tasks
-- [ ] Clone matrix-delivery and other projects to this VPS for unified AI CLI experience
+- [x] Clone matrix-delivery and other projects to this VPS for unified AI CLI experience
 
 
 ---

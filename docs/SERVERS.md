@@ -18,7 +18,7 @@ Both servers host **multiple projects**. Always verify the correct project path 
 - **Backend Port:** 3002 (3000=commerce-backend, 3001=hafsa-backend)
 - **PM2 App Name:** et3am-backend
 - **PM2 Mode:** fork (not cluster)
-- **PM2 Config:** started directly (no ecosystem file), cwd=/home/ec2-user/et3am/backend
+- **PM2 Config:** /home/ec2-user/et3am/ecosystem.config.js (fork mode, 1 instance, .env.production auto-loaded)
 - **Database:** Neon PostgreSQL via DATABASE_URL in .env.production
 - **Other Projects on Server:** commerce-backend (port 3000), hafsa-backend (port 3001)
 
@@ -47,8 +47,8 @@ Both servers host **multiple projects**. Always verify the correct project path 
 # Push code first
 git push origin master
 
-# AWS - Et3am ONLY (includes build)
-ssh ec2-user@commerce-api.et3am.com "cd /home/ec2-user/et3am && git fetch origin master && git reset --hard origin/master && cd backend && npm install --omit=dev && npm run build && pm2 restart et3am-backend"
+# AWS - Et3am ONLY (includes build, needs full install for TypeScript)
+ssh ec2-user@commerce-api.et3am.com "cd /home/ec2-user/et3am && git fetch origin master && git reset --hard origin/master && cd backend && npm install && npm run build && pm2 restart et3am-backend"
 
 # GCP - Et3am ONLY (currently unreachable)
 # ssh amr_lotfy_othman@matrix-delivery-api-gc.mywire.org "cd /home/amr_lotfy_othman/et3am && git fetch origin master && git reset --hard origin/master && cd backend && npm install --omit=dev && npm run build && pm2 restart et3am-backend"
@@ -72,6 +72,14 @@ ssh ec2-user@commerce-api.et3am.com "pm2 list"
 ## Other Projects (for reference)
 
 ### matrix-delivery-backend
-- **Server 1 PM2:** matrix-delivery-backend (cluster mode, 4 instances)
-- **Server 2 PM2:** matrix-delivery-backend (cluster mode, 2 instances)
+- **Server 1 PM2:** matrix-delivery-backend (fork mode, 1 instance, ~266MB) — **on et3am AWS**
+- **Server 2 PM2:** matrix-delivery-backend (cluster mode, 2 instances) — original GCP (unreachable)
 - **Repo:** github.com/Amr1977/matrix-delivery
+- **Local Path:** /home/ec2-user/matrix-delivery
+- **Port:** 5000
+- **Domain:** https://api.matrix-delivery.com
+- **Database:** PostgreSQL via DATABASE_URL in .env.production
+- **Redis:** disabled (in-memory fallback) — install redis for full cluster mode
+- **SSL:** Let's Encrypt (expires 2026-09-16)
+- **Nginx:** /etc/nginx/conf.d/api.matrix-delivery.com.conf
+- **Note:** SCP'd .env.production from D:\matrix-delivery\backend\.env.production. Firestore server registry may fail (non-critical, multi-server failover only).
