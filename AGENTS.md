@@ -114,10 +114,10 @@ et3am/
 
 ### Server Access (see docs/servers.md for full details)
 
-**AWS Server (api.et3am.com):**
+**AWS Server (api.et3am.com) — SSH user MUST be `ec2-user`, NOT `ubuntu`:**
 ```bash
-ssh ubuntu@api.et3am.com
-# Project: /home/ubuntu/et3am
+ssh ec2-user@commerce-api.et3am.com
+# Project: /home/ec2-user/et3am
 # PM2: et3am-backend
 ```
 
@@ -131,7 +131,7 @@ ssh amr_lotfy_othman@matrix-delivery-api-gc.mywire.org
 ### Check Backend Logs
 ```bash
 # AWS
-ssh ubuntu@api.et3am.com "tail -50 /home/ubuntu/et3am/backend/logs/combined.log"
+ssh ec2-user@commerce-api.et3am.com "tail -50 /home/ec2-user/et3am/backend/logs/combined.log"
 
 # GCP
 ssh amr_lotfy_othman@matrix-delivery-api-gc.mywire.org "tail -50 /home/amr_lotfy_othman/et3am/backend/logs/combined.log"
@@ -139,7 +139,10 @@ ssh amr_lotfy_othman@matrix-delivery-api-gc.mywire.org "tail -50 /home/amr_lotfy
 
 ### Restart Backend
 ```bash
-ssh ubuntu@api.et3am.com "pm2 restart et3am-backend"
+# AWS (user MUST be ec2-user)
+ssh ec2-user@commerce-api.et3am.com "cd /home/ec2-user/et3am/backend && pm2 restart et3am-backend"
+
+# GCP
 ssh amr_lotfy_othman@matrix-delivery-api-gc.mywire.org "pm2 restart et3am-backend"
 ```
 

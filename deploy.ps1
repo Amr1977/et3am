@@ -15,7 +15,7 @@ Write-Host "==========================================" -ForegroundColor Cyan
 # Configuration
 $BackendDir = "backend"
 $FrontendDir = "frontend"
-$ServerHost = "ubuntu@api.et3am.com"
+$ServerHost = "ec2-user@commerce-api.et3am.com"
 $EnvFile = "$BackendDir\.env.production"
 
 # Check if .env.production exists
