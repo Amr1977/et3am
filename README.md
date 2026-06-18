@@ -20,10 +20,10 @@
 
 ## 💡 Why Et3am?
 
-- **Egypt wastes ~35%** of food produced annually
-- **1 in 3 Egyptians** faces food insecurity
+- **~⅓ of all food produced globally** is wasted every year
+- **Nearly 1 in 10 people worldwide** faces hunger
 - **Et3am bridges this gap** with zero fees and no middlemen
-- Inspired by the concept of **Sadaqah Jariyah** (continuous charity)
+- Inspired by the concept of **Sadaqah Jariyah** (continuous charity) and the universal principle of sharing with those in need
 
 ---
 
@@ -121,7 +121,7 @@ If you believe in our mission, please consider supporting Et3am:
 - **Open Collective:** https://opencollective.com/et3am
 - **PayPal:** amr.lotfy.othman@gmail.com
 - **Crypto (TRON TRC20):** TACcgwLC4GeKzKGLWz14tiVahnpftHre1H
-- **InstaPay:** 01094450141
+- **InstaPay (Egypt):** 01094450141
 
 ---
 
@@ -172,8 +172,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Inspired by the concept of Sadaqah Jariyah (continuous charity)
-- Thanks to all contributors and supporters
+- Inspired by the concept of Sadaqah Jariyah (continuous charity) and the universal value of sharing food with those in need
+- Thanks to all contributors and supporters around the world
 
 ---
 
