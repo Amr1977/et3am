@@ -69,6 +69,19 @@ export default function Donations() {
   const [mapBounds, setMapBounds] = useState<L.LatLngBounds | null>(null);
   const [newDonationIds, setNewDonationIds] = useState<string[]>([]);
   const [mapFullscreen, setMapFullscreen] = useState(false);
+  const [browserLocation, setBrowserLocation] = useState<{ lat: number; lng: number } | null>(null);
+
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setBrowserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
+      },
+      (err) => console.error('Geolocation error:', err),
+      { timeout: 10000, maximumAge: 300000, enableHighAccuracy: false }
+    );
+  }, []);
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -733,7 +746,7 @@ export default function Donations() {
             )}
             <DonationsMap 
               donations={donations} 
-              userLocation={user?.latitude && user?.longitude ? { lat: user.latitude, lng: user.longitude } : null}
+              userLocation={browserLocation || (user?.latitude && user?.longitude ? { lat: user.latitude, lng: user.longitude } : null)}
               t={t}
               onReserve={handleReserve}
               isAuthenticated={isAuthenticated}

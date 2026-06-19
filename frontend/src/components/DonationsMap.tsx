@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
@@ -103,6 +103,14 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
     iconAnchor: [21, 21],
     popupAnchor: [0, -21],
   });
+}
+
+function MapCenterUpdater({ center }: { center: [number, number] }) {
+  const map = useMap();
+  useEffect(() => {
+    map.flyTo(center, map.getZoom(), { duration: 1.5 });
+  }, [map, center]);
+  return null;
 }
 
 function BoundsTracker({ onBoundsChange }: { onBoundsChange?: (bounds: L.LatLngBounds | null) => void }) {
@@ -214,6 +222,7 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
         attributionControl={false}
       >
         <BoundsTracker onBoundsChange={onBoundsChange} />
+        {userLocation && <MapCenterUpdater center={[userLocation.lat, userLocation.lng]} />}
         <TileLayer url={tileUrl} />
 
         {userLocation && (
