@@ -49,7 +49,8 @@ function LocationTracker({ onLocation }: { onLocation: (lat: number, lng: number
   });
   
   useEffect(() => {
-    map.locate({ watch: true, enableHighAccuracy: true });
+    map.locate({ setView: false, enableHighAccuracy: false, maximumAge: 60000 });
+    return () => { map.stopLocate(); };
   }, [map]);
   
   return null;

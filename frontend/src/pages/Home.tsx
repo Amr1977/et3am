@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { fetchWithFailover, getServerUrl, getInitialTileUrl } from '../services/api';
@@ -158,8 +159,12 @@ function MapHeroInteractionHandler({ onFirstInteraction }: { onFirstInteraction:
 function HeroMapResizeHandler() {
   const map = useMap();
   useEffect(() => {
-    const timer = setTimeout(() => map.invalidateSize(), 300);
-    return () => clearTimeout(timer);
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        map.invalidateSize();
+      });
+    });
+    return () => cancelAnimationFrame(raf);
   }, [map]);
   return null;
 }
@@ -295,8 +300,8 @@ export default function Home() {
   };
 
   return (
-    <div className={`home-page${mapFullscreen ? ' map-fullscreen' : ''}`}>
-      <section className={`hero${mapFullscreen ? ' map-fullscreen' : ''}`}>
+    <div className="home-page" style={mapFullscreen ? { overflowX: 'visible' } : undefined}>
+      <section className="hero" style={mapFullscreen ? { overflow: 'visible' } : undefined}>
         <div className="hero-content">
           <div className="hero-badge">
             <span>✨</span>
@@ -339,6 +344,21 @@ export default function Home() {
         <div className="hero-visual">
           <div 
             className={`hero-map ${mapFullscreen ? 'fullscreen' : ''}`}
+            style={mapFullscreen ? {
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh',
+              zIndex: 99999,
+              borderRadius: 0,
+              cursor: 'default',
+              background: '#fff',
+              margin: 0,
+              maxWidth: 'none',
+              aspectRatio: 'auto',
+              overflow: 'visible',
+            } : undefined}
             onClick={(e) => {
               const target = e.target as HTMLElement;
               // Don't fullscreen when clicking on markers, popups, or popup controls
