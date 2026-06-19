@@ -196,9 +196,13 @@ export default function Donations() {
     return () => unsubscribe();
   }, [isAuthenticated, onAdminNotification, playSound]);
 
-  const handleBoundsChange = (bounds: L.LatLngBounds | null) => {
+  const handleBoundsChange = useCallback((bounds: L.LatLngBounds | null) => {
     setMapBounds(bounds);
-  };
+  }, []);
+
+  const handleFullscreenChange = useCallback((fs: boolean) => {
+    setMapFullscreen(fs);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -753,7 +757,7 @@ export default function Donations() {
               newDonationIds={newDonationIds}
               onBoundsChange={handleBoundsChange}
               isFullscreen={mapFullscreen}
-              onFullscreenChange={(fs) => setMapFullscreen(fs)}
+              onFullscreenChange={handleFullscreenChange}
             />
           </div>
         ) : (

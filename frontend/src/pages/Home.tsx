@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { fetchWithFailover, getServerUrl, getInitialTileUrl } from '../services/api';
@@ -119,8 +119,15 @@ const userLocationIcon = L.divIcon({
 
 function MapCenterUpdater({ center }: { center: [number, number] }) {
   const map = useMap();
+  const prevCenterRef = useRef(center);
+
   useEffect(() => {
-    map.flyTo(center, map.getZoom(), { duration: 1.5 });
+    const [lat, lng] = center;
+    const [prevLat, prevLng] = prevCenterRef.current;
+    if (lat !== prevLat || lng !== prevLng) {
+      prevCenterRef.current = center;
+      map.flyTo(center, map.getZoom(), { duration: 1.5 });
+    }
   }, [map, center]);
   return null;
 }
@@ -178,6 +185,15 @@ export default function Home() {
   const [mapFullscreen, setMapFullscreen] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
+
+  const handleHeroInteraction = useCallback(() => {
+    setMapFullscreen(true);
+  }, []);
+
+  const center = useMemo(() =>
+    userLocation ? [userLocation.lat, userLocation.lng] as [number, number] : null,
+    [userLocation?.lat, userLocation?.lng]
+  );
 
   useEffect(() => {
     if (!navigator.geolocation) {
@@ -340,11 +356,11 @@ export default function Home() {
               <TileLayer
                 url={tileUrl}
               />
-              {userLocation && (
-                <MapCenterUpdater center={[userLocation.lat, userLocation.lng]} />
+              {center && (
+                <MapCenterUpdater center={center} />
               )}
               {!mapFullscreen && (
-                <MapHeroInteractionHandler onFirstInteraction={() => setMapFullscreen(true)} />
+                <MapHeroInteractionHandler onFirstInteraction={handleHeroInteraction} />
               )}
               {userLocation && (
                 <>

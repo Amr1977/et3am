@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
@@ -108,8 +108,15 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
 
 function MapCenterUpdater({ center }: { center: [number, number] }) {
   const map = useMap();
+  const prevCenterRef = useRef(center);
+
   useEffect(() => {
-    map.flyTo(center, map.getZoom(), { duration: 1.5 });
+    const [lat, lng] = center;
+    const [prevLat, prevLng] = prevCenterRef.current;
+    if (lat !== prevLat || lng !== prevLng) {
+      prevCenterRef.current = center;
+      map.flyTo(center, map.getZoom(), { duration: 1.5 });
+    }
   }, [map, center]);
   return null;
 }
@@ -231,6 +238,16 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
     return () => { group.off('click', handleMarkerClick); };
   }, [handleMarkerClick]);
 
+  const handleInteraction = useCallback(() => {
+    if (onFullscreenChange) onFullscreenChange(true);
+    else setInternalFullscreen(true);
+  }, [onFullscreenChange]);
+
+  const center = useMemo(() =>
+    userLocation ? [userLocation.lat, userLocation.lng] as [number, number] : null,
+    [userLocation?.lat, userLocation?.lng]
+  );
+
   const defaultCenter: [number, number] = userLocation
     ? [userLocation.lat, userLocation.lng]
     : geoDonations.length > 0
@@ -247,11 +264,8 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
         attributionControl={false}
       >
         <BoundsTracker onBoundsChange={onBoundsChange} />
-        {userLocation && <MapCenterUpdater center={[userLocation.lat, userLocation.lng]} />}
-        {!mapFullscreen && <MapInteractionHandler onInteraction={() => {
-          if (onFullscreenChange) onFullscreenChange(true);
-          else setInternalFullscreen(true);
-        }} />}
+        {center && <MapCenterUpdater center={center} />}
+        {!mapFullscreen && <MapInteractionHandler onInteraction={handleInteraction} />}
         <TileLayer url={tileUrl} />
 
         {userLocation && (
