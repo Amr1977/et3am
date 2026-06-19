@@ -322,6 +322,32 @@ FATAL ERROR: Zone Allocation failed - process out of memory
 
 ---
 
+### 11. Windows: node_modules/.bin/tsc is a Bash Script, Not JS
+
+**Mistake:** Used `node ./node_modules/.bin/tsc -b` in package.json build script
+```bash
+# ❌ WRONG - fails on Windows
+node --max-old-space-size=4096 ./node_modules/.bin/tsc -b
+# Error: SyntaxError: missing ) after argument list
+```
+
+**Impact:** Frontend build fails on Windows (CI unaffected since it runs on Linux)
+
+**Root Cause:** On Windows, `node_modules/.bin/tsc` is a **bash script** (not JS). Running it with `node` treats bash syntax as JS and fails. The `.bin/tsc.cmd` file is the Windows-compatible version, but npm scripts on Windows Git Bash resolve `tsc` (no ext) before `tsc.cmd`.
+
+**Correct Patterns:**
+```bash
+# ✅ CORRECT - use typescript/bin/tsc.js directly (cross-platform)
+node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc -b
+
+# OR just use tsc directly (npm adds node_modules/.bin to PATH)
+tsc -b
+```
+
+**Lesson:** Never run `.bin/*` shims with `node` directly on Windows. Use the compiler's real entry point at `node_modules/<package>/bin/<file>.js`, or rely on PATH resolution via npm scripts.
+
+---
+
 ## Checklist - Before Every Commit
 
 - [ ] Check if config files are valid (opencode.json schema)
