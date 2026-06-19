@@ -166,14 +166,18 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
 
   const handleClusterClick = useCallback((e: any) => {
     const cluster = e.layer;
-    const markers = cluster.getAllChildMarkers();
     const map = cluster._map || (e.target && e.target._map);
     if (!map) return;
 
+    if (typeof cluster.getAllChildMarkers !== 'function') {
+      cluster.openPopup();
+      return;
+    }
+
+    const markers = cluster.getAllChildMarkers();
+
     if (markers.length === 1) {
-      const marker = markers[0];
-      map.setView(marker.getLatLng(), 16, { animate: true });
-      map.once('moveend', () => marker.openPopup());
+      markers[0].openPopup();
     } else {
       map.fitBounds(cluster.getBounds(), { maxZoom: 16 });
     }
