@@ -8,6 +8,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import { getServerUrl, getInitialTileUrl } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import MapCenterUpdater from './MapCenterUpdater';
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -104,20 +105,6 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
     iconAnchor: [21, 21],
     popupAnchor: [0, -21],
   });
-}
-
-function MapCenterUpdater({ center }: { center: [number, number] }) {
-  const map = useMap();
-  const prevCenterRef = useRef<[number, number] | null>(null);
-
-  useEffect(() => {
-    const prev = prevCenterRef.current;
-    if (!prev || prev[0] !== center[0] || prev[1] !== center[1]) {
-      prevCenterRef.current = center;
-      map.flyTo(center, map.getZoom(), { duration: 1.5 });
-    }
-  }, [map, center]);
-  return null;
 }
 
 function BoundsTracker({ onBoundsChange }: { onBoundsChange?: (bounds: L.LatLngBounds | null) => void }) {

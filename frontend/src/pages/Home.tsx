@@ -3,11 +3,15 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { fetchWithFailover, getServerUrl, getInitialTileUrl } from '../services/api';
-import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import { useAuth } from '../context/AuthContext';
 import { useSound } from '../context/SoundContext';
+import MapCenterUpdater from '../components/MapCenterUpdater';
+import MapFullscreenCenterHandler from '../components/MapFullscreenCenterHandler';
+import MapHeroInteractionHandler from '../components/MapHeroInteractionHandler';
+import HeroMapResizeHandler from '../components/HeroMapResizeHandler';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -117,57 +121,6 @@ const userLocationIcon = L.divIcon({
   iconSize: [32, 32],
   iconAnchor: [16, 16],
 });
-
-function MapCenterUpdater({ center }: { center: [number, number] }) {
-  const map = useMap();
-  const prevCenterRef = useRef<[number, number] | null>(null);
-
-  useEffect(() => {
-    const prev = prevCenterRef.current;
-    if (!prev || prev[0] !== center[0] || prev[1] !== center[1]) {
-      prevCenterRef.current = center;
-      map.flyTo(center, map.getZoom(), { duration: 1.5 });
-    }
-  }, [map, center]);
-  return null;
-}
-
-function MapHeroInteractionHandler({ onFirstInteraction }: { onFirstInteraction: () => void }) {
-  const map = useMap();
-  const hasTriggered = useRef(false);
-
-  useEffect(() => {
-    const handler = () => {
-      if (!hasTriggered.current) {
-        hasTriggered.current = true;
-        onFirstInteraction();
-      }
-    };
-
-    map.on('dragstart', handler);
-    map.on('zoomstart', handler);
-
-    return () => {
-      map.off('dragstart', handler);
-      map.off('zoomstart', handler);
-    };
-  }, [map, onFirstInteraction]);
-
-  return null;
-}
-
-function HeroMapResizeHandler() {
-  const map = useMap();
-  useEffect(() => {
-    const raf = requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        map.invalidateSize();
-      });
-    });
-    return () => cancelAnimationFrame(raf);
-  }, [map]);
-  return null;
-}
 
 const LAUNCH_DATE = new Date('2026-05-01T00:00:00');
 
@@ -346,10 +299,7 @@ export default function Home() {
             className={`hero-map ${mapFullscreen ? 'fullscreen' : ''}`}
             style={mapFullscreen ? {
               position: 'fixed',
-              top: 0,
-              left: 0,
-              width: '100vw',
-              height: '100vh',
+              inset: 0,
               zIndex: 99999,
               borderRadius: 0,
               cursor: 'default',
@@ -391,6 +341,7 @@ export default function Home() {
                 <MapHeroInteractionHandler onFirstInteraction={handleHeroInteraction} />
               )}
               <HeroMapResizeHandler key={mapFullscreen ? 'a' : 'b'} />
+              <MapFullscreenCenterHandler isFullscreen={mapFullscreen} center={center} />
               {userLocation && (
                 <>
                   <Marker

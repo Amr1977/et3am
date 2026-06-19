@@ -333,4 +333,109 @@ test.describe('Map Fullscreen Behavior', () => {
       expect(isFullscreen).toBe(false);
     }
   });
+
+  test('donations page fullscreen should cover full viewport', async ({ page }) => {
+    await page.goto('/donations');
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.waitForTimeout(2000);
+
+    const mapContainer = page.locator('.map-container .leaflet-container');
+    await mapContainer.click({ position: { x: 100, y: 100 } });
+    await page.waitForTimeout(500);
+
+    const wrapper = page.locator('.map-container-wrapper');
+    await expect(wrapper).toHaveClass(/fullscreen/);
+
+    const box = await wrapper.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.width).toBeGreaterThanOrEqual(1270);
+    expect(box!.height).toBeGreaterThanOrEqual(790);
+  });
+
+  test('donations page fullscreen should exit with Escape key', async ({ page }) => {
+    await page.goto('/donations');
+    await page.waitForTimeout(2000);
+
+    const mapContainer = page.locator('.map-container .leaflet-container');
+    await mapContainer.click({ position: { x: 100, y: 100 } });
+    await page.waitForTimeout(500);
+
+    const wrapper = page.locator('.map-container-wrapper');
+    await expect(wrapper).toHaveClass(/fullscreen/);
+
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
+
+    await expect(wrapper).not.toHaveClass(/fullscreen/);
+  });
+
+  test('donations page fullscreen close button works', async ({ page }) => {
+    await page.goto('/donations');
+    await page.waitForTimeout(2000);
+
+    const mapContainer = page.locator('.map-container .leaflet-container');
+    await mapContainer.click({ position: { x: 100, y: 100 } });
+    await page.waitForTimeout(500);
+
+    const closeBtn = page.locator('.map-fullscreen-close');
+    await expect(closeBtn).toBeVisible();
+
+    await closeBtn.click();
+    await page.waitForTimeout(500);
+
+    const wrapper = page.locator('.map-container-wrapper');
+    await expect(wrapper).not.toHaveClass(/fullscreen/);
+  });
+
+  test('home page should NOT auto-fullscreen on navigation', async ({ page }) => {
+    await page.goto('/donations');
+    await page.waitForTimeout(1000);
+
+    await page.goto('/');
+    await page.waitForTimeout(3000);
+
+    const heroMap = page.locator('.hero-map');
+    const isFullscreen = await heroMap.evaluate(el => el.classList.contains('fullscreen'));
+    expect(isFullscreen).toBe(false);
+  });
+
+  test('navigating donations -> home should not trigger unintended fullscreen', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/donations');
+    await page.waitForTimeout(1500);
+
+    const donationsWrapper = page.locator('.map-container-wrapper');
+    const donationsFullscreen = await donationsWrapper.evaluate(el => el.classList.contains('fullscreen'));
+    expect(donationsFullscreen).toBe(false);
+
+    await page.goto('/');
+    await page.waitForTimeout(3000);
+
+    const heroMap = page.locator('.hero-map');
+    const homeFullscreen = await heroMap.evaluate(el => el.classList.contains('fullscreen'));
+    expect(homeFullscreen).toBe(false);
+  });
+
+  test('home page map fullscreen covers full viewport when triggered by interaction', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/');
+    await page.waitForTimeout(2000);
+
+    const heroMap = page.locator('.hero-map');
+    const leafletContainer = heroMap.locator('.leaflet-container');
+
+    await leafletContainer.dragTo(leafletContainer, {
+      sourcePosition: { x: 200, y: 200 },
+      targetPosition: { x: 100, y: 100 },
+    });
+    await page.waitForTimeout(1500);
+
+    const isFullscreen = await heroMap.evaluate(el => el.classList.contains('fullscreen'));
+    expect(isFullscreen).toBe(true);
+
+    const box = await heroMap.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.width).toBeGreaterThanOrEqual(1270);
+    expect(box!.height).toBeGreaterThanOrEqual(790);
+  });
 });
