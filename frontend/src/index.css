@@ -1970,6 +1970,10 @@ html[dir="rtl"] .version-badge {
   max-width: 100vw;
 }
 
+.home-page.map-fullscreen {
+  overflow-x: visible;
+}
+
 .hero {
   min-height: calc(100vh - var(--header-height));
   display: grid;
@@ -1981,6 +1985,10 @@ html[dir="rtl"] .version-badge {
   overflow: hidden;
   max-width: 1600px;
   margin: 0 auto;
+}
+
+.hero.map-fullscreen {
+  overflow: visible;
 }
 
 .hero::before {

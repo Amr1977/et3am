@@ -295,8 +295,8 @@ export default function Home() {
   };
 
   return (
-    <div className="home-page">
-      <section className="hero">
+    <div className={`home-page${mapFullscreen ? ' map-fullscreen' : ''}`}>
+      <section className={`hero${mapFullscreen ? ' map-fullscreen' : ''}`}>
         <div className="hero-content">
           <div className="hero-badge">
             <span>✨</span>
