@@ -322,7 +322,38 @@ FATAL ERROR: Zone Allocation failed - process out of memory
 
 ---
 
-### 11. Windows: node_modules/.bin/tsc is a Bash Script, Not JS
+### 11. Chrome Clips position:fixed Elements Inside overflow:hidden Ancestors
+
+**Mistake:** Home page hero map fullscreen (`position: fixed`) didn't cover full viewport — only showed within the `.hero` section bounds.
+
+```css
+/* ❌ WRONG - parent clips fullscreen map in Chrome */
+.home-page { overflow-x: hidden; }
+.hero { overflow: hidden; }
+```
+
+**Impact:** Fullscreen map appears clipped to hero section area (about half viewport width).
+
+**Root Cause:** Chrome intentionally clips `position: fixed` descendants when any ancestor has `overflow: hidden` or `overflow-x: hidden`. This is a documented Chrome behavior (not a bug), done for performance — it treats the fixed element as still subject to ancestor clipping.
+
+**Correct Pattern:**
+```css
+/* ✅ CORRECT - remove overflow clipping when map is fullscreen */
+.home-page.map-fullscreen { overflow-x: visible; }
+.hero.map-fullscreen { overflow: visible; }
+```
+
+```tsx
+// ✅ CORRECT - toggle class on parent containers
+<div className={`home-page${mapFullscreen ? ' map-fullscreen' : ''}`}>
+  <section className={`hero${mapFullscreen ? ' map-fullscreen' : ''}`}>
+```
+
+**Lesson:** `position: fixed` does NOT escape `overflow: hidden` clipping in Chrome. If a fixed element isn't covering the full viewport, check all ancestors for overflow properties. Fix by conditionally removing `overflow: hidden` when fullscreen is active.
+
+---
+
+### 12. Windows: node_modules/.bin/tsc is a Bash Script, Not JS
 
 **Mistake:** Used `node ./node_modules/.bin/tsc -b` in package.json build script
 ```bash
