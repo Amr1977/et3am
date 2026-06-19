@@ -119,12 +119,11 @@ const userLocationIcon = L.divIcon({
 
 function MapCenterUpdater({ center }: { center: [number, number] }) {
   const map = useMap();
-  const prevCenterRef = useRef(center);
+  const prevCenterRef = useRef<[number, number] | null>(null);
 
   useEffect(() => {
-    const [lat, lng] = center;
-    const [prevLat, prevLng] = prevCenterRef.current;
-    if (lat !== prevLat || lng !== prevLng) {
+    const prev = prevCenterRef.current;
+    if (!prev || prev[0] !== center[0] || prev[1] !== center[1]) {
       prevCenterRef.current = center;
       map.flyTo(center, map.getZoom(), { duration: 1.5 });
     }
@@ -153,6 +152,15 @@ function MapHeroInteractionHandler({ onFirstInteraction }: { onFirstInteraction:
     };
   }, [map, onFirstInteraction]);
 
+  return null;
+}
+
+function HeroMapResizeHandler() {
+  const map = useMap();
+  useEffect(() => {
+    const timer = setTimeout(() => map.invalidateSize(), 300);
+    return () => clearTimeout(timer);
+  }, [map]);
   return null;
 }
 
@@ -362,6 +370,7 @@ export default function Home() {
               {!mapFullscreen && (
                 <MapHeroInteractionHandler onFirstInteraction={handleHeroInteraction} />
               )}
+              <HeroMapResizeHandler key={mapFullscreen ? 'a' : 'b'} />
               {userLocation && (
                 <>
                   <Marker

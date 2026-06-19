@@ -108,12 +108,11 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
 
 function MapCenterUpdater({ center }: { center: [number, number] }) {
   const map = useMap();
-  const prevCenterRef = useRef(center);
+  const prevCenterRef = useRef<[number, number] | null>(null);
 
   useEffect(() => {
-    const [lat, lng] = center;
-    const [prevLat, prevLng] = prevCenterRef.current;
-    if (lat !== prevLat || lng !== prevLng) {
+    const prev = prevCenterRef.current;
+    if (!prev || prev[0] !== center[0] || prev[1] !== center[1]) {
       prevCenterRef.current = center;
       map.flyTo(center, map.getZoom(), { duration: 1.5 });
     }
@@ -155,6 +154,15 @@ const createClusterIcon = (cluster: any) => {
     iconSize: L.point(40, 40),
   });
 };
+
+function MapResizeHandler({ active }: { active: boolean }) {
+  const map = useMap();
+  useEffect(() => {
+    const timer = setTimeout(() => map.invalidateSize(), 300);
+    return () => clearTimeout(timer);
+  }, [map, active]);
+  return null;
+}
 
 function MapInteractionHandler({ onInteraction }: { onInteraction: () => void }) {
   const map = useMap();
@@ -287,6 +295,7 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
             />
           </>
         )}
+        <MapResizeHandler active={mapFullscreen} />
         <MarkerClusterGroup
           ref={clusterGroupRef}
           chunkedLoading
