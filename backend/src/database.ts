@@ -78,9 +78,10 @@ export interface Donation {
   latitude: number | null;
   longitude: number | null;
   pickup_date: string | null;
-  status: 'available' | 'reserved' | 'completed' | 'expired';
+  status: 'available' | 'reserved' | 'completed' | 'expired' | 'hidden';
   reserved_by: string | null;
   hash_code: string | null;
+  is_hidden: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -151,10 +152,14 @@ export const dbOps = {
     },
   },
   donations: {
-    async findAll(filters?: { status?: string; food_type?: string }, page = 1, limit = 10, userLat?: number | null, userLng?: number | null): Promise<{ donations: Donation[]; total: number }> {
+    async findAll(filters?: { status?: string; food_type?: string; includeHidden?: boolean }, page = 1, limit = 10, userLat?: number | null, userLng?: number | null): Promise<{ donations: Donation[]; total: number }> {
       let where = 'WHERE 1=1';
       const params: any[] = [];
       let idx = 1;
+
+      if (!filters?.includeHidden) {
+        where += ` AND (is_hidden = FALSE OR is_hidden IS NULL)`;
+      }
 
       if (filters?.status) {
         where += ` AND status = $${idx++}`;
@@ -192,14 +197,18 @@ export const dbOps = {
     },
     async create(d: Omit<Donation, 'created_at' | 'updated_at'>): Promise<Donation> {
       const { rows } = await pool.query(
-        `INSERT INTO donations (id, donor_id, title, description, food_type, quantity, unit, expiry_date, pickup_address, latitude, longitude, pickup_date, status, reserved_by, hash_code)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING *`,
-        [d.id, d.donor_id, d.title, d.description, d.food_type, d.quantity, d.unit, d.expiry_date, d.pickup_address, d.latitude, d.longitude, d.pickup_date, d.status, d.reserved_by, d.hash_code]
+        `INSERT INTO donations (id, donor_id, title, description, food_type, quantity, unit, expiry_date, pickup_address, latitude, longitude, pickup_date, status, reserved_by, hash_code, is_hidden)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING *`,
+        [d.id, d.donor_id, d.title, d.description, d.food_type, d.quantity, d.unit, d.expiry_date, d.pickup_address, d.latitude, d.longitude, d.pickup_date, d.status, d.reserved_by, d.hash_code, d.is_hidden ?? false]
       );
       return rows[0];
     },
     async findByDonor(donorId: string): Promise<Donation[]> {
       const { rows } = await pool.query('SELECT * FROM donations WHERE donor_id = $1 ORDER BY created_at DESC', [donorId]);
+      return rows;
+    },
+    async findHidden(): Promise<Donation[]> {
+      const { rows } = await pool.query('SELECT * FROM donations WHERE is_hidden = TRUE ORDER BY created_at DESC');
       return rows;
     },
     async findByReserved(userId: string): Promise<Donation[]> {
@@ -227,6 +236,13 @@ export const dbOps = {
     async delete(id: string): Promise<boolean> {
       const result = await pool.query('DELETE FROM donations WHERE id = $1', [id]);
       return (result.rowCount ?? 0) > 0;
+    },
+    async setHidden(id: string, isHidden: boolean): Promise<Donation | null> {
+      const { rows } = await pool.query(
+        'UPDATE donations SET is_hidden = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
+        [isHidden, id]
+      );
+      return rows[0] || null;
     },
     async countByStatus(status: string): Promise<number> {
       const { rows } = await pool.query('SELECT COUNT(*) as count FROM donations WHERE status = $1', [status]);

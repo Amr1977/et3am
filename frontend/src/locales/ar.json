@@ -248,7 +248,11 @@
     "donations_found": "تبرعات موجودة",
     "donation_found": "تبرع واحد",
     "address_hidden": "العنوان مخفي",
-    "login_to_see": "سجل دخول لرؤية العنوان"
+    "login_to_see": "سجل دخول لرؤية العنوان",
+    "hide": "إخفاء",
+    "unhide": "إظهار",
+    "confirm_hide": "هل أنت متأكد من إخفاء هذا التبرع؟",
+    "hidden": "مخفي"
   },
   "common": {
     "loading": "جاري التحميل...",

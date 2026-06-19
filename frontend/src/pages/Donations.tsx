@@ -28,6 +28,7 @@ interface Donation {
   reserved_by?: string;
   reserved_by_name?: string;
   hash_code?: string;
+  is_hidden?: boolean;
   created_at: string;
 }
 
@@ -252,7 +253,32 @@ export default function Donations() {
     }
   };
 
+  const handleHide = async (id: string) => {
+    try {
+      await fetchWithFailover(`/api/donations/${id}/hide`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchDonations();
+    } catch (err) {
+      console.error('Failed to hide donation');
+    }
+  };
+
+  const handleUnhide = async (id: string) => {
+    try {
+      await fetchWithFailover(`/api/donations/${id}/unhide`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchDonations();
+    } catch (err) {
+      console.error('Failed to unhide donation');
+    }
+  };
+
   const handleDelete = async (id: string) => {
+    if (!confirm(t('donations.confirm_delete'))) return;
     try {
       const res = await fetchWithFailover(`/api/donations/${id}`, {
         method: 'DELETE',
@@ -789,13 +815,39 @@ export default function Donations() {
                         : (isAuthenticated ? t('donations.address_hidden') : t('donations.login_to_see'))}
                     </span>
                     {isAuthenticated && donation.donor_id === user?.id && (
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); setEditingDonation(donation); }}
-                        className="btn btn-outline btn-sm"
-                        style={{ marginLeft: '8px', padding: '4px 8px', fontSize: '12px' }}
-                      >
-                        {t('donations.edit')}
-                      </button>
+                      <>
+                        {donation.is_hidden ? (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleUnhide(donation.id); }}
+                            className="btn btn-outline btn-sm"
+                            style={{ marginLeft: '8px', padding: '4px 8px', fontSize: '12px' }}
+                          >
+                            {t('donations.unhide')}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleHide(donation.id); }}
+                            className="btn btn-outline btn-sm"
+                            style={{ marginLeft: '8px', padding: '4px 8px', fontSize: '12px' }}
+                          >
+                            {t('donations.hide')}
+                          </button>
+                        )}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDelete(donation.id); }}
+                          className="btn btn-danger btn-sm"
+                          style={{ marginLeft: '4px', padding: '4px 8px', fontSize: '12px' }}
+                        >
+                          {t('donations.delete')}
+                        </button>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setEditingDonation(donation); }}
+                          className="btn btn-outline btn-sm"
+                          style={{ marginLeft: '4px', padding: '4px 8px', fontSize: '12px' }}
+                        >
+                          {t('donations.edit')}
+                        </button>
+                      </>
                     )}
                   </div>
                   

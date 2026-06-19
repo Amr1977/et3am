@@ -17,6 +17,7 @@ interface Donation {
   donor_id: string;
   donor_name?: string;
   reserved_by_name?: string;
+  is_hidden?: boolean;
 }
 
 interface DonationCardProps {
@@ -26,6 +27,8 @@ interface DonationCardProps {
   onComplete?: (id: string) => void;
   onDelete?: (id: string) => void;
   onEdit?: (id: string) => void;
+  onHide?: (id: string) => void;
+  onUnhide?: (id: string) => void;
   onMarkReceived?: (id: string) => void;
   onClick?: () => void;
   isOwner?: boolean;
@@ -33,13 +36,14 @@ interface DonationCardProps {
   t: (key: string) => string;
 }
 
-export default function DonationCard({ donation, onReserve, onCancelReservation, onComplete, onDelete, onEdit, onMarkReceived, onClick, isOwner, isReserver, t }: DonationCardProps) {
+export default function DonationCard({ donation, onReserve, onCancelReservation, onComplete, onDelete, onEdit, onHide, onUnhide, onMarkReceived, onClick, isOwner, isReserver, t }: DonationCardProps) {
   const statusColors: Record<string, string> = {
     available: '#22c55e',
     reserved: '#f59e0b',
     received: '#8b5cf6',
     completed: '#3b82f6',
     expired: '#ef4444',
+    hidden: '#9ca3af',
   };
 
   return (
@@ -117,6 +121,16 @@ export default function DonationCard({ donation, onReserve, onCancelReservation,
         {donation.status === 'reserved' && isOwner && onComplete && (
           <button onClick={() => onComplete(donation.id)} className="btn btn-success btn-sm">
             {t('donations.complete')}
+          </button>
+        )}
+        {isOwner && donation.is_hidden && onUnhide && (
+          <button onClick={() => onUnhide(donation.id)} className="btn btn-outline btn-sm">
+            {t('donations.unhide')}
+          </button>
+        )}
+        {isOwner && !donation.is_hidden && onHide && (
+          <button onClick={() => onHide(donation.id)} className="btn btn-outline btn-sm">
+            {t('donations.hide')}
           </button>
         )}
         {isOwner && onDelete && (

@@ -189,7 +189,11 @@
     },
     "report_description": "Additional details (optional)",
     "report_description_placeholder": "Provide more information...",
-    "submit_report": "Submit Report"
+    "submit_report": "Submit Report",
+    "hide": "Hide",
+    "unhide": "Unhide",
+    "confirm_hide": "Are you sure you want to hide this donation?",
+    "hidden": "Hidden"
   },
   "food_types": {
     "meat": "Meat",

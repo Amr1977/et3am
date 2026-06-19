@@ -276,6 +276,7 @@ router.post('/', createDonationLimiter, authenticate, async (req: AuthRequest, r
       status: 'available',
       reserved_by: null,
       hash_code: null,
+      is_hidden: false,
     });
 
     (logger as any).donation('New donation created', { donationId: donation.id, donorId: req.userId, title, food_type, quantity });
@@ -585,6 +586,58 @@ router.post('/:id/complete', authenticate, async (req: AuthRequest, res: Respons
     res.json({ messageKey: 'donation.completed', donation: updated });
   } catch (err) {
     logger.error('Complete error:', err);
+    res.status(500).json({ messageKey: 'general.server_error' });
+  }
+});
+
+router.post('/:id/hide', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const donation = await dbOps.donations.findById(req.params.id);
+    if (!donation) {
+      res.status(404).json({ messageKey: 'donation.not_found' });
+      return;
+    }
+
+    if (donation.donor_id !== req.userId && req.userRole !== 'admin') {
+      res.status(403).json({ messageKey: 'auth.unauthorized' });
+      return;
+    }
+
+    if (donation.is_hidden) {
+      res.status(400).json({ messageKey: 'donation.already_hidden' });
+      return;
+    }
+
+    const updated = await dbOps.donations.setHidden(req.params.id, true);
+    res.json({ messageKey: 'donation.hidden', donation: updated });
+  } catch (err) {
+    logger.error('Hide error:', err);
+    res.status(500).json({ messageKey: 'general.server_error' });
+  }
+});
+
+router.post('/:id/unhide', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const donation = await dbOps.donations.findById(req.params.id);
+    if (!donation) {
+      res.status(404).json({ messageKey: 'donation.not_found' });
+      return;
+    }
+
+    if (donation.donor_id !== req.userId && req.userRole !== 'admin') {
+      res.status(403).json({ messageKey: 'auth.unauthorized' });
+      return;
+    }
+
+    if (!donation.is_hidden) {
+      res.status(400).json({ messageKey: 'donation.not_hidden' });
+      return;
+    }
+
+    const updated = await dbOps.donations.setHidden(req.params.id, false);
+    res.json({ messageKey: 'donation.unhidden', donation: updated });
+  } catch (err) {
+    logger.error('Unhide error:', err);
     res.status(500).json({ messageKey: 'general.server_error' });
   }
 });

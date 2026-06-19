@@ -17,12 +17,13 @@ interface Donation {
   longitude: number | null;
   pickup_date: string;
   expiry_date: string;
-  status: 'available' | 'reserved' | 'received' | 'completed' | 'expired';
+  status: 'available' | 'reserved' | 'received' | 'completed' | 'expired' | 'hidden';
   donor_id: string;
   donor_name?: string;
   reserved_by: string | null;
   reserved_by_name?: string;
   hash_code: string | null;
+  is_hidden?: boolean;
   created_at: string;
 }
 
@@ -89,6 +90,32 @@ export default function MyDonations() {
       setDonations(data.donations || []);
     } catch (err) {
       console.error('Failed to complete:', err);
+    }
+  };
+
+  const handleHide = async (id: string) => {
+    if (!token) return;
+    try {
+      await fetchWithFailover(`/api/donations/${id}/hide`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setDonations(donations.map(d => d.id === id ? { ...d, is_hidden: true } : d));
+    } catch (err) {
+      console.error('Failed to hide:', err);
+    }
+  };
+
+  const handleUnhide = async (id: string) => {
+    if (!token) return;
+    try {
+      await fetchWithFailover(`/api/donations/${id}/unhide`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setDonations(donations.map(d => d.id === id ? { ...d, is_hidden: false } : d));
+    } catch (err) {
+      console.error('Failed to unhide:', err);
     }
   };
 
@@ -197,6 +224,8 @@ export default function MyDonations() {
               isOwner={donation.donor_id === user?.id}
               isReserver={donation.reserved_by === user?.id}
               t={t}
+              onHide={() => handleHide(donation.id)}
+              onUnhide={donation.is_hidden ? () => handleUnhide(donation.id) : undefined}
               onDelete={donation.status === 'available' ? () => handleDelete(donation.id) : undefined}
               onEdit={donation.status === 'available' ? () => openEditModal(donation) : undefined}
               onCancelReservation={donation.reserved_by ? () => handleCancel(donation.id) : undefined}
