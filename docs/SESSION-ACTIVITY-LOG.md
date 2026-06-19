@@ -529,6 +529,42 @@ This session successfully:
 
 ---
 
-**Last Updated**: April 4, 2026 18:58 UTC  
+---
+
+## Session: June 19, 2026 — Marker Popup Fix + Home Map Centering
+
+**Session Date**: June 19, 2026  
+**Start**: 14:00 UTC  
+**End**: 17:45 UTC  
+**Facilitator**: opencode (big-pickle)
+
+### ✅ Completed
+
+#### 1. Marker Popup Not Opening Bug
+- **Files**: `frontend/src/components/DonationsMap.tsx`, `ClusterMap.tsx`
+- **Root cause**: Inline `eventHandlers={{ click: ... }}` caused constant re-attachment of listeners (React-Leaflet v4 core issue) + `react-leaflet-cluster` transforms `onClick` to `clusterclick` (only fires for clusters, not standalone markers)
+- **Fix**: Removed inline eventHandlers from `<Marker>`, added ref-based click listener on MarkerClusterGroup with `handleMarkerClick` that handles standalone markers
+
+#### 2. Home Page Map Centering (ET3AM-012)
+- **Files**: `frontend/src/pages/Home.tsx`
+- **Changes**: Added geolocation `useEffect`, `MapCenterUpdater` component with `flyTo()` animation, blue animated pulsing marker with accuracy circle
+- **Fallback**: Defaults to Cairo center if geolocation fails or denied
+
+### Tests
+- Backend: 68/68 PASS
+- Frontend Build: PASS (198 modules)
+
+### Deployment
+- Firebase Hosting deployed
+
+### Commits
+```
+1. feat: add home page map centering on user location with animated marker
+   Files: Home.tsx, ClusterMap.tsx, DonationsMap.tsx, VERSION
+```
+
+---
+
+**Last Updated**: June 19, 2026 17:45 UTC  
 **Status**: CLOSED - Session Complete ✅  
 **Archive Location**: `docs/SESSION-ACTIVITY-LOG.md`

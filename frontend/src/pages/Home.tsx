@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { fetchWithFailover, getServerUrl, getInitialTileUrl } from '../services/api';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import { useAuth } from '../context/AuthContext';
@@ -105,6 +105,26 @@ function createClusterIcon(cluster: any) {
   });
 }
 
+const userLocationIcon = L.divIcon({
+  className: 'user-marker-container',
+  html: `
+    <div class="user-marker-pulse"></div>
+    <div class="user-marker-dot">
+      <div class="user-marker-inner"></div>
+    </div>
+  `,
+  iconSize: [32, 32],
+  iconAnchor: [16, 16],
+});
+
+function MapCenterUpdater({ center }: { center: [number, number] }) {
+  const map = useMap();
+  useEffect(() => {
+    map.flyTo(center, map.getZoom(), { duration: 1.5 });
+  }, [map, center]);
+  return null;
+}
+
 const LAUNCH_DATE = new Date('2026-05-01T00:00:00');
 
 function getDaysUntilLaunch(): number {
@@ -132,6 +152,25 @@ export default function Home() {
   const prevStatsRef = useRef<Stats | null>(null);
   const [launchInfo, setLaunchInfo] = useState(getLaunchProgress());
   const [mapFullscreen, setMapFullscreen] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation not supported');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
+      },
+      (err) => {
+        console.error('Geolocation error:', err);
+        setLocationError(err.message);
+      },
+      { timeout: 10000, maximumAge: 300000, enableHighAccuracy: false }
+    );
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -277,6 +316,28 @@ export default function Home() {
               <TileLayer
                 url={tileUrl}
               />
+              {userLocation && (
+                <MapCenterUpdater center={[userLocation.lat, userLocation.lng]} />
+              )}
+              {userLocation && (
+                <>
+                  <Marker
+                    position={[userLocation.lat, userLocation.lng]}
+                    icon={userLocationIcon}
+                  />
+                  <Circle
+                    center={[userLocation.lat, userLocation.lng]}
+                    radius={3500}
+                    pathOptions={{
+                      color: '#3b82f6',
+                      fillColor: '#3b82f6',
+                      fillOpacity: 0.1,
+                      weight: 2,
+                      dashArray: '5, 10'
+                    }}
+                  />
+                </>
+              )}
               <MarkerClusterGroup
                 chunkedLoading
                 spiderfyOnMaxZoom

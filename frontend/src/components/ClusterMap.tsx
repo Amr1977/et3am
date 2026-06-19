@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
@@ -108,6 +108,7 @@ function createMarkerIcon(color: string, foodType: string, isNew: boolean = fals
 
 export default function ClusterMap({ donations, userLocation, t, onReserve, isAuthenticated, onBoundsChange, newDonationIds, fullscreen }: ClusterMapProps) {
   const [tileUrl, setTileUrl] = useState<string>(getInitialTileUrl());
+  const clusterGroupRef = useRef<L.MarkerClusterGroup>(null);
   const geoDonations = donations.filter(d => d.latitude && d.longitude);
   const newDonationIdsSet = new Set(newDonationIds || []);
 
@@ -165,23 +166,38 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
   };
 
   const handleClusterClick = useCallback((e: any) => {
-    const cluster = e.layer;
-    const map = cluster._map || (e.target && e.target._map);
-    if (!map) return;
+    const cluster = e?.layer;
+    if (!cluster) return;
 
-    if (typeof cluster.getAllChildMarkers !== 'function') {
+    if (typeof cluster.getAllChildMarkers === 'function') {
+      const markers = cluster.getAllChildMarkers();
+      const map = cluster._map || (e.target && e.target._map);
+
+      if (markers.length === 1) {
+        markers[0].openPopup();
+      } else if (markers.length > 1 && map) {
+        map.fitBounds(cluster.getBounds(), { maxZoom: 16 });
+      }
+    } else if (typeof cluster.openPopup === 'function') {
       cluster.openPopup();
-      return;
-    }
-
-    const markers = cluster.getAllChildMarkers();
-
-    if (markers.length === 1) {
-      markers[0].openPopup();
-    } else {
-      map.fitBounds(cluster.getBounds(), { maxZoom: 16 });
     }
   }, []);
+
+  const handleMarkerClick = useCallback((e: any) => {
+    const layer = e?.layer;
+    if (!layer) return;
+    if (typeof layer.getChildCount === 'function') return;
+    if (typeof layer.openPopup === 'function') {
+      layer.openPopup();
+    }
+  }, []);
+
+  useEffect(() => {
+    const group = clusterGroupRef.current;
+    if (!group) return;
+    group.on('click', handleMarkerClick);
+    return () => { group.off('click', handleMarkerClick); };
+  }, [handleMarkerClick]);
 
   function MapController() {
     const map = useMap();
@@ -230,6 +246,7 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
           </>
         )}
         <MarkerClusterGroup
+          ref={clusterGroupRef}
           chunkedLoading
           spiderfyOnMaxZoom
           showCoverageOnHover={false}
@@ -249,7 +266,6 @@ export default function ClusterMap({ donations, userLocation, t, onReserve, isAu
                 key={d.id}
                 position={[d.latitude!, d.longitude!]}
                 icon={createMarkerIcon(color, d.food_type, newDonationIdsSet.has(d.id))}
-                eventHandlers={{ click: (e) => e.target.openPopup() }}
               >
                 <Popup>
                   <div style={{ minWidth: '180px', padding: '8px' }}>
