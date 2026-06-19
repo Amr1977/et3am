@@ -125,6 +125,30 @@ function MapCenterUpdater({ center }: { center: [number, number] }) {
   return null;
 }
 
+function MapHeroInteractionHandler({ onFirstInteraction }: { onFirstInteraction: () => void }) {
+  const map = useMap();
+  const hasTriggered = useRef(false);
+
+  useEffect(() => {
+    const handler = () => {
+      if (!hasTriggered.current) {
+        hasTriggered.current = true;
+        onFirstInteraction();
+      }
+    };
+
+    map.on('dragstart', handler);
+    map.on('zoomstart', handler);
+
+    return () => {
+      map.off('dragstart', handler);
+      map.off('zoomstart', handler);
+    };
+  }, [map, onFirstInteraction]);
+
+  return null;
+}
+
 const LAUNCH_DATE = new Date('2026-05-01T00:00:00');
 
 function getDaysUntilLaunch(): number {
@@ -318,6 +342,9 @@ export default function Home() {
               />
               {userLocation && (
                 <MapCenterUpdater center={[userLocation.lat, userLocation.lng]} />
+              )}
+              {!mapFullscreen && (
+                <MapHeroInteractionHandler onFirstInteraction={() => setMapFullscreen(true)} />
               )}
               {userLocation && (
                 <>

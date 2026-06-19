@@ -57,6 +57,7 @@ check_*.py
 *.sql
 pgpass.conf
 %nul%
+/nul
 *.bat
 
 # Environment overrides

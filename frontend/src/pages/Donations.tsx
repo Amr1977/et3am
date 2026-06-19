@@ -753,6 +753,7 @@ export default function Donations() {
               newDonationIds={newDonationIds}
               onBoundsChange={handleBoundsChange}
               isFullscreen={mapFullscreen}
+              onFullscreenChange={(fs) => setMapFullscreen(fs)}
             />
           </div>
         ) : (

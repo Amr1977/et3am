@@ -49,6 +49,7 @@ interface DonationsMapProps {
   newDonationIds?: string[];
   onBoundsChange?: (bounds: L.LatLngBounds | null) => void;
   isFullscreen?: boolean;
+  onFullscreenChange?: (fullscreen: boolean) => void;
 }
 
 const statusColors: Record<string, string> = {
@@ -148,7 +149,31 @@ const createClusterIcon = (cluster: any) => {
   });
 };
 
-export default function DonationsMap({ donations, userLocation, t, onReserve, isAuthenticated, newDonationIds, onBoundsChange, isFullscreen }: DonationsMapProps) {
+function MapInteractionHandler({ onInteraction }: { onInteraction: () => void }) {
+  const map = useMap();
+  const hasTriggered = useRef(false);
+
+  useEffect(() => {
+    const handleInteraction = () => {
+      if (!hasTriggered.current) {
+        hasTriggered.current = true;
+        onInteraction();
+      }
+    };
+
+    map.on('dragstart', handleInteraction);
+    map.on('zoomstart', handleInteraction);
+
+    return () => {
+      map.off('dragstart', handleInteraction);
+      map.off('zoomstart', handleInteraction);
+    };
+  }, [map, onInteraction]);
+
+  return null;
+}
+
+export default function DonationsMap({ donations, userLocation, t, onReserve, isAuthenticated, newDonationIds, onBoundsChange, isFullscreen, onFullscreenChange }: DonationsMapProps) {
   const [tileUrl, setTileUrl] = useState<string>(getInitialTileUrl());
   const [internalFullscreen, setInternalFullscreen] = useState(false);
   const mapFullscreen = isFullscreen !== undefined ? isFullscreen : internalFullscreen;
@@ -223,6 +248,10 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
       >
         <BoundsTracker onBoundsChange={onBoundsChange} />
         {userLocation && <MapCenterUpdater center={[userLocation.lat, userLocation.lng]} />}
+        {!mapFullscreen && <MapInteractionHandler onInteraction={() => {
+          if (onFullscreenChange) onFullscreenChange(true);
+          else setInternalFullscreen(true);
+        }} />}
         <TileLayer url={tileUrl} />
 
         {userLocation && (
@@ -315,7 +344,7 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
       {mapFullscreen && (
         <button
           className="map-fullscreen-close"
-          onClick={(e) => { e.stopPropagation(); setInternalFullscreen(false); }}
+          onClick={(e) => { e.stopPropagation(); if (onFullscreenChange) onFullscreenChange(false); else setInternalFullscreen(false); }}
           style={{
             position: 'absolute',
             top: '20px',
@@ -338,7 +367,7 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
         </button>
       )}
       <button
-        onClick={() => { setInternalFullscreen(!internalFullscreen); }}
+        onClick={() => { const next = !mapFullscreen; if (onFullscreenChange) onFullscreenChange(next); else setInternalFullscreen(next); }}
         style={{
           position: 'absolute',
           top: '10px',
