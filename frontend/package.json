@@ -18,7 +18,36 @@
     "deploy": "npm run build && firebase deploy --only hosting --project foodshare777",
     "deploy:staging": "npm run build:staging && firebase deploy --only hosting --project foodshare777-staging",
     "deploy:test": "npm run build:test && firebase deploy --only hosting --project foodshare777-test",
-    "lint": "eslint src/ tests/ --ext .ts,.tsx"
+    "lint": "eslint src/ tests/ --ext .ts,.tsx",
+    "electron:start": "electron .",
+    "electron:build": "electron-builder",
+    "electron:build:win": "electron-builder --win",
+    "electron:build:mac": "electron-builder --mac",
+    "electron:build:linux": "electron-builder --linux"
+  },
+  "main": "electron/main.js",
+  "build": {
+    "appId": "com.et3am.app",
+    "productName": "ET3AM",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "electron/**/*",
+      "dist/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "public/et3am-og.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "public/et3am-og.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "public/et3am-og.png"
+    }
   },
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^5.1.0",
@@ -51,6 +80,8 @@
     "@vitejs/plugin-react": "^4.2.1",
     "eslint": "^10.5.0",
     "jsdom": "^23.0.1",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0",
     "sharp": "^0.34.5",
     "typescript": "^5.3.3",
     "vite": "^5.0.10",

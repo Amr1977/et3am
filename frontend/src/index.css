@@ -4806,16 +4806,20 @@ html[dir="rtl"] .step-flow-number {
   color: var(--text-muted);
   font-size: 0.8rem;
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
 }
 
-.footer-commit {
-  font-size: 0.7rem;
-  font-family: monospace;
-  opacity: 0.5;
+.footer-bottom .sep {
+  margin: 0 0.5rem;
+  opacity: 0.4;
+}
+
+.footer-bottom a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.footer-bottom a:hover {
+  color: var(--primary);
 }
 
 /* Responsive */
@@ -5549,6 +5553,131 @@ html[dir="rtl"] .hackathon-banner-close {
     font-size: 0.75rem;
     padding: 0.3rem 0.75rem;
   }
+}
+
+/* Downloads page */
+.dl-main {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+}
+
+.dl-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 48px 40px 36px;
+  width: 100%;
+  max-width: 720px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.dl-card h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+
+.dl-card .dl-sub {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin: 0 0 36px;
+}
+
+.dl-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.dl-item {
+  background: var(--bg-card-hover);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 24px 16px 20px;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  text-decoration: none;
+  display: block;
+}
+
+.dl-item:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+
+.dl-item .dl-icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.dl-item .dl-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.dl-item .dl-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.dl-item .dl-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(45, 106, 79, 0.15);
+  color: var(--primary);
+}
+
+.dl-item.android .dl-badge { background: rgba(34, 197, 94, 0.15); color: #16a34a; }
+.dl-item.windows .dl-badge { background: rgba(59, 130, 246, 0.15); color: #2563eb; }
+.dl-item.macos .dl-badge { background: rgba(168, 85, 247, 0.15); color: #9333ea; }
+.dl-item.linux .dl-badge { background: rgba(251, 146, 60, 0.15); color: #ea580c; }
+
+.dl-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+.dl-note a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+}
+
+.dl-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 24px;
+  padding: 10px 24px;
+  border-radius: var(--radius);
+  background: var(--bg-card-hover);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  transition: background 0.2s;
+}
+
+.dl-back:hover {
+  background: var(--bg-elevated);
+  color: var(--text);
+}
+
+@media screen and (max-width: 500px) {
+  .dl-card { padding: 32px 20px 28px; }
+  .dl-card h1 { font-size: 22px; }
+  .dl-grid { grid-template-columns: 1fr; }
 }
 
 /* Print */

@@ -3,9 +3,6 @@ import gitInfo from '../git-info.json';
 
 export default function Footer() {
   const { t } = useTranslation();
-  const commit = gitInfo.commit;
-  const date = new Date(gitInfo.date).toLocaleDateString();
-  const time = new Date(gitInfo.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   return (
     <footer className="footer">
@@ -21,6 +18,7 @@ export default function Footer() {
             <a href="https://et3am.com" target="_blank" rel="noopener noreferrer">
               et3am.com
             </a>
+            <a href="/downloads">Downloads</a>
           </div>
 
           <div className="footer-col">
@@ -32,10 +30,11 @@ export default function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} {t('app.name')}. {t('footer.rights')}</p>
-          <p className="footer-commit">
-            v{gitInfo.version} | {commit} | {date} {time}
-          </p>
+          <span>v{gitInfo.version}</span>
+          <span className="sep">|</span>
+          <a href="https://amrlotfy.et3am.com" target="_blank" rel="noopener noreferrer">Amr Lotfy</a>
+          <span className="sep">|</span>
+          <span>MIT License</span>
         </div>
       </div>
     </footer>

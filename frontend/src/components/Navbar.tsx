@@ -124,6 +124,14 @@ export default function Navbar() {
             <span className="nav-label">{item.label}</span>
           </Link>
         ))}
+        <Link 
+          to="/downloads" 
+          className={`nav-item ${isActive('/downloads') ? 'active' : ''}`}
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          <span className="nav-icon">⬇</span>
+          <span className="nav-label">Downloads</span>
+        </Link>
       </div>
 
       {isAuthenticated && (
