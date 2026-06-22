@@ -2,6 +2,12 @@
   "name": "et3am-frontend",
   "private": true,
   "version": "1.0.0",
+  "description": "ET3AM - Food Donation Platform",
+  "author": "Amr Lotfy (https://amrlotfy.et3am.com)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Amr1977/et3am.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "node scripts/generate-git-info.cjs && vite",
@@ -81,6 +87,9 @@
     "eslint": "^10.5.0",
     "jsdom": "^23.0.1",
     "electron": "^33.0.0",
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
     "electron-builder": "^25.0.0",
     "sharp": "^0.34.5",
     "typescript": "^5.3.3",

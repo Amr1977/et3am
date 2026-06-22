@@ -21,11 +21,16 @@ describe('Footer', () => {
 
   it('renders portfolio link', () => {
     renderWithI18n(<Footer />);
-    expect(screen.getByText(/Amr Lotfy/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Amr Lotfy/).length).toBeGreaterThanOrEqual(1);
   });
 
-  it('renders copyright notice', () => {
+  it('renders version number', () => {
     renderWithI18n(<Footer />);
-    expect(screen.getByText(new RegExp(String(new Date().getFullYear())))).toBeInTheDocument();
+    expect(screen.getByText(/v\d+\.\d+\.\d+/)).toBeInTheDocument();
+  });
+
+  it('renders MIT license', () => {
+    renderWithI18n(<Footer />);
+    expect(screen.getByText(/MIT License/)).toBeInTheDocument();
   });
 });
