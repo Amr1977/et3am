@@ -23,7 +23,7 @@ export default function Footer() {
 
           <div className="footer-col">
             <h4>{t('footer.creator')}</h4>
-            <a href="https://amrlotfy.et3am.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://amrlotfy.com" target="_blank" rel="noopener noreferrer">
               Amr Lotfy
             </a>
           </div>
@@ -32,7 +32,7 @@ export default function Footer() {
         <div className="footer-bottom">
           <span>v{gitInfo.version}</span>
           <span className="sep">|</span>
-          <a href="https://amrlotfy.et3am.com" target="_blank" rel="noopener noreferrer">Amr Lotfy</a>
+          <a href="https://amrlotfy.com" target="_blank" rel="noopener noreferrer">Amr Lotfy</a>
           <span className="sep">|</span>
           <span>MIT License</span>
         </div>
