@@ -5,7 +5,6 @@
     "description": "A charitable platform connecting surplus food to those in need"
   },
   "footer": {
-    "links": "Links",
     "creator": "Creator",
     "rights": "All rights reserved."
   },
@@ -270,7 +269,8 @@
     "subtitle": "Conversation",
     "no_messages": "No messages yet. Start the conversation!",
     "placeholder": "Type a message...",
-    "send": "Send"
+    "send": "Send",
+    "open_chat": "Chat"
   },
   "support": {
     "title": "Support",

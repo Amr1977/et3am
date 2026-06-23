@@ -143,6 +143,7 @@ export default function MyReservations() {
               isOwner={donation.donor_id === user?.id}
               isReserver={donation.reserved_by === user?.id}
               t={t}
+              onChat={donation.status === 'reserved' ? () => navigate(`/chat/${donation.id}`) : undefined}
               onCancelReservation={donation.status === 'reserved' ? () => handleCancel(donation.id) : undefined}
               onMarkReceived={donation.status === 'reserved' || donation.status === 'received' ? () => handleMarkReceived(donation.id) : undefined}
               onClick={() => navigate(`/donations/${donation.id}`)}

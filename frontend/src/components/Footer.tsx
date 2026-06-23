@@ -14,14 +14,6 @@ export default function Footer() {
           </div>
 
           <div className="footer-col">
-            <h4>{t('footer.links')}</h4>
-            <a href="https://et3am.com" target="_blank" rel="noopener noreferrer">
-              et3am.com
-            </a>
-            <a href="/downloads">Downloads</a>
-          </div>
-
-          <div className="footer-col">
             <h4>{t('footer.creator')}</h4>
             <a href="https://amrlotfy.et3am.com" target="_blank" rel="noopener noreferrer">
               Amr Lotfy

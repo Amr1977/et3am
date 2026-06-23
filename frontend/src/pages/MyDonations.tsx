@@ -224,6 +224,7 @@ export default function MyDonations() {
               isOwner={donation.donor_id === user?.id}
               isReserver={donation.reserved_by === user?.id}
               t={t}
+              onChat={donation.status === 'reserved' ? () => navigate(`/chat/${donation.id}`) : undefined}
               onHide={() => handleHide(donation.id)}
               onUnhide={donation.is_hidden ? () => handleUnhide(donation.id) : undefined}
               onDelete={donation.status === 'available' ? () => handleDelete(donation.id) : undefined}

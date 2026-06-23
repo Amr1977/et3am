@@ -14,11 +14,6 @@ describe('Footer', () => {
     expect(screen.getByText(/إطعام/i)).toBeInTheDocument();
   });
 
-  it('renders et3am.com link', () => {
-    renderWithI18n(<Footer />);
-    expect(screen.getByText(/et3am.com/)).toBeInTheDocument();
-  });
-
   it('renders portfolio link', () => {
     renderWithI18n(<Footer />);
     expect(screen.getAllByText(/Amr Lotfy/).length).toBeGreaterThanOrEqual(1);

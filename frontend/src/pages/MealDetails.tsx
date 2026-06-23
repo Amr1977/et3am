@@ -294,6 +294,17 @@ export default function MealDetails() {
             </div>
           )}
           
+          {(user?.id === donation.donor_id || user?.id === donation.reserved_by) && 
+           donation.status === 'reserved' && (
+            <button 
+              onClick={() => navigate(`/chat/${donation.id}`)} 
+              className="btn btn-info"
+              style={{ marginRight: '8px' }}
+            >
+              💬 {t('chat.open_chat')}
+            </button>
+          )}
+
           {user?.id === donation.reserved_by && donation.status === 'reserved' && (
             <button 
               onClick={handleMarkReceived} 

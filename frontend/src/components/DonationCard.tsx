@@ -30,13 +30,14 @@ interface DonationCardProps {
   onHide?: (id: string) => void;
   onUnhide?: (id: string) => void;
   onMarkReceived?: (id: string) => void;
+  onChat?: (id: string) => void;
   onClick?: () => void;
   isOwner?: boolean;
   isReserver?: boolean;
   t: (key: string) => string;
 }
 
-export default function DonationCard({ donation, onReserve, onCancelReservation, onComplete, onDelete, onEdit, onHide, onUnhide, onMarkReceived, onClick, isOwner, isReserver, t }: DonationCardProps) {
+export default function DonationCard({ donation, onReserve, onCancelReservation, onComplete, onDelete, onEdit, onHide, onUnhide, onMarkReceived, onChat, onClick, isOwner, isReserver, t }: DonationCardProps) {
   const statusColors: Record<string, string> = {
     available: '#22c55e',
     reserved: '#f59e0b',
@@ -106,6 +107,11 @@ export default function DonationCard({ donation, onReserve, onCancelReservation,
         {donation.status === 'available' && onReserve && (
           <button onClick={() => onReserve(donation.id)} className="btn btn-primary btn-sm">
             {t('donations.reserve')}
+          </button>
+        )}
+        {donation.status === 'reserved' && onChat && (isReserver || isOwner) && (
+          <button onClick={() => onChat(donation.id)} className="btn btn-info btn-sm">
+            💬 {t('chat.open_chat')}
           </button>
         )}
         {donation.status === 'reserved' && onCancelReservation && (isReserver || isOwner) && (
