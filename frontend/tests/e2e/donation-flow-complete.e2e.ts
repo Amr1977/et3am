@@ -103,13 +103,13 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     // ===== STEP 2: CREATE DONATION =====
     console.log('\n📝 STEP 2: Create Donation');
     
-    await page.goto('BASE_URL}/donations');
+    await page.goto(`${BASE_URL}/donations`);
     await page.waitForTimeout(2000);
     
     // Look for create donation button - use first match
-    const createBtn = page.locator('button:has-text("Share")').first();
+    const createBtn = page.locator('button:has-text("Add Donation")').first();
     if (await createBtn.isVisible()) {
-      await safeClick(page, 'button:has-text("Share Food")', 'Create donation button');
+      await safeClick(page, 'button:has-text("Add Donation")', 'Create donation button');
       await page.waitForTimeout(1500);
       
       // Fill donation form
@@ -134,7 +134,7 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
       await safeFill(page, 'input[name="pickup_time"]', '14:00', 'Pickup time');
       
       // Submit
-      await safeClick(page, 'button:has-text("Share")', 'Submit donation');
+      await safeClick(page, 'button[type="submit"]', 'Submit donation');
       await page.waitForTimeout(3000);
       
       console.log('✅ Donation created');
@@ -181,7 +181,7 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     // ===== STEP 4: RESERVE DONATION =====
     console.log('\n📝 STEP 4: Reserve Donation');
     
-    await page.goto('BASE_URL}/donations');
+    await page.goto(`${BASE_URL}/donations`);
     await page.waitForTimeout(2000);
     
     // Look for reserve button - use first match
@@ -206,7 +206,7 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     // ===== STEP 5: CHECK HASH CODE =====
     console.log('\n📝 STEP 5: Check Hash Code');
     
-    await page.goto('BASE_URL}/my-reservations');
+    await page.goto(`${BASE_URL}/my-reservations`);
     await page.waitForTimeout(1500);
     
     // Look for hash code display
@@ -241,7 +241,7 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     // ===== STEP 7: MARK AS RECEIVED =====
     console.log('\n📝 STEP 7: Mark as Received');
     
-    await page.goto('BASE_URL}/my-reservations');
+    await page.goto(`${BASE_URL}/my-reservations`);
     await page.waitForTimeout(1500);
     
     // Click on reservation to open details
@@ -251,14 +251,14 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
       await page.waitForTimeout(1000);
     }
     
-    // Look for received button
-    const receivedBtn = page.locator('button:has-text("Received")').first();
+    // Look for complete button
+    const receivedBtn = page.locator('button:has-text("Confirm Pickup")').first();
     if (await receivedBtn.isVisible()) {
       await receivedBtn.click();
       await page.waitForTimeout(1000);
       console.log('✅ Marked as received');
     } else {
-      console.log('⚠️ Received button not found');
+      console.log('⚠️ Confirm Pickup button not found');
     }
     
     console.log('\n========== TEST COMPLETE ==========\n');
@@ -271,7 +271,7 @@ test.describe('Mobile Navigation Test', () => {
     
     console.log('\n========== MOBILE NAVIGATION TEST ==========\n');
     
-    await page.goto('BASE_URL}/');
+    await page.goto(`${BASE_URL}/`);
     await page.waitForTimeout(2000);
     
     // Check if hamburger menu is visible on mobile
