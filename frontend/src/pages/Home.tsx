@@ -10,7 +10,6 @@ import { useAuth } from '../context/AuthContext';
 import { useSound } from '../context/SoundContext';
 import MapCenterUpdater from '../components/MapCenterUpdater';
 import MapFullscreenCenterHandler from '../components/MapFullscreenCenterHandler';
-import MapHeroInteractionHandler from '../components/MapHeroInteractionHandler';
 import HeroMapResizeHandler from '../components/HeroMapResizeHandler';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster';
@@ -151,10 +150,7 @@ export default function Home() {
   const [mapFullscreen, setMapFullscreen] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
-
-  const handleHeroInteraction = useCallback(() => {
-    setMapFullscreen(true);
-  }, []);
+  const mapRef = useRef<L.Map | null>(null);
 
   const center = useMemo(() =>
     userLocation ? [userLocation.lat, userLocation.lng] as [number, number] : null,
@@ -190,6 +186,15 @@ export default function Home() {
       setTileUrl(`${url}/api/maps/tiles/{z}/{x}/{y}.png`);
     });
   }, []);
+
+  useEffect(() => {
+    if (!mapFullscreen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMapFullscreen(false);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [mapFullscreen]);
 
   const fetchStats = () => {
     fetchWithFailover('/api/users/public-stats')
@@ -253,8 +258,8 @@ export default function Home() {
   };
 
   return (
-    <div className="home-page" style={mapFullscreen ? { overflowX: 'visible' } : undefined}>
-      <section className="hero" style={mapFullscreen ? { overflow: 'visible' } : undefined}>
+    <div className={`home-page${mapFullscreen ? ' map-fullscreen' : ''}`} style={mapFullscreen ? { overflowX: 'visible' } : undefined}>
+      <section className={`hero${mapFullscreen ? ' map-fullscreen' : ''}`} style={mapFullscreen ? { overflow: 'visible' } : undefined}>
         <div className="hero-content">
           <div className="hero-badge">
             <span>✨</span>
@@ -305,7 +310,11 @@ export default function Home() {
               cursor: 'default',
               background: '#fff',
               margin: 0,
+              padding: 0,
               maxWidth: 'none',
+              maxHeight: 'none',
+              width: '100vw',
+              height: '100vh',
               aspectRatio: 'auto',
               overflow: 'visible',
             } : undefined}
@@ -336,9 +345,6 @@ export default function Home() {
               />
               {center && (
                 <MapCenterUpdater center={center} />
-              )}
-              {!mapFullscreen && (
-                <MapHeroInteractionHandler onFirstInteraction={handleHeroInteraction} />
               )}
               <HeroMapResizeHandler key={mapFullscreen ? 'a' : 'b'} />
               <MapFullscreenCenterHandler isFullscreen={mapFullscreen} center={center} />
