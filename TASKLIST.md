@@ -18,6 +18,7 @@
 - [x] ET3AM-008: Apply comprehensive review (SEO, security headers, PWA)
 - [x] ET3AM-009: Re-design Admin panel Donations tab
 - [x] ET3AM-010: Two-level side menu for admin panel
+- [x] ET3AM-011: Donation Requests (users request food, donors fulfill meals + chat)
 - [x] BUG-001: Donation timezone display
 - [x] BUG-002: Preserve description formatting
 - [x] BUG-003: RTL text direction in descriptions

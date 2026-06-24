@@ -25,6 +25,10 @@ const Settings = React.lazy(() => import('./pages/Settings'));
 const MealDetails = React.lazy(() => import('./pages/MealDetails'));
 const MyDonations = React.lazy(() => import('./pages/MyDonations'));
 const MyReservations = React.lazy(() => import('./pages/MyReservations'));
+const Requests = React.lazy(() => import('./pages/Requests'));
+const RequestDetails = React.lazy(() => import('./pages/RequestDetails'));
+const MyRequests = React.lazy(() => import('./pages/MyRequests'));
+const MyFulfillments = React.lazy(() => import('./pages/MyFulfillments'));
 const Downloads = React.lazy(() => import('./pages/Downloads'));
 
 function LoadingSpinner() {
@@ -120,6 +124,11 @@ function AppContent() {
             <Route path="/my-donations" element={<MyDonations />} />
             <Route path="/my-reservations" element={<MyReservations />} />
             <Route path="/chat/:donationId" element={<Chat />} />
+            <Route path="/chat/request/:requestId" element={<Chat />} />
+            <Route path="/requests" element={<Requests />} />
+            <Route path="/requests/:id" element={<RequestDetails />} />
+            <Route path="/my-requests" element={<MyRequests />} />
+            <Route path="/my-fulfillments" element={<MyFulfillments />} />
             <Route path="/support" element={<Support />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/profile/:userId" element={<UserProfile />} />

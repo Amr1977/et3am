@@ -8,7 +8,8 @@ import { fetchWithFailover } from '../services/api';
 
 interface Message {
   id: string;
-  donation_id: string;
+  donation_id?: string;
+  request_id?: string;
   sender_id: string;
   receiver_id: string;
   message: string;
@@ -19,10 +20,10 @@ interface Message {
 }
 
 export default function Chat() {
-  const { donationId } = useParams<{ donationId: string }>();
+  const { donationId, requestId } = useParams<{ donationId?: string; requestId?: string }>();
   const { t } = useTranslation();
   const { user, token, isAuthenticated } = useAuth();
-  const { joinDonationRoom, leaveDonationRoom, sendMessage, onNewMessage, onChatNotification } = useSocket();
+  const { joinDonationRoom, leaveDonationRoom, sendMessage, joinRequestRoom, leaveRequestRoom, sendRequestMessage, onNewMessage, onChatNotification } = useSocket();
   const { playSound } = useSound();
   
   const [messages, setMessages] = useState<Message[]>([]);
@@ -30,13 +31,18 @@ export default function Chat() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isRequestChat = !!requestId;
 
   useEffect(() => {
-    if (!donationId || !isAuthenticated) return;
+    if (!isAuthenticated) return;
+    const chatId = donationId || requestId;
+    if (!chatId) return;
+
+    const endpointPrefix = isRequestChat ? `/api/chat/request/${requestId}` : `/api/chat/${donationId}`;
 
     const fetchMessages = async () => {
       try {
-        const res = await fetchWithFailover(`/api/chat/${donationId}`, {
+        const res = await fetchWithFailover(endpointPrefix, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -51,27 +57,37 @@ export default function Chat() {
     };
 
     fetchMessages();
-    joinDonationRoom(donationId);
+    if (isRequestChat && requestId) {
+      joinRequestRoom(requestId);
+    } else if (donationId) {
+      joinDonationRoom(donationId);
+    }
 
     const unsubMessage = onNewMessage((msg: Message) => {
-      if (msg.donation_id === donationId) {
+      const isRelevant = donationId ? msg.donation_id === donationId : msg.request_id === requestId;
+      if (isRelevant) {
         setMessages(prev => [...prev, msg]);
         playSound('message');
       }
     });
 
     const unsubNotification = onChatNotification((data: any) => {
-      if (data.donationId === donationId && data.senderId !== user?.id) {
+      const isRelevant = donationId ? data.donationId === donationId : data.requestId === requestId;
+      if (isRelevant && data.senderId !== user?.id) {
         playSound('message');
       }
     });
 
     return () => {
-      leaveDonationRoom(donationId);
+      if (isRequestChat && requestId) {
+        leaveRequestRoom(requestId);
+      } else if (donationId) {
+        leaveDonationRoom(donationId);
+      }
       unsubMessage();
       unsubNotification();
     };
-  }, [donationId, isAuthenticated, token]);
+  }, [donationId, requestId, isRequestChat, isAuthenticated, token]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -79,9 +95,13 @@ export default function Chat() {
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !donationId || !token) return;
+    if (!newMessage.trim() || !token) return;
 
-    sendMessage(donationId, newMessage.trim());
+    if (isRequestChat && requestId) {
+      sendRequestMessage(requestId, newMessage.trim());
+    } else if (donationId) {
+      sendMessage(donationId, newMessage.trim());
+    }
     setNewMessage('');
   };
 

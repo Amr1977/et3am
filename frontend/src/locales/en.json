@@ -345,5 +345,54 @@
     "language": "Language",
     "saved": "Saved successfully!",
     "save": "Save"
+  },
+  "nav": {
+    "requests": "Food Requests"
+  },
+  "requests": {
+    "title": "Food Requests",
+    "subtitle": "People asking for food help",
+    "create": "Create Request",
+    "edit": "Edit Request",
+    "my_requests": "My Requests",
+    "my_fulfillments": "My Fulfillments",
+    "list_retrieved": "Requests retrieved successfully",
+    "not_found": "Request not found",
+    "created": "Request created successfully",
+    "updated": "Request updated successfully",
+    "deleted": "Request deleted",
+    "fields": {
+      "title": "Title",
+      "description": "Description",
+      "member_count": "Number of Members",
+      "member_count_hint": "How many people need meals?",
+      "address": "Address",
+      "location": "Location on Map"
+    },
+    "status": {
+      "open": "Open",
+      "partially_fulfilled": "Partially Fulfilled",
+      "fulfilled": "Fulfilled",
+      "cancelled": "Cancelled"
+    },
+    "progress": "{{fulfilled}} / {{total}} meals provided",
+    "remaining": "{{count}} meals still needed",
+    "fulfill": "Fulfill Meals",
+    "fulfill_title": "Provide Meals",
+    "fulfill_hint": "How many meals can you provide?",
+    "fulfilled": "Meals fulfilled successfully!",
+    "notes": "Notes (optional)",
+    "cannot_fulfill_own": "You cannot fulfill your own request",
+    "not_open": "This request is no longer open",
+    "exceeds_needed": "That exceeds the meals still needed",
+    "no_donor_to_chat": "No donor has fulfilled this request yet",
+    "cannot_update": "Cannot update a fulfilled or cancelled request",
+    "cannot_delete": "Cannot delete a fulfilled request",
+    "confirm_delete": "Are you sure you want to cancel this request?",
+    "chat_with": "Chat with Donor",
+    "chat_with_requester": "Chat with Requester",
+    "empty": "No requests yet",
+    "empty_hint": "Be the first to create a request or help someone in need",
+    "cancel": "Cancel Request"
   }
 }

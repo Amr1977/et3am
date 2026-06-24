@@ -86,6 +86,21 @@ export interface Donation {
   updated_at: string;
 }
 
+export interface DonationRequest {
+  id: string;
+  requester_id: string;
+  title: string;
+  description: string | null;
+  member_count: number;
+  meals_fulfilled: number;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  status: 'open' | 'partially_fulfilled' | 'fulfilled' | 'cancelled';
+  created_at: string;
+  updated_at: string;
+}
+
 export async function initDb(): Promise<void> {
   console.log('Database initialized via migrations');
 }
@@ -294,6 +309,136 @@ export const dbOps = {
       );
     },
   },
+  donationRequests: {
+    async findAll(filters?: { status?: string }, page = 1, limit = 10, userLat?: number | null, userLng?: number | null): Promise<{ requests: DonationRequest[]; total: number }> {
+      let where = 'WHERE 1=1';
+      const params: any[] = [];
+      let idx = 1;
+
+      if (filters?.status) {
+        where += ` AND status = $${idx++}`;
+        params.push(filters.status);
+      }
+
+      if (!filters?.status) {
+        where += ` AND status != 'cancelled'`;
+      }
+
+      const countResult = await pool.query(`SELECT COUNT(*) as total FROM donation_requests ${where}`, params);
+      const total = parseInt(countResult.rows[0].total);
+
+      params.push(limit);
+      params.push((page - 1) * limit);
+
+      let orderBy = 'ORDER BY created_at DESC';
+      if (userLat != null && userLng != null) {
+        orderBy = `ORDER BY 
+          CASE WHEN latitude IS NULL OR longitude IS NULL THEN 1 ELSE 0 END,
+          (latitude::float - $${idx})^2 + (longitude::float - $${idx + 1})^2 ASC`;
+        params.push(userLat, userLng);
+        idx += 2;
+      }
+
+      const { rows } = await pool.query(
+        `SELECT * FROM donation_requests ${where} ${orderBy} LIMIT $${idx++} OFFSET $${idx}`,
+        params
+      );
+      return { requests: rows, total };
+    },
+    async findById(id: string): Promise<DonationRequest | null> {
+      const { rows } = await pool.query('SELECT * FROM donation_requests WHERE id = $1', [id]);
+      return rows[0] || null;
+    },
+    async findByRequester(userId: string): Promise<DonationRequest[]> {
+      const { rows } = await pool.query('SELECT * FROM donation_requests WHERE requester_id = $1 ORDER BY created_at DESC', [userId]);
+      return rows;
+    },
+    async findByFulfiller(userId: string): Promise<DonationRequest[]> {
+      const { rows } = await pool.query(
+        `SELECT DISTINCT dr.* FROM donation_requests dr
+         JOIN request_fulfillments rf ON rf.request_id = dr.id
+         WHERE rf.donor_id = $1
+         ORDER BY dr.created_at DESC`,
+        [userId]
+      );
+      return rows;
+    },
+    async create(data: Omit<DonationRequest, 'created_at' | 'updated_at'>): Promise<DonationRequest> {
+      const { rows } = await pool.query(
+        `INSERT INTO donation_requests (id, requester_id, title, description, member_count, meals_fulfilled, address, latitude, longitude, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
+        [data.id, data.requester_id, data.title, data.description, data.member_count, data.meals_fulfilled ?? 0, data.address, data.latitude, data.longitude, data.status ?? 'open']
+      );
+      return rows[0];
+    },
+    async update(id: string, updates: Partial<DonationRequest>): Promise<DonationRequest | null> {
+      const fields: string[] = [];
+      const values: any[] = [];
+      let idx = 1;
+      for (const [key, value] of Object.entries(updates)) {
+        if (key === 'id' || key === 'created_at') continue;
+        fields.push(`${key} = $${idx}`);
+        values.push(value);
+        idx++;
+      }
+      fields.push(`updated_at = NOW()`);
+      values.push(id);
+      const { rows } = await pool.query(
+        `UPDATE donation_requests SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`,
+        values
+      );
+      return rows[0] || null;
+    },
+    async updateStatus(id: string): Promise<DonationRequest | null> {
+      const req = await this.findById(id);
+      if (!req) return null;
+      let newStatus = req.status;
+      if (req.meals_fulfilled >= req.member_count) {
+        newStatus = 'fulfilled';
+      } else if (req.meals_fulfilled > 0) {
+        newStatus = 'partially_fulfilled';
+      } else {
+        newStatus = 'open';
+      }
+      return this.update(id, { status: newStatus as DonationRequest['status'] });
+    },
+    async delete(id: string): Promise<boolean> {
+      const result = await pool.query('DELETE FROM donation_requests WHERE id = $1', [id]);
+      return (result.rowCount ?? 0) > 0;
+    },
+  },
+  requestFulfillments: {
+    async create(requestId: string, donorId: string, mealsCount: number, notes?: string | null): Promise<any> {
+      const { rows } = await pool.query(
+        `INSERT INTO request_fulfillments (request_id, donor_id, meals_count, notes)
+         VALUES ($1, $2, $3, $4) RETURNING *`,
+        [requestId, donorId, mealsCount, notes || null]
+      );
+      return rows[0];
+    },
+    async findByRequest(requestId: string): Promise<any[]> {
+      const { rows } = await pool.query(
+        `SELECT rf.*, u.name as donor_name, u.avatar_url as donor_avatar
+         FROM request_fulfillments rf
+         JOIN users u ON rf.donor_id = u.id
+         WHERE rf.request_id = $1
+         ORDER BY rf.created_at ASC`,
+        [requestId]
+      );
+      return rows;
+    },
+    async findByDonor(donorId: string): Promise<any[]> {
+      const { rows } = await pool.query(
+        `SELECT rf.*, dr.title as request_title
+         FROM request_fulfillments rf
+         JOIN donation_requests dr ON rf.request_id = dr.id
+         WHERE rf.donor_id = $1
+         ORDER BY rf.created_at DESC`,
+        [donorId]
+      );
+      return rows;
+    },
+  },
   chat: {
     async findByDonation(donationId: string): Promise<any[]> {
       const { rows } = await pool.query(
@@ -306,6 +451,17 @@ export const dbOps = {
       );
       return rows;
     },
+    async findByRequest(requestId: string): Promise<any[]> {
+      const { rows } = await pool.query(
+        `SELECT cm.*, u.name as sender_name, u.avatar_url as sender_avatar
+         FROM chat_messages cm
+         JOIN users u ON cm.sender_id = u.id
+         WHERE cm.request_id = $1::uuid
+         ORDER BY cm.created_at ASC`,
+        [requestId]
+      );
+      return rows;
+    },
     async create(donationId: string, senderId: string, receiverId: string, message: string): Promise<any> {
       const { rows } = await pool.query(
         `INSERT INTO chat_messages (donation_id, sender_id, receiver_id, message)
@@ -314,10 +470,24 @@ export const dbOps = {
       );
       return rows[0];
     },
+    async createForRequest(requestId: string, senderId: string, receiverId: string, message: string): Promise<any> {
+      const { rows } = await pool.query(
+        `INSERT INTO chat_messages (request_id, sender_id, receiver_id, message)
+         VALUES ($1, $2, $3, $4) RETURNING *`,
+        [requestId, senderId, receiverId, message]
+      );
+      return rows[0];
+    },
     async markAsRead(donationId: string, receiverId: string): Promise<void> {
       await pool.query(
         'UPDATE chat_messages SET is_read = TRUE WHERE donation_id = $1::uuid AND receiver_id = $2 AND is_read = FALSE',
         [donationId, receiverId]
+      );
+    },
+    async markRequestAsRead(requestId: string, receiverId: string): Promise<void> {
+      await pool.query(
+        'UPDATE chat_messages SET is_read = TRUE WHERE request_id = $1::uuid AND receiver_id = $2 AND is_read = FALSE',
+        [requestId, receiverId]
       );
     },
     async getUnreadCount(userId: string): Promise<number> {

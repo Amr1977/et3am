@@ -86,9 +86,12 @@ export default function Navbar() {
   const navItems: NavItem[] = [
     { label: t('nav.home'), path: '/', icon: '🏠' },
     { label: t('nav.donations'), path: '/donations', icon: '🎁' },
+    { label: t('nav.requests'), path: '/requests', icon: '🙏' },
     { label: t('nav.dashboard'), path: '/dashboard', icon: '📊', requiresAuth: true },
     { label: t('my_donations.title'), path: '/my-donations', icon: '🤝', requiresAuth: true },
     { label: t('my_reservations.title'), path: '/my-reservations', icon: '📋', requiresAuth: true },
+    { label: t('requests.my_requests'), path: '/my-requests', icon: '📝', requiresAuth: true },
+    { label: t('requests.my_fulfillments'), path: '/my-fulfillments', icon: '✅', requiresAuth: true },
     { label: t('support.title'), path: '/support', icon: '💬', requiresAuth: true },
     { label: t('nav.profile'), path: '/profile', icon: '👤', requiresAuth: true },
     { label: t('nav.settings'), path: '/settings', icon: '⚙️', requiresAuth: true },
@@ -137,7 +140,7 @@ export default function Navbar() {
       {isAuthenticated && (
         <div className="nav-section">
           <span className="nav-section-title">{t('nav.dashboard')}</span>
-          {navItems.slice(2, 9).map(item => (
+          {navItems.slice(2, 11).map(item => (
             (!item.requiresAdmin || user?.role === 'admin') && (
               <Link 
                 key={item.path} 

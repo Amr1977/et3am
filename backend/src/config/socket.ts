@@ -116,6 +116,88 @@ export function initSocket(httpServer: HTTPServer): SocketIOServer {
       }
     });
 
+    socket.on('join_request', async (data) => {
+      const { requestId } = data;
+
+      try {
+        const request = await dbOps.donationRequests.findById(requestId);
+        if (!request) {
+          socket.emit('error', { message: 'Request not found' });
+          return;
+        }
+
+        const isParticipant = request.requester_id === userId || 
+          (await dbOps.requestFulfillments.findByRequest(requestId)).some(f => f.donor_id === userId);
+        if (!isParticipant) {
+          socket.emit('error', { message: 'Unauthorized' });
+          return;
+        }
+
+        socket.join(`request_${requestId}`);
+        console.log(`[Socket] User ${userId} joined request room: ${requestId}`);
+      } catch (error) {
+        console.error('[Socket] Join request error:', error);
+        socket.emit('error', { message: 'Failed to join request chat' });
+      }
+    });
+
+    socket.on('leave_request', (data) => {
+      const { requestId } = data;
+      socket.leave(`request_${requestId}`);
+    });
+
+    socket.on('send_request_message', async (data) => {
+      const { requestId, message } = data;
+
+      try {
+        const request = await dbOps.donationRequests.findById(requestId);
+        if (!request) {
+          socket.emit('error', { message: 'Request not found' });
+          return;
+        }
+
+        const isRequester = request.requester_id === userId;
+        const fulfillments = await dbOps.requestFulfillments.findByRequest(requestId);
+        const isFulfiller = fulfillments.some(f => f.donor_id === userId);
+
+        if (!isRequester && !isFulfiller) {
+          socket.emit('error', { message: 'Unauthorized' });
+          return;
+        }
+
+        let receiverId: string;
+        if (isRequester) {
+          const lastFulfiller = fulfillments[fulfillments.length - 1];
+          if (!lastFulfiller) {
+            socket.emit('error', { message: 'No donor to message' });
+            return;
+          }
+          receiverId = lastFulfiller.donor_id;
+        } else {
+          receiverId = request.requester_id;
+        }
+
+        const savedMessage = await dbOps.chat.createForRequest(requestId, userId, receiverId, message);
+        const user = await dbOps.users.findById(userId);
+
+        const messageWithSender = {
+          ...savedMessage,
+          sender_name: user?.name || 'Unknown',
+          sender_avatar: user?.avatar_url || null,
+        };
+
+        io?.to(`request_${requestId}`).emit('new_message', messageWithSender);
+        io?.to(`user_${receiverId}`).emit('chat_notification', {
+          requestId,
+          senderId: userId,
+          senderName: user?.name,
+        });
+      } catch (error) {
+        console.error('[Socket] Send request message error:', error);
+        socket.emit('error', { message: 'Failed to send message' });
+      }
+    });
+
     socket.on('disconnect', (reason) => {
       console.log(`[Socket] User ${userId} disconnected: ${reason}`);
     });
@@ -131,6 +213,18 @@ export function getIO(): SocketIOServer | null {
 export function emitDonationEvent(event: string, data: any): void {
   if (io) {
     io.emit(event, data);
+  }
+}
+
+export function emitRequestEvent(event: string, data: any): void {
+  if (io) {
+    io.emit(event, data);
+  }
+}
+
+export function emitToRequestRoom(requestId: string, event: string, data: any): void {
+  if (io) {
+    io.to(`request_${requestId}`).emit(event, data);
   }
 }
 

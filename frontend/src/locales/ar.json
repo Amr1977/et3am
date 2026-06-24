@@ -358,5 +358,54 @@
     "language": "اللغة",
     "saved": "تم الحفظ بنجاح!",
     "save": "حفظ"
+  },
+  "nav": {
+    "requests": "طلبات الطعام"
+  },
+  "requests": {
+    "title": "طلبات الطعام",
+    "subtitle": "أشخاص يطلبون مساعدة غذائية",
+    "create": "إنشاء طلب",
+    "edit": "تعديل الطلب",
+    "my_requests": "طلباتي",
+    "my_fulfillments": "تبرعاتي للطلبات",
+    "list_retrieved": "تم استرجاع الطلبات بنجاح",
+    "not_found": "الطلب غير موجود",
+    "created": "تم إنشاء الطلب بنجاح",
+    "updated": "تم تحديث الطلب بنجاح",
+    "deleted": "تم حذف الطلب",
+    "fields": {
+      "title": "العنوان",
+      "description": "الوصف",
+      "member_count": "عدد الأشخاص",
+      "member_count_hint": "كم شخص يحتاج وجبات؟",
+      "address": "العنوان",
+      "location": "الموقع على الخريطة"
+    },
+    "status": {
+      "open": "مفتوح",
+      "partially_fulfilled": "مكتمل جزئياً",
+      "fulfilled": "مكتمل",
+      "cancelled": "ملغي"
+    },
+    "progress": "{{fulfilled}} / {{total}} وجبة متوفرة",
+    "remaining": "{{count}} وجبة ما زالت مطلوبة",
+    "fulfill": "تقديم وجبات",
+    "fulfill_title": "تقديم وجبات",
+    "fulfill_hint": "كم وجبة يمكنك تقديمها؟",
+    "fulfilled": "تم تقديم الوجبات بنجاح!",
+    "notes": "ملاحظات (اختياري)",
+    "cannot_fulfill_own": "لا يمكنك التبرع لطلبك الخاص",
+    "not_open": "هذا الطلب لم يعد مفتوحاً",
+    "exceeds_needed": "هذا يتجاوز الوجبات المطلوبة",
+    "no_donor_to_chat": "لم يتبرع أحد لهذا الطلب بعد",
+    "cannot_update": "لا يمكن تعديل طلب مكتمل أو ملغي",
+    "cannot_delete": "لا يمكن حذف طلب مكتمل",
+    "confirm_delete": "هل أنت متأكد من إلغاء هذا الطلب؟",
+    "chat_with": "محادثة مع المتبرع",
+    "chat_with_requester": "محادثة مع طالب الطعام",
+    "empty": "لا توجد طلبات بعد",
+    "empty_hint": "كن أول من ينشئ طلباً أو يساعد شخصاً محتاجاً",
+    "cancel": "إلغاء الطلب"
   }
 }

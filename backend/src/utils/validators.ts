@@ -70,6 +70,20 @@ export const supportTicketSchema = z.object({
   description: z.string().min(1, 'Description is required').max(5000),
 });
 
+export const requestSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(255),
+  description: z.string().max(5000).optional(),
+  member_count: z.number().int().positive('Member count must be at least 1'),
+  address: z.string().max(500).optional(),
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+});
+
+export const fulfillSchema = z.object({
+  meals_count: z.number().int().positive('Meals count must be at least 1'),
+  notes: z.string().max(500).optional(),
+});
+
 export const validateEmail = (email: unknown): boolean => {
   try {
     emailSchema.parse(email);

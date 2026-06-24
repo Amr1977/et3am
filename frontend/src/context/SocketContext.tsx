@@ -12,6 +12,9 @@ interface SocketContextType {
   onNewMessage: (callback: (message: any) => void) => () => void;
   onChatNotification: (callback: (data: any) => void) => () => void;
   onAdminNotification: (callback: (data: any) => void) => () => void;
+  joinRequestRoom: (requestId: string) => void;
+  leaveRequestRoom: (requestId: string) => void;
+  sendRequestMessage: (requestId: string, message: string) => void;
 }
 
 const SocketContext = createContext<SocketContextType | null>(null);
@@ -85,6 +88,18 @@ export function SocketProvider({ children }: SocketProviderProps) {
     socket?.emit('send_message', { donationId, message });
   };
 
+  const joinRequestRoom = (requestId: string) => {
+    socket?.emit('join_request', { requestId });
+  };
+
+  const leaveRequestRoom = (requestId: string) => {
+    socket?.emit('leave_request', { requestId });
+  };
+
+  const sendRequestMessage = (requestId: string, message: string) => {
+    socket?.emit('send_request_message', { requestId, message });
+  };
+
   const onNewMessage = (callback: (message: any) => void) => {
     socket?.on('new_message', callback);
     return () => {
@@ -122,6 +137,9 @@ export function SocketProvider({ children }: SocketProviderProps) {
       onNewMessage,
       onChatNotification,
       onAdminNotification,
+      joinRequestRoom,
+      leaveRequestRoom,
+      sendRequestMessage,
     }}>
       {children}
     </SocketContext.Provider>
