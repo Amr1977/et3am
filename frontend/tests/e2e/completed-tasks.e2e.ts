@@ -428,7 +428,7 @@ test.describe('BUG-014/015/016: Home Page Map and Stats', () => {
     
     if (count > 0) {
       const badgeText = await heroMapBadge.textContent();
-      expect(badgeText).toContain('🎁') || expect(badgeText).toMatch(/متبرعات|donations|\d+/i);
+      expect(badgeText).toMatch(/🎁|متبرعات|donations|\d+/i);
     } else {
       expect(true).toBeTruthy();
     }
