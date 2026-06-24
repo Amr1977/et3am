@@ -16,7 +16,9 @@
     "register": "تسجيل",
     "logout": "خروج",
     "profile": "ملفي",
-    "settings": "الإعدادات"
+    "settings": "الإعدادات",
+    "downloads": "التطبيقات",
+    "account": "الحساب"
   },
   "home": {
     "hero_title": "إطعام",
@@ -112,7 +114,6 @@
     "password_reset_success_desc": "تم إعادة تعيين كلمة المرور. جاري التوجيه لتسجيل الدخول...",
     "passwords_not_match": "كلمات المرور غير متطابقة",
     "weak_password": "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
-    "login_with_google": "دخول باستخدام Google",
     "signup_with_google": "تسجيل باستخدام Google",
     "or": "أو",
     "login": "دخول",
@@ -120,35 +121,7 @@
     "invalid_reset_token_desc": "رابط إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية. يرجى طلب رابط جديد.",
     "reset_failed": "فشل إعادة تعيين كلمة المرور"
   },
-  "donations": {
-    "title": "التبرعات",
-    "create_title": "إضافة تبرع",
-    "edit_title": "تعديل التبرع",
-    "food_type": "نوع الطعام",
-    "quantity": "الكمية",
-    "unit": "الوحدة",
-    "description": "الوصف",
-    "pickup_address": "عنوان الاستلام",
-    "pickup_location": "موقع الاستلام",
-    "expired": "منتهي",
-    "save": "حفظ",
-    "cancel": "إلغاء",
-    "report": "الإبلاغ",
-    "report_donation": "الإبلاغ عن هذا التبرع",
-    "report_reason_required": "يرجى اختيار السبب",
-    "cannot_report_own": "لا يمكنك الإبلاغ عن تبرعك الخاص",
-    "reported": "تم إرسال البلاغ بنجاح",
-    "report_reasons": {
-      "inappropriate": "محتوى غير لائق",
-      "expired": "تبرع منتهي الصلاحية",
-      "misleading": "وصف مضلل",
-      "unavailable": "غير متاح الآن",
-      "other": "أخرى"
-    },
-    "report_description": "تفاصيل إضافية (اختياري)",
-    "report_description_placeholder": "أضف المزيد من المعلومات...",
-    "submit_report": "إرسال البلاغ"
-  },
+
   "food_types": {
     "meat": "لحوم",
     "chicken": "دجاج",
@@ -192,7 +165,7 @@
     "directions": "الاتجاهات",
     "your_location": "موقعك",
     "pickup_location": "مكان الاستلام",
-    "use_map_directions": "استخدم الخريطة للحصول علىDirections to the pickup location",
+    "use_map_directions": "استخدم الخريطة للحصول على الاتجاهات إلى موقع الاستلام",
     "no_coordinates": "لا توجد إحداثيات للخريطة لهذا التبرع"
   },
   "donations": {
@@ -234,7 +207,9 @@
     "save": "حفظ",
     "cancel": "إلغاء",
     "no_donations": "لا توجد تبرعات حالياً",
+    "all": "الكل",
     "filter_all": "الكل",
+    "view_details": "عرض التفاصيل",
     "map": "خريطة",
     "your_location": "موقعك",
     "enable_location": "تفعيل الموقع",
@@ -251,7 +226,22 @@
     "hide": "إخفاء",
     "unhide": "إظهار",
     "confirm_hide": "هل أنت متأكد من إخفاء هذا التبرع؟",
-    "hidden": "مخفي"
+    "hidden": "مخفي",
+    "report": "الإبلاغ",
+    "report_donation": "الإبلاغ عن هذا التبرع",
+    "report_reason_required": "يرجى اختيار السبب",
+    "cannot_report_own": "لا يمكنك الإبلاغ عن تبرعك الخاص",
+    "reported": "تم إرسال البلاغ بنجاح",
+    "report_reasons": {
+      "inappropriate": "محتوى غير لائق",
+      "expired": "تبرع منتهي الصلاحية",
+      "misleading": "وصف مضلل",
+      "unavailable": "غير متاح الآن",
+      "other": "أخرى"
+    },
+    "report_description": "تفاصيل إضافية (اختياري)",
+    "report_description_placeholder": "أضف المزيد من المعلومات...",
+    "submit_report": "إرسال البلاغ"
   },
   "common": {
     "loading": "جاري التحميل...",
@@ -267,7 +257,16 @@
     "actions": "الإجراءات",
     "back_to_donations": "العودة للتبرعات",
     "retry": "إعادة المحاولة",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "all": "الكل",
+    "save": "حفظ"
+  },
+  "validation": {
+    "required_field": "هذا الحقل مطلوب"
+  },
+  "general": {
+    "loading": "جاري التحميل...",
+    "server_error": "خطأ في الخادم. حاول مرة أخرى."
   },
   "theme": {
     "light": "الوضع الفاتح",

@@ -87,6 +87,7 @@ export default function Navbar() {
     { label: t('nav.home'), path: '/', icon: '🏠' },
     { label: t('nav.donations'), path: '/donations', icon: '🎁' },
     { label: t('nav.requests'), path: '/requests', icon: '🙏' },
+    { label: t('nav.downloads'), path: '/downloads', icon: '⬇️' },
     { label: t('nav.dashboard'), path: '/dashboard', icon: '📊', requiresAuth: true },
     { label: t('my_donations.title'), path: '/my-donations', icon: '🤝', requiresAuth: true },
     { label: t('my_reservations.title'), path: '/my-reservations', icon: '📋', requiresAuth: true },
@@ -116,7 +117,7 @@ export default function Navbar() {
 
       <div className="nav-section">
         <span className="nav-section-title">{t('nav.home')}</span>
-        {navItems.slice(0, 2).map(item => (
+        {navItems.slice(0, 4).map(item => (
           <Link 
             key={item.path} 
             to={item.path} 
@@ -127,20 +128,12 @@ export default function Navbar() {
             <span className="nav-label">{item.label}</span>
           </Link>
         ))}
-        <Link 
-          to="/downloads" 
-          className={`nav-item ${isActive('/downloads') ? 'active' : ''}`}
-          onClick={() => setMobileMenuOpen(false)}
-        >
-          <span className="nav-icon">⬇</span>
-          <span className="nav-label">Downloads</span>
-        </Link>
       </div>
 
       {isAuthenticated && (
         <div className="nav-section">
           <span className="nav-section-title">{t('nav.dashboard')}</span>
-          {navItems.slice(2, 11).map(item => (
+          {navItems.slice(4, 9).map(item => (
             (!item.requiresAdmin || user?.role === 'admin') && (
               <Link 
                 key={item.path} 
@@ -153,6 +146,37 @@ export default function Navbar() {
               </Link>
             )
           ))}
+        </div>
+      )}
+
+      {isAuthenticated && (
+        <div className="nav-section">
+          <span className="nav-section-title">{t('nav.account')}</span>
+          {navItems.slice(9, 12).map(item => (
+            <Link 
+              key={item.path} 
+              to={item.path} 
+              className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <span className="nav-icon">{item.icon}</span>
+              <span className="nav-label">{item.label}</span>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {isAuthenticated && user?.role === 'admin' && (
+        <div className="nav-section">
+          <span className="nav-section-title">{t('admin.panel')}</span>
+          <Link 
+            to="/admin" 
+            className={`nav-item ${isActive('/admin') ? 'active' : ''}`}
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <span className="nav-icon">🔧</span>
+            <span className="nav-label">{t('admin.tabs.dashboard')}</span>
+          </Link>
         </div>
       )}
 

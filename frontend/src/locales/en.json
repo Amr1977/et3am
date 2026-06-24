@@ -16,7 +16,9 @@
     "register": "Register",
     "logout": "Logout",
     "profile": "Profile",
-    "settings": "Settings"
+    "settings": "Settings",
+    "downloads": "Downloads",
+    "account": "Account"
   },
   "home": {
     "hero_title": "إطعام",
@@ -115,8 +117,6 @@
     "signup_with_google": "Continue with Google",
     "or": "or",
     "login": "Login",
-    "reset_email_sent": "Check Your Email",
-    "reset_email_sent_desc": "We've sent a password reset link to your email if it exists in our system",
     "invalid_reset_token": "Invalid or Expired Link",
     "invalid_reset_token_desc": "The password reset link is invalid or has expired. Please request a new one.",
     "reset_failed": "Failed to reset password"
@@ -149,7 +149,9 @@
     "no_donations": "No donations available at the moment",
     "donated_by": "Donated by",
     "reserved_by": "Reserved by",
+    "all": "All",
     "filter_all": "All",
+    "view_details": "View Details",
     "portions": "portions",
     "kg": "kg",
     "items": "items",
@@ -254,7 +256,16 @@
     "actions": "Actions",
     "back_to_donations": "Back to Donations",
     "retry": "Retry",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "all": "All",
+    "save": "Save"
+  },
+  "validation": {
+    "required_field": "This field is required"
+  },
+  "general": {
+    "loading": "Loading...",
+    "server_error": "Server error. Please try again."
   },
   "theme": {
     "light": "Light Mode",
