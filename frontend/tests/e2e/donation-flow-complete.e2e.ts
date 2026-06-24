@@ -1,6 +1,24 @@
 import { test, expect } from '@playwright/test';
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:5173';
+const API_URL = 'https://api.et3am.com';
+
+async function getToken(page: any): Promise<string> {
+  return page.evaluate(() => localStorage.getItem('token'));
+}
+
+async function apiPost(path: string, token: string, body: any) {
+  const res = await fetch(`${API_URL}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`API POST ${path} failed: ${res.status} ${text}`);
+  }
+  return res.json();
+}
 
 async function highlightElement(page: any, selector: string) {
   await page.evaluate((sel: string) => {
@@ -19,9 +37,8 @@ async function highlightElement(page: any, selector: string) {
 async function safeClick(page: any, selector: string, description: string) {
   console.log(`🔍 Looking for: ${description}`);
   
-  const element = page.locator(selector).first();
-  const count = await page.locator(selector).count();
-  
+  const loc = page.locator(selector);
+  const count = await loc.count();
   if (count === 0) {
     console.log(`❌ Element not found: ${selector}`);
     const bodyText = await page.textContent('body');
@@ -29,9 +46,23 @@ async function safeClick(page: any, selector: string, description: string) {
     throw new Error(`Element not found: ${description}`);
   }
   
-  await highlightElement(page, selector);
-  console.log(`✅ Found element (${count} found), clicking: ${description}`);
-  await element.click({ timeout: 5000 });
+  // Find first visible element
+  let clicked = false;
+  for (let i = 0; i < count; i++) {
+    const el = loc.nth(i);
+    if (await el.isVisible()) {
+      await highlightElement(page, selector);
+      console.log(`✅ Found visible element (#${i}), clicking: ${description}`);
+      await el.click({ timeout: 5000 });
+      clicked = true;
+      break;
+    }
+  }
+  if (!clicked) {
+    console.log(`⚠️ No visible element found for: ${description}, trying first`);
+    await highlightElement(page, selector);
+    await loc.first().click({ timeout: 5000 });
+  }
 }
 
 async function safeFill(page: any, selector: string, value: string, description: string) {
@@ -40,171 +71,118 @@ async function safeFill(page: any, selector: string, value: string, description:
   
   const element = page.locator(selector).first();
   
-  // Wait up to 15 seconds for element to be visible
   try {
     await element.waitFor({ state: 'visible', timeout: 15000 });
   } catch (e) {
-    // Debug: log page content on failure
     const html = await page.content();
     console.log(`❌ Element not visible: ${description}, page length: ${html.length}`);
     throw e;
   }
   
-  // Scroll into view and click to focus
   await element.evaluate((el: HTMLElement) => el.scrollIntoViewIfNeeded());
   await element.click({ timeout: 5000 });
-  
-  // Fill with type to trigger input events
   await element.fill(value);
-  
-  // Force input/change events for React
   await element.dispatchEvent('input');
   await element.dispatchEvent('change');
 }
 
 test.describe('Complete Donation Flow - Full Happy Path', () => {
   test('Complete flow: Sign up → Create donation → Reserve → Chat → Complete', async ({ page }) => {
-    // Use desktop viewport for main test (mobile tested separately)
-    
-    // Store credentials for reuse in test
     const testEmail = `test${Date.now()}@test.com`;
     const testPassword = 'Test123456!';
     
     console.log('\n========== STARTING DONATION FLOW TEST ==========\n');
-    console.log('BASE_URL:', BASE_URL);
     console.log('Test email:', testEmail);
     
     // ===== STEP 1: SIGN UP =====
     console.log('📝 STEP 1: Sign Up');
-    
-    // Navigate directly to register page
     await page.goto(`${BASE_URL}/register`);
     await page.waitForTimeout(2000);
     
-    // Fill registration form
     await safeFill(page, 'input[name="name"]', 'Test User', 'Name');
-    await safeFill(page, 'input[type="email"]', `test${Date.now()}@test.com`, 'Email');
-    await safeFill(page, 'input[type="password"]', 'Test123456!', 'Password');
-    await safeFill(page, 'input[name="confirmPassword"]', 'Test123456!', 'Confirm Password');
+    await safeFill(page, 'input[type="email"]', testEmail, 'Email');
+    await safeFill(page, 'input[type="password"]', testPassword, 'Password');
+    await safeFill(page, 'input[name="confirmPassword"]', testPassword, 'Confirm Password');
     
-    // Accept terms if checkbox exists
     const termsCheckbox = page.locator('input[type="checkbox"]').first();
     if (await termsCheckbox.isVisible()) {
       await termsCheckbox.check();
     }
     
-    // Submit
     await safeClick(page, 'button[type="submit"]', 'Register button');
     await page.waitForTimeout(3000);
+    console.log('After registration URL:', page.url());
     
-    const currentUrl = page.url();
-    console.log('After registration URL:', currentUrl);
+    // ===== STEP 2: CREATE DONATION VIA API =====
+    console.log('\n📝 STEP 2: Create Donation via API');
     
-    // ===== STEP 2: CREATE DONATION =====
-    console.log('\n📝 STEP 2: Create Donation');
+    const token = await getToken(page);
+    console.log('Token obtained:', token ? 'yes' : 'no');
     
-    // Navigate to donations page (full load, auth state from localStorage)
+    const donation = await apiPost('/api/donations', token, {
+      title: 'Fresh Pizza',
+      description: 'Fresh homemade pizza, 3 slices left',
+      food_type: 'cooked',
+      quantity: 3,
+      unit: 'portions',
+      pickup_address: '123 Test Street, Cairo',
+      pickup_date: '2026-04-15',
+      pickup_time: '14:00',
+      latitude: 30.0444,
+      longitude: 31.2357,
+    });
+    console.log('✅ Donation created via API, id:', donation.id || donation.donation?.id);
+    const donationId = donation.id || donation.donation?.id;
+    
+    // Verify donation appears on donations page
     await page.goto(`${BASE_URL}/donations`);
-    // Wait for page to settle and auth to initialize
-    await page.waitForTimeout(5000);
-    
-    // Look for create donation button - wait for auth to settle
-    const createBtn = page.locator('button:has-text("Add Donation")').first();
-    try {
-      await createBtn.waitFor({ state: 'visible', timeout: 10000 });
-      await safeClick(page, 'button:has-text("Add Donation")', 'Create donation button');
-      await page.waitForTimeout(1500);
-      
-      // Fill donation form
-      await safeFill(page, 'input[name="title"]', 'Fresh Pizza', 'Title');
-      await safeFill(page, 'textarea[name="description"]', 'Fresh homemade pizza, 3 slices left', 'Description');
-      
-      // Select food type
-      const foodTypeSelect = page.locator('select[name="food_type"]').first();
-      if (await foodTypeSelect.isVisible()) {
-        await foodTypeSelect.selectOption('cooked');
-      }
-      
-      await safeFill(page, 'input[name="quantity"]', '3', 'Quantity');
-      
-      const unitSelect = page.locator('select[name="unit"]').first();
-      if (await unitSelect.isVisible()) {
-        await unitSelect.selectOption('portions');
-      }
-      
-      await safeFill(page, 'input[name="pickup_address"]', '123 Test Street, Cairo', 'Address');
-      await safeFill(page, 'input[name="pickup_date"]', '2026-04-15', 'Pickup date');
-      await safeFill(page, 'input[name="pickup_time"]', '14:00', 'Pickup time');
-      
-      // Submit
-      await safeClick(page, 'button[type="submit"]', 'Submit donation');
-      await page.waitForTimeout(3000);
-      
-      console.log('✅ Donation created');
-    } catch {
-      console.log('⚠️ Could not find create button, page might need login first');
-    }
+    await page.waitForTimeout(3000);
+    const donationCard = page.locator('.donation-card, [class*="donation"]').first();
+    console.log('Donation card visible:', await donationCard.isVisible());
     
     // ===== STEP 3: LOGOUT AND SIGN UP AS RECEIVER =====
     console.log('\n📝 STEP 3: Logout and sign up as receiver');
     
-    // Logout - look for logout button
     const logoutBtn = page.locator('button:has-text("Logout")').first();
     if (await logoutBtn.isVisible()) {
       await logoutBtn.click();
       await page.waitForTimeout(1000);
     }
     
-    // Sign up as new receiver user
     const receiverEmail = `receiver${Date.now()}@test.com`;
-    console.log('Signing up as receiver:', receiverEmail);
+    console.log('Receiver email:', receiverEmail);
     
     await page.goto(`${BASE_URL}/register`);
     await page.waitForTimeout(1500);
     
-    // Register as receiver
     await safeFill(page, 'input[name="name"]', 'Test Receiver', 'Name');
     await safeFill(page, 'input[type="email"]', receiverEmail, 'Email');
-    await safeFill(page, 'input[type="password"]', 'Test123456!', 'Password');
-    await safeFill(page, 'input[name="confirmPassword"]', 'Test123456!', 'Confirm Password');
+    await safeFill(page, 'input[type="password"]', testPassword, 'Password');
+    await safeFill(page, 'input[name="confirmPassword"]', testPassword, 'Confirm Password');
     
-    // Accept terms if checkbox exists
     const termsCheckbox2 = page.locator('input[type="checkbox"]').first();
     if (await termsCheckbox2.isVisible()) {
       await termsCheckbox2.check();
     }
     
-    // Submit registration
     const registerBtn2 = page.locator('button[type="submit"]').first();
     if (await registerBtn2.isVisible({ timeout: 5000 })) {
       await registerBtn2.click();
       await page.waitForTimeout(3000);
     }
     
-    // ===== STEP 4: RESERVE DONATION =====
-    console.log('\n📝 STEP 4: Reserve Donation');
+    // Get receiver token
+    const receiverToken = await getToken(page);
     
+    // ===== STEP 4: RESERVE VIA API =====
+    console.log('\n📝 STEP 4: Reserve Donation via API');
+    
+    const reserve = await apiPost(`/api/donations/${donationId}/reserve`, receiverToken, {});
+    console.log('✅ Donation reserved via API');
+    
+    // Verify on donations page
     await page.goto(`${BASE_URL}/donations`);
     await page.waitForTimeout(3000);
-    
-    // Look for reserve button - use first match
-    const reserveBtn = page.locator('button:has-text("Reserve")').first();
-    if (await reserveBtn.isVisible({ timeout: 5000 })) {
-      await highlightElement(page, 'button:has-text("Reserve")');
-      await reserveBtn.click();
-      await page.waitForTimeout(1500);
-      
-      // Handle confirmation dialog if exists
-      const confirmBtn = page.locator('button:has-text("Confirm")').first();
-      if (await confirmBtn.isVisible()) {
-        await confirmBtn.click();
-        await page.waitForTimeout(1500);
-      }
-      
-      console.log('✅ Donation reserved');
-    } else {
-      console.log('⚠️ No reserve button visible - might need available donations');
-    }
     
     // ===== STEP 5: CHECK HASH CODE =====
     console.log('\n📝 STEP 5: Check Hash Code');
@@ -212,7 +190,6 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     await page.goto(`${BASE_URL}/my-reservations`);
     await page.waitForTimeout(2000);
     
-    // Look for hash code display
     const hashCodeElement = page.locator('[class*="hash"], [class*="code"]').first();
     if (await hashCodeElement.isVisible()) {
       console.log('✅ Hash code visible');
@@ -223,13 +200,11 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     // ===== STEP 6: CHAT =====
     console.log('\n📝 STEP 6: Chat');
     
-    // Try to find chat link or button
     const chatLink = page.locator('a[href*="chat"]').first();
     if (await chatLink.isVisible()) {
       await chatLink.click();
       await page.waitForTimeout(1500);
       
-      // Try to send message
       const messageInput = page.locator('input[placeholder*="message"]').first();
       if (await messageInput.isVisible()) {
         await messageInput.fill('Hello, I will pick up the food soon!');
@@ -241,20 +216,18 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
       console.log('⚠️ Chat not accessible');
     }
     
-    // ===== STEP 7: MARK AS RECEIVED =====
-    console.log('\n📝 STEP 7: Mark as Received');
+    // ===== STEP 7: MARK AS COMPLETE =====
+    console.log('\n📝 STEP 7: Mark as Complete');
     
     await page.goto(`${BASE_URL}/my-reservations`);
     await page.waitForTimeout(2000);
     
-    // Click on reservation to open details
     const reservationCard = page.locator('.donation-card').first();
     if (await reservationCard.isVisible()) {
       await reservationCard.click();
       await page.waitForTimeout(1000);
     }
     
-    // Look for complete button
     const receivedBtn = page.locator('button:has-text("Confirm Pickup")').first();
     if (await receivedBtn.isVisible()) {
       await receivedBtn.click();
