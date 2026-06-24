@@ -2245,8 +2245,8 @@ html[dir="rtl"] .version-badge {
 .hero-map-overlay {
   position: absolute;
   top: 1rem;
-  right: 1rem;
-  z-index: 10;
+  left: 1rem;
+  z-index: 1001;
 }
 
 .hero-map-badge {
