@@ -215,6 +215,8 @@ router.post('/:id/fulfill', authenticate, async (req: AuthRequest, res: Response
 
     const fulfillment = await dbOps.requestFulfillments.create(req.params.id, req.userId!, meals_count, notes || null);
 
+    const donor = await dbOps.users.findById(req.userId!);
+
     const newFulfilled = request.meals_fulfilled + meals_count;
     const updated = await dbOps.donationRequests.update(req.params.id, { meals_fulfilled: newFulfilled });
     await dbOps.donationRequests.updateStatus(req.params.id);
@@ -230,7 +232,7 @@ router.post('/:id/fulfill', authenticate, async (req: AuthRequest, res: Response
       requestId: req.params.id,
       title: request.title,
       meals_count,
-      donorName: req.user?.name,
+      donorName: donor?.name,
     });
 
     const finalStatus = newFulfilled >= request.member_count ? 'fulfilled' : 'partially_fulfilled';
