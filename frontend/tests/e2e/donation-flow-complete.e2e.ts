@@ -80,10 +80,27 @@ async function safeFill(page: any, selector: string, value: string, description:
   }
   
   await element.evaluate((el: HTMLElement) => el.scrollIntoViewIfNeeded());
-  await element.click({ timeout: 5000 });
+  // Use force to bypass overlays (e.g. location prompt)
+  await element.click({ timeout: 5000, force: true });
   await element.fill(value);
   await element.dispatchEvent('input');
   await element.dispatchEvent('change');
+}
+
+async function dismissOverlay(page: any) {
+  const overlay = page.locator('.location-prompt-overlay').first();
+  if (await overlay.isVisible({ timeout: 2000 }).catch(() => false)) {
+    console.log('🔍 Dismissing location prompt overlay');
+    // Try clicking a close/allow button inside the overlay
+    const closeBtn = overlay.locator('button, [class*="close"], [class*="dismiss"]').first();
+    if (await closeBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
+      await closeBtn.click({ force: true });
+    } else {
+      // Click overlay background to dismiss
+      await overlay.click({ force: true, position: { x: 10, y: 10 } });
+    }
+    await page.waitForTimeout(500);
+  }
 }
 
 test.describe('Complete Donation Flow - Full Happy Path', () => {
@@ -98,6 +115,8 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     console.log('📝 STEP 1: Sign Up');
     await page.goto(`${BASE_URL}/register`);
     await page.waitForTimeout(2000);
+    
+    await dismissOverlay(page);
     
     await safeFill(page, 'input[name="name"]', 'Test User', 'Name');
     await safeFill(page, 'input[type="email"]', testEmail, 'Email');
@@ -154,6 +173,8 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     
     await page.goto(`${BASE_URL}/register`);
     await page.waitForTimeout(1500);
+    
+    await dismissOverlay(page);
     
     await safeFill(page, 'input[name="name"]', 'Test Receiver', 'Name');
     await safeFill(page, 'input[type="email"]', receiverEmail, 'Email');
