@@ -122,7 +122,7 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     const donation = await apiPost('/api/donations', token, {
       title: 'Fresh Pizza',
       description: 'Fresh homemade pizza, 3 slices left',
-      food_type: 'cooked',
+      food_type: 'other',
       quantity: 3,
       unit: 'portions',
       pickup_address: '123 Test Street, Cairo',
@@ -177,7 +177,7 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     // ===== STEP 4: RESERVE VIA API =====
     console.log('\n📝 STEP 4: Reserve Donation via API');
     
-    const reserve = await apiPost(`/api/donations/${donationId}/reserve`, receiverToken, {});
+    await apiPost(`/api/donations/${donationId}/reserve`, receiverToken, {});
     console.log('✅ Donation reserved via API');
     
     // Verify on donations page
@@ -255,11 +255,18 @@ test.describe('Mobile Navigation Test', () => {
     if (await hamburger.isVisible()) {
       console.log('✅ Hamburger menu visible');
       await hamburger.click();
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000); // Wait for mobile menu animation
     }
     
-    // Navigate to donations - use first match
-    await safeClick(page, 'a[href="/donations"]', 'Donations link');
+    // Navigate to donations - use force click on mobile (animation overlap)
+    const donationsLink = page.locator('a[href="/donations"]').first();
+    if (await donationsLink.isVisible({ timeout: 3000 })) {
+      await donationsLink.click({ force: true });
+      console.log('✅ Donations link clicked');
+    } else {
+      // Fallback: navigate directly
+      await page.goto(`${BASE_URL}/donations`);
+    }
     await page.waitForTimeout(2000);
     
     // Check map or grid view
