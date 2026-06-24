@@ -64,7 +64,7 @@ async function safeFill(page: any, selector: string, value: string, description:
 
 test.describe('Complete Donation Flow - Full Happy Path', () => {
   test('Complete flow: Sign up → Create donation → Reserve → Chat → Complete', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
+    // Use desktop viewport for main test (mobile tested separately)
     
     // Store credentials for reuse in test
     const testEmail = `test${Date.now()}@test.com`;
@@ -103,14 +103,10 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     // ===== STEP 2: CREATE DONATION =====
     console.log('\n📝 STEP 2: Create Donation');
     
-    // Navigate via navbar link to preserve React state
-    const donationsNavLink = page.locator('a[href="/donations"]').first();
-    if (await donationsNavLink.isVisible()) {
-      await donationsNavLink.click();
-    } else {
-      await page.goto(`${BASE_URL}/donations`);
-    }
-    await page.waitForTimeout(3000);
+    // Navigate to donations page (full load, auth state from localStorage)
+    await page.goto(`${BASE_URL}/donations`);
+    // Wait for page to settle and auth to initialize
+    await page.waitForTimeout(5000);
     
     // Look for create donation button - wait for auth to settle
     const createBtn = page.locator('button:has-text("Add Donation")').first();
@@ -188,13 +184,7 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     // ===== STEP 4: RESERVE DONATION =====
     console.log('\n📝 STEP 4: Reserve Donation');
     
-    // Navigate via navbar link
-    const donationsNav = page.locator('a[href="/donations"]').first();
-    if (await donationsNav.isVisible()) {
-      await donationsNav.click();
-    } else {
-      await page.goto(`${BASE_URL}/donations`);
-    }
+    await page.goto(`${BASE_URL}/donations`);
     await page.waitForTimeout(3000);
     
     // Look for reserve button - use first match
@@ -219,12 +209,7 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     // ===== STEP 5: CHECK HASH CODE =====
     console.log('\n📝 STEP 5: Check Hash Code');
     
-    const myReservationsLink = page.locator('a[href="/my-reservations"]').first();
-    if (await myReservationsLink.isVisible()) {
-      await myReservationsLink.click();
-    } else {
-      await page.goto(`${BASE_URL}/my-reservations`);
-    }
+    await page.goto(`${BASE_URL}/my-reservations`);
     await page.waitForTimeout(2000);
     
     // Look for hash code display
@@ -259,12 +244,7 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     // ===== STEP 7: MARK AS RECEIVED =====
     console.log('\n📝 STEP 7: Mark as Received');
     
-    const myReservationsLink2 = page.locator('a[href="/my-reservations"]').first();
-    if (await myReservationsLink2.isVisible()) {
-      await myReservationsLink2.click();
-    } else {
-      await page.goto(`${BASE_URL}/my-reservations`);
-    }
+    await page.goto(`${BASE_URL}/my-reservations`);
     await page.waitForTimeout(2000);
     
     // Click on reservation to open details
