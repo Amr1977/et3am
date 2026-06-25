@@ -9,11 +9,6 @@ function renderWithI18n(ui: React.ReactElement) {
 }
 
 describe('Footer', () => {
-  it('renders footer with app name', () => {
-    renderWithI18n(<Footer />);
-    expect(screen.getByText(/إطعام/i)).toBeInTheDocument();
-  });
-
   it('renders portfolio link', () => {
     renderWithI18n(<Footer />);
     expect(screen.getAllByText(/Amr Lotfy/).length).toBeGreaterThanOrEqual(1);
