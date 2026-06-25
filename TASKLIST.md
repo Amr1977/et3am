@@ -30,6 +30,13 @@
 - [x] INFRA-006: Configure OpenCode to use AgentRouter
 - [x] INFRA-007: Install AI coding CLI tools (Claude Code, Copilot, Forge, Gemini, KiloCode)
 - [x] INFRA-008: Clone matrix-delivery and configure AI CLI tools
+- [x] BUG-002: Chat endless loading (::uuid on TEXT column, fetchWithFailover recursion, Chat.tsx early return)
+
+## Recent Commits (2026)
+
+| Commit | Description |
+|--------|-------------|
+| 40f27c5 | fix: chat endless loading - fix 3 root causes |
 
 ## Trello Board
 - All pending tasks created as cards in Trello
