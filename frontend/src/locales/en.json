@@ -18,7 +18,8 @@
     "profile": "Profile",
     "settings": "Settings",
     "downloads": "Downloads",
-    "account": "Account"
+    "account": "Account",
+    "requests": "Food Requests"
   },
   "home": {
     "hero_title": "إطعام",
@@ -288,6 +289,7 @@
     "subtitle": "We're here to help",
     "create": "New Ticket",
     "cancel": "Cancel",
+    "tickets": "Tickets",
     "create_ticket": "Create Support Ticket",
     "type": "Type",
     "title_label": "Title",
@@ -357,9 +359,6 @@
     "saved": "Saved successfully!",
     "save": "Save"
   },
-  "nav": {
-    "requests": "Food Requests"
-  },
   "requests": {
     "title": "Food Requests",
     "subtitle": "People asking for food help",
@@ -405,5 +404,36 @@
     "empty": "No requests yet",
     "empty_hint": "Be the first to create a request or help someone in need",
     "cancel": "Cancel Request"
+  },
+  "projects": {
+    "title": "Projects",
+    "create_title": "Create Project",
+    "description": "Description",
+    "category": "Category",
+    "categories": {
+      "education": "Education",
+      "health": "Health",
+      "infrastructure": "Infrastructure",
+      "environment": "Environment",
+      "social": "Social",
+      "technology": "Technology",
+      "other": "Other"
+    },
+    "target_amount": "Target Amount",
+    "raised": "Raised",
+    "currency": "EGP",
+    "image_url": "Image URL",
+    "location_city": "City",
+    "location_area": "Area",
+    "location": "Location",
+    "filter_all": "All",
+    "no_projects": "No projects yet",
+    "save": "Save",
+    "cancel": "Cancel",
+    "donate": "Donate",
+    "active": "Active",
+    "completed": "Completed",
+    "suspended": "Suspended",
+    "progress": "Progress"
   }
 }

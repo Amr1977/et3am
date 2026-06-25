@@ -18,7 +18,8 @@
     "profile": "ملفي",
     "settings": "الإعدادات",
     "downloads": "التطبيقات",
-    "account": "الحساب"
+    "account": "الحساب",
+    "requests": "طلبات الطعام"
   },
   "home": {
     "hero_title": "إطعام",
@@ -289,6 +290,7 @@
     "subtitle": "نحن هنا لمساعدتك",
     "create": "تذكرة جديدة",
     "cancel": "إلغاء",
+    "tickets": "التذاكر",
     "create_ticket": "إنشاء تذكرة دعم",
     "type": "النوع",
     "title_label": "العنوان",
@@ -358,9 +360,6 @@
     "saved": "تم الحفظ بنجاح!",
     "save": "حفظ"
   },
-  "nav": {
-    "requests": "طلبات الطعام"
-  },
   "requests": {
     "title": "طلبات الطعام",
     "subtitle": "أشخاص يطلبون مساعدة غذائية",
@@ -406,5 +405,36 @@
     "empty": "لا توجد طلبات بعد",
     "empty_hint": "كن أول من ينشئ طلباً أو يساعد شخصاً محتاجاً",
     "cancel": "إلغاء الطلب"
+  },
+  "projects": {
+    "title": "المشاريع",
+    "create_title": "إنشاء مشروع",
+    "description": "الوصف",
+    "category": "التصنيف",
+    "categories": {
+      "education": "تعليم",
+      "health": "صحة",
+      "infrastructure": "بنية تحتية",
+      "environment": "بيئة",
+      "social": "اجتماعي",
+      "technology": "تقنية",
+      "other": "أخرى"
+    },
+    "target_amount": "المبلغ المستهدف",
+    "raised": "تم جمع",
+    "currency": "ج.م",
+    "image_url": "رابط الصورة",
+    "location_city": "المدينة",
+    "location_area": "المنطقة",
+    "location": "الموقع",
+    "filter_all": "الكل",
+    "no_projects": "لا توجد مشاريع بعد",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "donate": "تبرع",
+    "active": "نشط",
+    "completed": "مكتمل",
+    "suspended": "معلق",
+    "progress": "التقدم"
   }
 }
