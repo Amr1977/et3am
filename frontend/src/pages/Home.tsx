@@ -150,6 +150,8 @@ export default function Home() {
   const [mapFullscreen, setMapFullscreen] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([20, 0]);
+  const [mapZoom, setMapZoom] = useState(2);
   const mapRef = useRef<L.Map | null>(null);
 
   const center = useMemo(() =>
@@ -165,6 +167,8 @@ export default function Home() {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
+        setMapCenter([position.coords.latitude, position.coords.longitude]);
+        setMapZoom(12);
       },
       (err) => {
         console.error('Geolocation error:', err);
@@ -334,8 +338,8 @@ export default function Home() {
             }}
           >
             <MapContainer 
-              center={[30.0444, 31.2357]} 
-              zoom={11} 
+              center={mapCenter} 
+              zoom={mapZoom} 
               style={{ height: '100%', width: '100%', minHeight: '300px' }}
               zoomControl={false}
               attributionControl={false}
@@ -356,7 +360,7 @@ export default function Home() {
                   />
                   <Circle
                     center={[userLocation.lat, userLocation.lng]}
-                    radius={3500}
+                    radius={10000}
                     pathOptions={{
                       color: '#3b82f6',
                       fillColor: '#3b82f6',
