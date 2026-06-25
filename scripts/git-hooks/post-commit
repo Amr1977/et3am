@@ -1,0 +1,62 @@
+#!/bin/bash
+# post-commit hook: auto-bump VERSION based on Conventional Commits
+set -e
+
+# Guard: skip if called from amend (prevent infinite loop)
+if [ "${VERSION_BUMP_SKIP:-false}" = "true" ]; then
+    exit 0
+fi
+
+COMMIT_MSG=$(git log -1 --format=%s)
+VERSION_FILE="VERSION"
+
+# Parse commit type from Conventional Commits
+TYPE=""
+if echo "$COMMIT_MSG" | grep -qE "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?:"; then
+    TYPE=$(echo "$COMMIT_MSG" | sed -nE 's/^([a-z]+).*/\1/p')
+fi
+
+BREAKING=false
+if echo "$COMMIT_MSG" | grep -qE "BREAKING CHANGE|!:"; then
+    BREAKING=true
+fi
+
+if [ -z "$TYPE" ] && [ "$BREAKING" = false ]; then
+    exit 0
+fi
+
+# Read current version
+if [ -f "$VERSION_FILE" ]; then
+    MAJOR=$(grep -oP 'MAJOR=\K\d+' "$VERSION_FILE" || echo 1)
+    MINOR=$(grep -oP 'MINOR=\K\d+' "$VERSION_FILE" || echo 0)
+    PATCH=$(grep -oP 'PATCH=\K\d+' "$VERSION_FILE" || echo 0)
+else
+    MAJOR=1; MINOR=0; PATCH=0
+fi
+
+# Determine bump
+if [ "$BREAKING" = true ]; then
+    MAJOR=$((MAJOR + 1))
+    MINOR=0
+    PATCH=0
+elif [ "$TYPE" = "feat" ] || [ "$TYPE" = "perf" ]; then
+    MINOR=$((MINOR + 1))
+    PATCH=0
+elif [ "$TYPE" = "fix" ] || [ "$TYPE" = "docs" ] || [ "$TYPE" = "style" ] || \
+     [ "$TYPE" = "refactor" ] || [ "$TYPE" = "test" ] || [ "$TYPE" = "build" ] || \
+     [ "$TYPE" = "ci" ] || [ "$TYPE" = "revert" ]; then
+    PATCH=$((PATCH + 1))
+fi
+
+CURRENT_DATE=$(date +%Y-%m-%d)
+CURRENT_COMMIT=$(git rev-parse HEAD)
+
+cat > "$VERSION_FILE" << EOF
+MAJOR=$MAJOR
+MINOR=$MINOR
+PATCH=$PATCH
+BUILD_DATE=$CURRENT_DATE
+LAST_RELEASE_COMMIT=$CURRENT_COMMIT
+EOF
+
+VERSION_BUMP_SKIP=true git add "$VERSION_FILE" && VERSION_BUMP_SKIP=true git commit --amend --no-edit
