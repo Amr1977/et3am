@@ -129,16 +129,35 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     }
     
     await safeClick(page, 'button[type="submit"]', 'Register button');
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(2000);
+    
+    // Wait for redirect and auth state to settle
+    await page.waitForLoadState('networkidle');
     console.log('After registration URL:', page.url());
+    
+    // Navigate to home to ensure auth state is fully loaded
+    await page.goto(`${BASE_URL}/`);
+    await page.waitForTimeout(1500);
     
     // ===== STEP 2: CREATE DONATION VIA API =====
     console.log('\n📝 STEP 2: Create Donation via API');
     
     const token = await getToken(page);
-    console.log('Token obtained:', token ? 'yes' : 'no');
+    console.log('Token obtained:', token ? 'yes (len=' + token.length + ')' : 'no');
     
-    const donation = await apiPost('/api/donations', token, {
+    let authToken = token;
+    if (!token) {
+      console.log('⚠️ Token not found in localStorage, trying one more time...');
+      await page.waitForTimeout(2000);
+      const retryToken = await getToken(page);
+      console.log('Retry token:', retryToken ? 'yes' : 'no');
+      if (!retryToken) throw new Error('Could not obtain auth token after registration');
+      authToken = retryToken;
+    }
+    
+    console.log('Token first 20 chars:', authToken.substring(0, 20));
+    
+    const donation = await apiPost('/api/donations', authToken, {
       title: 'Fresh Pizza',
       description: 'Fresh homemade pizza, 3 slices left',
       food_type: 'other',
