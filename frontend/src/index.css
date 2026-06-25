@@ -4722,7 +4722,7 @@ html[dir="rtl"] .step-flow-number {
 .footer {
   background: var(--bg-card);
   border-top: 1px solid var(--border);
-  padding: 1.5rem;
+  padding: 0.75rem 1.5rem;
   margin-top: auto;
 }
 
@@ -4732,8 +4732,6 @@ html[dir="rtl"] .step-flow-number {
 }
 
 .footer-bottom {
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border);
   color: var(--text-muted);
   font-size: 0.8rem;
   text-align: center;
