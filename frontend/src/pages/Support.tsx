@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { fetchWithFailover } from '../services/api';
 
@@ -24,6 +25,10 @@ export default function Support() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  useEffect(() => {
+    document.title = 'ادعم إطعام | Et3am';
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated || !token) return;
@@ -97,17 +102,77 @@ export default function Support() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="support-loading">
-        <div className="loading-spinner"></div>
-        <p>{t('common.loading')}</p>
-      </div>
-    );
-  }
-
   return (
     <div className="support-page">
+      <Link to="/" className="support-back-link">← {t('common.back')}</Link>
+
+      <section className="support-dev-section">
+        <div className="support-dev-container">
+          <p className="support-dev-note">
+            هذه المنصة مفتوحة المصدر ومجانية تماماً. مساهماتك تساعد في استمرار التطوير.
+          </p>
+
+          <div className="support-dev-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+            </svg>
+          </div>
+          <h2 className="support-dev-title">{t('home.support_dev_title')}</h2>
+          <p className="support-dev-desc">
+            {t('home.support_dev_desc')}
+          </p>
+
+          <div className="support-phone-group">
+            <div className="support-phone-section">
+              <span className="support-phone-label">{t('home.support_phone')}</span>
+              <div className="support-phone-display">
+                <span className="support-phone-number">01094450141</span>
+                <button className="copy-btn" onClick={() => navigator.clipboard.writeText('01094450141')}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2"/>
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                  </svg>
+                  <span>{t('home.support_copy')}</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="support-methods-list">
+              <div className="support-method-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <rect x="3" y="5" width="18" height="14" rx="2"/>
+                  <path d="M3 10h18"/>
+                </svg>
+                <span>Instapay</span>
+              </div>
+              <div className="support-method-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+                </svg>
+                <span>Vodafone Cash</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="support-crypto-section">
+            <span className="support-crypto-label">{t('home.support_crypto')}</span>
+            <div className="support-crypto-display">
+              <span className="support-crypto-number">TACcgwLC4GeKzKGLWz14tiVahnpftHre1H</span>
+              <button className="copy-btn" onClick={() => navigator.clipboard.writeText('TACcgwLC4GeKzKGLWz14tiVahnpftHre1H')}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2"/>
+                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                </svg>
+                <span>{t('home.support_copy')}</span>
+              </button>
+            </div>
+            <span className="support-crypto-network">{t('home.support_crypto_network')}</span>
+          </div>
+
+          <p className="support-dev-thanks">{t('home.support_thanks')}</p>
+        </div>
+      </section>
+
       <div className="support-header">
         <div>
           <h1>{t('support.title')}</h1>
@@ -122,13 +187,13 @@ export default function Support() {
         <div className="support-form-container">
           <form onSubmit={handleSubmit} className="support-form">
             <h3>{t('support.create_ticket')}</h3>
-            
+
             {submitSuccess && (
               <div className="form-success" style={{ color: 'var(--success)', marginBottom: '1rem' }}>
                 {t('support.ticket_created')}
               </div>
             )}
-            
+
             {submitError && (
               <div className="form-error" style={{ color: 'var(--danger)', marginBottom: '1rem' }}>
                 {submitError}
@@ -185,38 +250,45 @@ export default function Support() {
         </div>
       )}
 
-      <div className="tickets-list">
-        {tickets.length === 0 ? (
-          <div className="empty-state-container">
-            <span className="empty-state-icon">🎫</span>
-            <h3>{t('support.no_tickets')}</h3>
-            <p>{t('support.no_tickets_desc')}</p>
-          </div>
-        ) : (
-          tickets.map((ticket) => (
-            <div key={ticket.id} className="ticket-card">
-              <div className="ticket-header">
-                <span className={`ticket-type ticket-type-${ticket.type}`}>
-                  {t(`support.types.${ticket.type}`)}
-                </span>
-                <span className="ticket-status" style={{ backgroundColor: getStatusColor(ticket.status) }}>
-                  {t(`support.statuses.${ticket.status}`)}
-                </span>
-                <span className="ticket-priority" style={{ color: getPriorityColor(ticket.priority) }}>
-                  {t(`support.priorities.${ticket.priority}`)}
-                </span>
-              </div>
-              <h3 className="ticket-title">{ticket.title}</h3>
-              <p className="ticket-description">{ticket.description}</p>
-              <div className="ticket-footer">
-                <span className="ticket-date">
-                  {new Date(ticket.created_at).toLocaleDateString()}
-                </span>
-              </div>
+      {loading ? (
+        <div className="support-loading">
+          <div className="loading-spinner"></div>
+          <p>{t('common.loading')}</p>
+        </div>
+      ) : (
+        <div className="tickets-list">
+          {tickets.length === 0 ? (
+            <div className="empty-state-container">
+              <span className="empty-state-icon">🎫</span>
+              <h3>{t('support.no_tickets')}</h3>
+              <p>{t('support.no_tickets_desc')}</p>
             </div>
-          ))
-        )}
-      </div>
+          ) : (
+            tickets.map((ticket) => (
+              <div key={ticket.id} className="ticket-card">
+                <div className="ticket-header">
+                  <span className={`ticket-type ticket-type-${ticket.type}`}>
+                    {t(`support.types.${ticket.type}`)}
+                  </span>
+                  <span className="ticket-status" style={{ backgroundColor: getStatusColor(ticket.status) }}>
+                    {t(`support.statuses.${ticket.status}`)}
+                  </span>
+                  <span className="ticket-priority" style={{ color: getPriorityColor(ticket.priority) }}>
+                    {t(`support.priorities.${ticket.priority}`)}
+                  </span>
+                </div>
+                <h3 className="ticket-title">{ticket.title}</h3>
+                <p className="ticket-description">{ticket.description}</p>
+                <div className="ticket-footer">
+                  <span className="ticket-date">
+                    {new Date(ticket.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }
