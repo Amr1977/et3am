@@ -25,6 +25,7 @@ const Settings = React.lazy(() => import('./pages/Settings'));
 const MealDetails = React.lazy(() => import('./pages/MealDetails'));
 const MyDonations = React.lazy(() => import('./pages/MyDonations'));
 const MyReservations = React.lazy(() => import('./pages/MyReservations'));
+const About = React.lazy(() => import('./pages/About'));
 const Requests = React.lazy(() => import('./pages/Requests'));
 const RequestDetails = React.lazy(() => import('./pages/RequestDetails'));
 const MyRequests = React.lazy(() => import('./pages/MyRequests'));
@@ -79,6 +80,7 @@ function AppContent() {
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />

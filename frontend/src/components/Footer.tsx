@@ -8,6 +8,8 @@ export default function Footer() {
         <div className="footer-bottom">
           <Link to="/support">ادعم المشروع</Link>
           <span className="sep">|</span>
+          <Link to="/about">من نحن</Link>
+          <span className="sep">|</span>
           <span>v{gitInfo.version}</span>
           <span className="sep">|</span>
           <a href="https://amrlotfy.et3am.com" target="_blank" rel="noopener noreferrer">Amr Lotfy</a>
