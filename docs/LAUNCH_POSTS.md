@@ -37,7 +37,7 @@ Available in Arabic & English. Works in any country. Check the good-first-issue 
 ```
 Star the repo if you believe food should reach people, not landfills.
 
-Support development: opencollective.com/et3am
+Support development: et3am.com/support
 
 Built with love. Made for the world. 🌍
 ```
@@ -71,7 +71,7 @@ Whether you're a developer, translator, tester, or just believe in the mission �
 🔗 Check it out: github.com/Amr1977/et3am
 🌐 Try it: et3am.com
 
-And if you want to support the development, we're on Open Collective: opencollective.com/et3am
+And if you want to support the development, we're on Open Collective: et3am.com/support
 
 #OpenSource #FoodSecurity #TechForGood #GlobalImpact #ZeroHunger
 ```

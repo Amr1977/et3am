@@ -40,9 +40,12 @@ async function getServers(): Promise<ServerInfo[]> {
   return DEFAULT_SERVERS;
 }
 
+const MAX_RETRIES = 2;
+
 export async function fetchWithFailover(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  retryCount: number = 0
 ): Promise<Response> {
   const servers = await getServers();
 
@@ -60,12 +63,16 @@ export async function fetchWithFailover(
 
   for (const server of servers) {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
       const response = await fetch(`${server.url}${endpoint}`, {
         ...options,
+        signal: controller.signal,
         headers: {
           ...options.headers,
         },
       });
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         currentServer = server;
@@ -85,8 +92,8 @@ export async function fetchWithFailover(
 
   serverCache = null;
 
-  if (servers.length > 1) {
-    return fetchWithFailover(endpoint, options);
+  if (servers.length > 1 && retryCount < MAX_RETRIES) {
+    return fetchWithFailover(endpoint, options, retryCount + 1);
   }
 
   throw new Error(`All servers failed: ${errors.map((e) => e.message).join(', ')}`);

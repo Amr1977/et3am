@@ -34,9 +34,17 @@ export default function Chat() {
   const isRequestChat = !!requestId;
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      setLoading(false);
+      setError(t('auth.login_required'));
+      return;
+    }
     const chatId = donationId || requestId;
-    if (!chatId) return;
+    if (!chatId) {
+      setLoading(false);
+      setError('Invalid chat');
+      return;
+    }
 
     const endpointPrefix = isRequestChat ? `/api/chat/request/${requestId}` : `/api/chat/${donationId}`;
 
@@ -48,9 +56,12 @@ export default function Chat() {
         if (res.ok) {
           const data = await res.json();
           setMessages(data.messages);
+        } else {
+          const body = await res.json().catch(() => ({}));
+          setError(body.messageKey || t('chat.error'));
         }
       } catch (err) {
-        setError('Failed to load messages');
+        setError(t('chat.error'));
       } finally {
         setLoading(false);
       }

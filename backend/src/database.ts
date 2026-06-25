@@ -445,7 +445,7 @@ export const dbOps = {
         `SELECT cm.*, u.name as sender_name, u.avatar_url as sender_avatar
          FROM chat_messages cm
          JOIN users u ON cm.sender_id = u.id
-         WHERE cm.donation_id = $1::uuid
+         WHERE cm.donation_id = $1
          ORDER BY cm.created_at ASC`,
         [donationId]
       );
@@ -456,7 +456,7 @@ export const dbOps = {
         `SELECT cm.*, u.name as sender_name, u.avatar_url as sender_avatar
          FROM chat_messages cm
          JOIN users u ON cm.sender_id = u.id
-         WHERE cm.request_id = $1::uuid
+         WHERE cm.request_id = $1
          ORDER BY cm.created_at ASC`,
         [requestId]
       );
@@ -480,13 +480,13 @@ export const dbOps = {
     },
     async markAsRead(donationId: string, receiverId: string): Promise<void> {
       await pool.query(
-        'UPDATE chat_messages SET is_read = TRUE WHERE donation_id = $1::uuid AND receiver_id = $2 AND is_read = FALSE',
+        'UPDATE chat_messages SET is_read = TRUE WHERE donation_id = $1 AND receiver_id = $2 AND is_read = FALSE',
         [donationId, receiverId]
       );
     },
     async markRequestAsRead(requestId: string, receiverId: string): Promise<void> {
       await pool.query(
-        'UPDATE chat_messages SET is_read = TRUE WHERE request_id = $1::uuid AND receiver_id = $2 AND is_read = FALSE',
+        'UPDATE chat_messages SET is_read = TRUE WHERE request_id = $1 AND receiver_id = $2 AND is_read = FALSE',
         [requestId, receiverId]
       );
     },

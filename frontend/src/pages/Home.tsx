@@ -11,6 +11,7 @@ import { useSound } from '../context/SoundContext';
 import MapCenterUpdater from '../components/MapCenterUpdater';
 import MapFullscreenCenterHandler from '../components/MapFullscreenCenterHandler';
 import HeroMapResizeHandler from '../components/HeroMapResizeHandler';
+import MapHeroInteractionHandler from '../components/MapHeroInteractionHandler';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -280,6 +281,9 @@ export default function Home() {
             <Link to="/register" className="btn btn-primary btn-lg">
               {t('home.get_started')}
             </Link>
+            <Link to="/requests" className="btn btn-secondary btn-lg">
+              {t('home.request_food')}
+            </Link>
             <Link to="/donations" className="btn btn-outline btn-lg">
               {t('home.learn_more')}
             </Link>
@@ -352,6 +356,7 @@ export default function Home() {
               )}
               <HeroMapResizeHandler key={mapFullscreen ? 'a' : 'b'} />
               <MapFullscreenCenterHandler isFullscreen={mapFullscreen} center={center} />
+              {!mapFullscreen && <MapHeroInteractionHandler onFirstInteraction={() => setMapFullscreen(true)} />}
               {userLocation && (
                 <>
                   <Marker
@@ -513,6 +518,9 @@ export default function Home() {
             <div className="cta-buttons">
               <Link to="/register" className="btn btn-primary btn-lg">
                 {t('home.get_started')}
+              </Link>
+              <Link to="/requests" className="btn btn-secondary btn-lg">
+                {t('home.request_food')}
               </Link>
               <Link to="/donations" className="btn btn-outline btn-lg">
                 {t('home.learn_more')}

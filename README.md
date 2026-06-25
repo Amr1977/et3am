@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen" alt="PRs Welcome">
   <a href="https://et3am.com"><img src="https://img.shields.io/badge/Live Demo-et3am.com-blue" alt="Live Demo"></a>
-  <a href="https://opencollective.com/et3am"><img src="https://img.shields.io/badge/Open Collective-et3am-orange" alt="Open Collective"></a>
+  <a href="https://et3am.com/support"><img src="https://img.shields.io/badge/Support-et3am.com/support-orange" alt="Support et3am"></a>
   <a href="https://github.com/sponsors/Amr1977"><img src="https://img.shields.io/badge/GitHub Sponsors-Sponsor-red" alt="GitHub Sponsors"></a>
 </p>
 
@@ -118,7 +118,7 @@ Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
 If you believe in our mission, please consider supporting Et3am:
 
 - **GitHub Sponsors:** https://github.com/sponsors/Amr1977
-- **Open Collective:** https://opencollective.com/et3am
+- **Support:** https://et3am.com/support
 - **PayPal:** amr.lotfy.othman@gmail.com
 - **Crypto (TRON TRC20):** TACcgwLC4GeKzKGLWz14tiVahnpftHre1H
 - **InstaPay (Egypt):** 01094450141

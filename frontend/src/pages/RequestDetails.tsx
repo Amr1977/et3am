@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { fetchWithFailover } from '../services/api';
-import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getServerUrl, getInitialTileUrl } from '../services/api';
@@ -40,6 +40,39 @@ interface RequestDetail {
   created_at: string;
 }
 
+function MapInteractionHandler({ onInteraction }: { onInteraction: () => void }) {
+  const map = useMap();
+  const hasTriggered = useRef(false);
+
+  useEffect(() => {
+    const handleInteraction = () => {
+      if (!hasTriggered.current) {
+        hasTriggered.current = true;
+        onInteraction();
+      }
+    };
+
+    map.on('dragstart', handleInteraction);
+    map.on('zoomstart', handleInteraction);
+
+    return () => {
+      map.off('dragstart', handleInteraction);
+      map.off('zoomstart', handleInteraction);
+    };
+  }, [map, onInteraction]);
+
+  return null;
+}
+
+function MapResizeHandler({ active }: { active: boolean }) {
+  const map = useMap();
+  useEffect(() => {
+    const timer = setTimeout(() => map.invalidateSize(), 300);
+    return () => clearTimeout(timer);
+  }, [map, active]);
+  return null;
+}
+
 export default function RequestDetails() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
@@ -52,10 +85,20 @@ export default function RequestDetails() {
   const [showFulfillModal, setShowFulfillModal] = useState(false);
   const [fulfillCount, setFulfillCount] = useState(1);
   const [fulfillNotes, setFulfillNotes] = useState('');
+  const [mapFullscreen, setMapFullscreen] = useState(false);
 
   useEffect(() => {
     getServerUrl().then(url => setTileUrl(`${url}/api/maps/tiles/{z}/{x}/{y}.png`));
   }, []);
+
+  useEffect(() => {
+    if (!mapFullscreen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMapFullscreen(false);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [mapFullscreen]);
 
   useEffect(() => {
     if (!id) return;
@@ -196,7 +239,18 @@ export default function RequestDetails() {
         </div>
 
         {request.latitude && request.longitude && (
-          <div className="detail-map" style={{ height: '300px', borderRadius: '12px', overflow: 'hidden', marginBottom: '24px' }}>
+          <div
+            className={`detail-map${mapFullscreen ? ' fullscreen' : ''}`}
+            style={mapFullscreen ? {
+              position: 'fixed',
+              inset: 0,
+              zIndex: 99999,
+              width: '100vw',
+              height: '100vh',
+              background: '#fff',
+              overflow: 'hidden',
+            } : { height: '300px', borderRadius: '12px', overflow: 'hidden', marginBottom: '24px' }}
+          >
             <MapContainer
               center={[request.latitude, request.longitude]}
               zoom={15}
@@ -208,7 +262,36 @@ export default function RequestDetails() {
                 url={tileUrl}
               />
               <Marker position={[request.latitude, request.longitude]} />
+              {!mapFullscreen && (
+                <MapInteractionHandler onInteraction={() => setMapFullscreen(true)} />
+              )}
+              <MapResizeHandler active={mapFullscreen} />
             </MapContainer>
+            {mapFullscreen && (
+              <button
+                className="map-fullscreen-close"
+                onClick={() => setMapFullscreen(false)}
+                style={{
+                  position: 'absolute',
+                  top: '20px',
+                  right: '20px',
+                  zIndex: 1000,
+                  background: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '40px',
+                  height: '40px',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '18px',
+                }}
+              >
+                ✕
+              </button>
+            )}
           </div>
         )}
 

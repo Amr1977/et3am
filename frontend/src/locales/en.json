@@ -27,6 +27,7 @@
     "hero_subtitle": "﴿And they give food, out of love for Him, to the needy, the orphan, and the prisoner. We feed you only for the face of Allah. We want from you neither reward nor thanks.﴾ — Surah Al-Insan 76:8-9",
     "get_started": "Start Donating",
     "learn_more": "See Donations",
+    "request_food": "Request Food",
     "how_it_works": "How It Works",
     "step_1_title": "Post a Meal",
     "step_1_desc": "List your surplus food with details. Only shared location is shown - your identity stays private.",
@@ -284,7 +285,9 @@
     "no_messages": "No messages yet. Start the conversation!",
     "placeholder": "Type a message...",
     "send": "Send",
-    "open_chat": "Chat"
+    "open_chat": "Chat",
+    "error": "Failed to load messages",
+    "login_required": "You must be logged in to chat"
   },
   "support": {
     "title": "Support",

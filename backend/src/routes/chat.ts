@@ -85,6 +85,21 @@ router.post('/request/:requestId', authenticate, async (req: AuthRequest, res: R
 
 router.put('/request/:requestId/read', authenticate, async (req: AuthRequest, res: Response) => {
   try {
+    const request = await dbOps.donationRequests.findById(req.params.requestId);
+    if (!request) {
+      res.status(404).json({ messageKey: 'requests.not_found' });
+      return;
+    }
+
+    const isRequester = request.requester_id === req.userId;
+    const fulfillments = await dbOps.requestFulfillments.findByRequest(req.params.requestId);
+    const isFulfiller = fulfillments.some(f => f.donor_id === req.userId);
+
+    if (!isRequester && !isFulfiller) {
+      res.status(403).json({ messageKey: 'auth.unauthorized' });
+      return;
+    }
+
     await dbOps.chat.markRequestAsRead(req.params.requestId, req.userId!);
     res.json({ message: 'Messages marked as read' });
   } catch (err) {
@@ -159,6 +174,18 @@ router.post('/:donationId', authenticate, async (req: AuthRequest, res: Response
 
 router.put('/:donationId/read', authenticate, async (req: AuthRequest, res: Response) => {
   try {
+    const donation = await dbOps.donations.findById(req.params.donationId);
+    if (!donation) {
+      res.status(404).json({ messageKey: 'donation.not_found' });
+      return;
+    }
+
+    const isParticipant = donation.donor_id === req.userId || donation.reserved_by === req.userId;
+    if (!isParticipant) {
+      res.status(403).json({ messageKey: 'auth.unauthorized' });
+      return;
+    }
+
     await dbOps.chat.markAsRead(req.params.donationId, req.userId!);
     res.json({ message: 'Messages marked as read' });
   } catch (err) {

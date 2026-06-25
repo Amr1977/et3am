@@ -89,6 +89,12 @@ export function initSocket(httpServer: HTTPServer): SocketIOServer {
           return;
         }
 
+        const isParticipant = donation.donor_id === userId || donation.reserved_by === userId;
+        if (!isParticipant) {
+          socket.emit('error', { message: 'Unauthorized' });
+          return;
+        }
+
         const receiverId = donation.donor_id === userId ? donation.reserved_by : donation.donor_id;
         if (!receiverId) {
           socket.emit('error', { message: 'No participant found' });

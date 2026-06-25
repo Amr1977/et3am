@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -80,6 +80,39 @@ function createClusterIcon(cluster: any): L.DivIcon {
   });
 }
 
+function MapInteractionHandler({ onInteraction }: { onInteraction: () => void }) {
+  const map = useMap();
+  const hasTriggered = useRef(false);
+
+  useEffect(() => {
+    const handleInteraction = () => {
+      if (!hasTriggered.current) {
+        hasTriggered.current = true;
+        onInteraction();
+      }
+    };
+
+    map.on('dragstart', handleInteraction);
+    map.on('zoomstart', handleInteraction);
+
+    return () => {
+      map.off('dragstart', handleInteraction);
+      map.off('zoomstart', handleInteraction);
+    };
+  }, [map, onInteraction]);
+
+  return null;
+}
+
+function MapResizeHandler({ active }: { active: boolean }) {
+  const map = useMap();
+  useEffect(() => {
+    const timer = setTimeout(() => map.invalidateSize(), 300);
+    return () => clearTimeout(timer);
+  }, [map, active]);
+  return null;
+}
+
 function MapContent({ requests, t, onViewDetails, onFulfill, center, zoom }: RequestsMapProps) {
   const map = useMap();
 
@@ -155,6 +188,7 @@ function MapContent({ requests, t, onViewDetails, onFulfill, center, zoom }: Req
 
 export default function RequestsMap(props: RequestsMapProps) {
   const [tileUrl, setTileUrl] = useState<string>(getInitialTileUrl());
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     getServerUrl().then(url => {
@@ -162,19 +196,66 @@ export default function RequestsMap(props: RequestsMapProps) {
     });
   }, []);
 
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsFullscreen(false);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [isFullscreen]);
+
   const defaultCenter: [number, number] = [30.0444, 31.2357];
   const center = props.center || defaultCenter;
   const zoom = props.zoom || 6;
 
   return (
-    <div style={{ height: '500px', width: '100%', borderRadius: '12px', overflow: 'hidden' }}>
+    <div
+      className={`requests-map${isFullscreen ? ' fullscreen' : ''}`}
+      style={isFullscreen ? {
+        position: 'fixed',
+        inset: 0,
+        zIndex: 99999,
+        width: '100vw',
+        height: '100vh',
+        background: '#fff',
+        overflow: 'hidden',
+      } : { height: '500px', width: '100%', borderRadius: '12px', overflow: 'hidden' }}
+    >
       <MapContainer center={center} zoom={zoom} style={{ height: '100%', width: '100%' }}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url={tileUrl}
         />
+        {!isFullscreen && <MapInteractionHandler onInteraction={() => setIsFullscreen(true)} />}
+        <MapResizeHandler active={isFullscreen} />
         <MapContent {...props} />
       </MapContainer>
+      {isFullscreen && (
+        <button
+          className="map-fullscreen-close"
+          onClick={() => setIsFullscreen(false)}
+          style={{
+            position: 'absolute',
+            top: '20px',
+            right: '20px',
+            zIndex: 1000,
+            background: 'white',
+            border: 'none',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            cursor: 'pointer',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '18px',
+          }}
+        >
+          ✕
+        </button>
+      )}
     </div>
   );
 }
