@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
@@ -19,8 +19,38 @@ interface Message {
   sender_avatar: string | null;
 }
 
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map(w => w[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+}
+
+function formatDateLabel(dateStr: string): string {
+  const d = new Date(dateStr);
+  const now = new Date();
+  const isToday = d.toDateString() === now.toDateString();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const isYesterday = d.toDateString() === yesterday.toDateString();
+
+  if (isToday) return 'Today';
+  if (isYesterday) return 'Yesterday';
+  return d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+}
+
+interface ChatItem {
+  type: 'message' | 'date';
+  date?: string;
+  msg?: Message;
+}
+
 export default function Chat() {
   const { donationId, requestId } = useParams<{ donationId?: string; requestId?: string }>();
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { user, token, isAuthenticated } = useAuth();
   const { joinDonationRoom, leaveDonationRoom, sendMessage, joinRequestRoom, leaveRequestRoom, sendRequestMessage, onNewMessage, onChatNotification } = useSocket();
@@ -32,6 +62,21 @@ export default function Chat() {
   const [error, setError] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isRequestChat = !!requestId;
+
+  const chatItems = useMemo<ChatItem[]>(() => {
+    if (messages.length === 0) return [];
+    const items: ChatItem[] = [];
+    let lastDate = '';
+    for (const msg of messages) {
+      const msgDate = new Date(msg.created_at).toDateString();
+      if (msgDate !== lastDate) {
+        items.push({ type: 'date', date: msg.created_at });
+        lastDate = msgDate;
+      }
+      items.push({ type: 'message', msg });
+    }
+    return items;
+  }, [messages]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -137,21 +182,40 @@ export default function Chat() {
     <div className="chat-page">
       <div className="chat-container">
         <div className="chat-header">
-          <h2>{t('chat.title')}</h2>
-          <span className="chat-subtitle">{t('chat.subtitle')}</span>
+          <button className="chat-back-btn" onClick={() => navigate(-1)} aria-label="Back">
+            ←
+          </button>
+          <div className="chat-header-info">
+            <h2>{t('chat.title')}</h2>
+            <span className="chat-subtitle">{t('chat.subtitle')}</span>
+          </div>
         </div>
 
         <div className="chat-messages">
-          {messages.length === 0 ? (
+          {chatItems.length === 0 ? (
             <div className="chat-empty">
               <span className="chat-empty-icon">💬</span>
               <p>{t('chat.no_messages')}</p>
             </div>
           ) : (
-            messages.map((msg) => {
+            chatItems.map((item, idx) => {
+              if (item.type === 'date') {
+                return (
+                  <div key={`date-${idx}`} className="chat-date-label">
+                    <span>{formatDateLabel(item.date!)}</span>
+                  </div>
+                );
+              }
+              const msg = item.msg!;
               const isOwn = msg.sender_id === user?.id;
               return (
                 <div key={msg.id} className={`chat-message ${isOwn ? 'own' : 'other'}`}>
+                  {!isOwn && (
+                    <div className="message-sender-row">
+                      <div className="message-avatar">{getInitials(msg.sender_name)}</div>
+                      <span className="message-sender-name">{msg.sender_name}</span>
+                    </div>
+                  )}
                   <div className="message-bubble">
                     <p>{msg.message}</p>
                     <span className="message-time">
