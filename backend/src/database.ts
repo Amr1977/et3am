@@ -441,25 +441,24 @@ export const dbOps = {
   },
   chat: {
     async findByDonation(donationId: string): Promise<any[]> {
-      const { rows } = await pool.query(
-        `SELECT cm.*, u.name as sender_name, u.avatar_url as sender_avatar
+      const escapedId = donationId.replace(/'/g, "''");
+      const sql = `SELECT cm.*, u.name as sender_name, u.avatar_url as sender_avatar
          FROM chat_messages cm
-         JOIN users u ON cm.sender_id = u.id
-         WHERE cm.donation_id = $1
-         ORDER BY cm.created_at ASC`,
-        [donationId]
-      );
+         JOIN users u ON cm.sender_id::uuid = u.id
+         WHERE cm.donation_id = '${escapedId}'
+         ORDER BY cm.created_at ASC`;
+      logger.info('CHAT_DB_QUERY findByDonation', { donationId, donationIdType: typeof donationId, sql });
+      const { rows } = await pool.query(sql);
       return rows;
     },
     async findByRequest(requestId: string): Promise<any[]> {
-      const { rows } = await pool.query(
-        `SELECT cm.*, u.name as sender_name, u.avatar_url as sender_avatar
+      const sql = `SELECT cm.*, u.name as sender_name, u.avatar_url as sender_avatar
          FROM chat_messages cm
-         JOIN users u ON cm.sender_id = u.id
+         JOIN users u ON cm.sender_id::uuid = u.id
          WHERE cm.request_id = $1
-         ORDER BY cm.created_at ASC`,
-        [requestId]
-      );
+         ORDER BY cm.created_at ASC`;
+      logger.info('CHAT_DB_QUERY findByRequest', { requestId, requestIdType: typeof requestId, sql });
+      const { rows } = await pool.query(sql, [requestId]);
       return rows;
     },
     async create(donationId: string, senderId: string, receiverId: string, message: string): Promise<any> {

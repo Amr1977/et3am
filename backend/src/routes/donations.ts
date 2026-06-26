@@ -192,7 +192,7 @@ router.get('/my-reservations', authenticate, async (req: AuthRequest, res: Respo
   }
 });
 
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', optionalAuth, async (req: AuthRequest, res: Response) => {
   try {
     const donation = await dbOps.donations.findById(req.params.id);
     if (!donation) {
@@ -314,11 +314,19 @@ router.put('/:id', authenticate, async (req: AuthRequest, res: Response) => {
     }
 
     const { title, description, food_type, quantity, unit, expiry_date, pickup_address, pickup_date, status, latitude, longitude } = req.body;
-    const updated = await dbOps.donations.update(req.params.id, {
-      title, description, food_type, quantity, unit, expiry_date, pickup_address, pickup_date, status,
-      latitude: latitude != null ? parseFloat(latitude) : undefined,
-      longitude: longitude != null ? parseFloat(longitude) : undefined,
-    });
+    const updates: Record<string, any> = {};
+    if (title !== undefined) updates.title = title;
+    if (description !== undefined) updates.description = description;
+    if (food_type !== undefined) updates.food_type = food_type;
+    if (quantity !== undefined) updates.quantity = quantity;
+    if (unit !== undefined) updates.unit = unit;
+    if (expiry_date !== undefined) updates.expiry_date = expiry_date;
+    if (pickup_address !== undefined) updates.pickup_address = pickup_address;
+    if (pickup_date !== undefined) updates.pickup_date = pickup_date;
+    if (status !== undefined) updates.status = status;
+    if (latitude != null) updates.latitude = parseFloat(latitude);
+    if (longitude != null) updates.longitude = parseFloat(longitude);
+    const updated = await dbOps.donations.update(req.params.id, updates);
 
     res.json({ messageKey: 'donation.updated', donation: updated });
   } catch (err) {

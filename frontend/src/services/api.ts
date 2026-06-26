@@ -13,7 +13,8 @@ const DEFAULT_SERVERS: ServerInfo[] = [
 ];
 
 async function getServers(): Promise<ServerInfo[]> {
-  const envUrl = import.meta.env.VITE_API_URL;
+  const lsUrl = typeof localStorage !== 'undefined' ? localStorage.getItem('et3am_api_url') : null;
+  const envUrl = lsUrl || import.meta.env.VITE_API_URL;
   if (envUrl && (envUrl.startsWith('http://localhost') || envUrl.startsWith('http://127.0.0.1'))) {
     return [{ id: 'localhost', url: envUrl }];
   }
