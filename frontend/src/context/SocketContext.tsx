@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, useCallback, ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 import { getServerUrl } from '../services/api';
@@ -17,6 +17,11 @@ interface SocketContextType {
   sendRequestMessage: (requestId: string, message: string) => void;
 }
 
+interface QueuedListener {
+  event: string;
+  callback: (...args: any[]) => void;
+}
+
 const SocketContext = createContext<SocketContextType | null>(null);
 
 interface SocketProviderProps {
@@ -27,20 +32,49 @@ export function SocketProvider({ children }: SocketProviderProps) {
   const { token, isAuthenticated } = useAuth();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const socketRef = useRef<Socket | null>(null);
+  const listenerQueue = useRef<QueuedListener[]>([]);
+
+  // Keep ref in sync
+  socketRef.current = socket;
+
+  // Flush queued listeners when socket connects
+  useEffect(() => {
+    if (!socket) return;
+    if (listenerQueue.current.length === 0) return;
+
+    for (const { event, callback } of listenerQueue.current) {
+      socket.on(event, callback as any);
+    }
+    listenerQueue.current = [];
+  }, [socket]);
+
+  function on(event: string, callback: (...args: any[]) => void) {
+    if (socketRef.current) {
+      socketRef.current.on(event, callback as any);
+    } else {
+      listenerQueue.current.push({ event, callback });
+    }
+    return () => {
+      socketRef.current?.off(event, callback as any);
+    };
+  }
 
   useEffect(() => {
     if (!isAuthenticated || !token) {
-      if (socket) {
-        socket.disconnect();
+      if (socketRef.current) {
+        socketRef.current.disconnect();
         setSocket(null);
         setIsConnected(false);
       }
       return;
     }
 
+    let disconnected = false;
+
     const setupSocket = async () => {
       const serverUrl = await getServerUrl();
-      
+
       const socketInstance = io(serverUrl, {
         auth: { token },
         transports: ['websocket', 'polling'],
@@ -64,68 +98,65 @@ export function SocketProvider({ children }: SocketProviderProps) {
         setIsConnected(false);
       });
 
-      setSocket(socketInstance);
+      if (!disconnected) {
+        setSocket(socketInstance);
+      }
     };
 
     setupSocket();
 
     return () => {
-      if (socket) {
-        socket.disconnect();
+      disconnected = true;
+      if (socketRef.current) {
+        socketRef.current.disconnect();
       }
     };
   }, [token, isAuthenticated]);
 
-  const joinDonationRoom = (donationId: string) => {
-    socket?.emit('join_donation', { donationId });
-  };
+  const joinDonationRoom = useCallback((donationId: string) => {
+    socketRef.current?.emit('join_donation', { donationId });
+  }, []);
 
-  const leaveDonationRoom = (donationId: string) => {
-    socket?.emit('leave_donation', { donationId });
-  };
+  const leaveDonationRoom = useCallback((donationId: string) => {
+    socketRef.current?.emit('leave_donation', { donationId });
+  }, []);
 
-  const sendMessage = (donationId: string, message: string) => {
-    socket?.emit('send_message', { donationId, message });
-  };
+  const sendMessage = useCallback((donationId: string, message: string) => {
+    socketRef.current?.emit('send_message', { donationId, message });
+  }, []);
 
-  const joinRequestRoom = (requestId: string) => {
-    socket?.emit('join_request', { requestId });
-  };
+  const joinRequestRoom = useCallback((requestId: string) => {
+    socketRef.current?.emit('join_request', { requestId });
+  }, []);
 
-  const leaveRequestRoom = (requestId: string) => {
-    socket?.emit('leave_request', { requestId });
-  };
+  const leaveRequestRoom = useCallback((requestId: string) => {
+    socketRef.current?.emit('leave_request', { requestId });
+  }, []);
 
-  const sendRequestMessage = (requestId: string, message: string) => {
-    socket?.emit('send_request_message', { requestId, message });
-  };
+  const sendRequestMessage = useCallback((requestId: string, message: string) => {
+    socketRef.current?.emit('send_request_message', { requestId, message });
+  }, []);
 
-  const onNewMessage = (callback: (message: any) => void) => {
-    socket?.on('new_message', callback);
+  const onNewMessage = useCallback((callback: (message: any) => void) => {
+    return on('new_message', callback);
+  }, []);
+
+  const onChatNotification = useCallback((callback: (data: any) => void) => {
+    return on('chat_notification', callback);
+  }, []);
+
+  const onAdminNotification = useCallback((callback: (data: any) => void) => {
+    const unsub1 = on('new_user_registered', callback);
+    const unsub2 = on('new_donation_added', callback);
+    const unsub3 = on('meal_picked_up', callback);
+    const unsub4 = on('donation_completed', callback);
     return () => {
-      socket?.off('new_message', callback);
+      unsub1();
+      unsub2();
+      unsub3();
+      unsub4();
     };
-  };
-
-  const onChatNotification = (callback: (data: any) => void) => {
-    socket?.on('chat_notification', callback);
-    return () => {
-      socket?.off('chat_notification', callback);
-    };
-  };
-
-  const onAdminNotification = (callback: (data: any) => void) => {
-    socket?.on('new_user_registered', callback);
-    socket?.on('new_donation_added', callback);
-    socket?.on('meal_picked_up', callback);
-    socket?.on('donation_completed', callback);
-    return () => {
-      socket?.off('new_user_registered', callback);
-      socket?.off('new_donation_added', callback);
-      socket?.off('meal_picked_up', callback);
-      socket?.off('donation_completed', callback);
-    };
-  };
+  }, []);
 
   return (
     <SocketContext.Provider value={{
