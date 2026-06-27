@@ -10,19 +10,19 @@ const soundUrls: Record<SoundType, string> = {
 
 let audioContext: AudioContext | null = null;
 
-function getAudioContext(): AudioContext {
+async function getAudioContext(): Promise<AudioContext> {
   if (!audioContext) {
     audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
   }
   if (audioContext.state === 'suspended') {
-    audioContext.resume();
+    await audioContext.resume();
   }
   return audioContext;
 }
 
-function playTone(frequency: number, duration: number = 0.3): void {
+async function playTone(frequency: number, duration: number = 0.3): Promise<void> {
   try {
-    const ctx = getAudioContext();
+    const ctx = await getAudioContext();
     const oscillator = ctx.createOscillator();
     const gainNode = ctx.createGain();
 
@@ -31,7 +31,7 @@ function playTone(frequency: number, duration: number = 0.3): void {
 
     oscillator.frequency.value = frequency;
     oscillator.type = 'sine';
-    
+
     gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
 
@@ -55,20 +55,22 @@ function playFallbackTone(soundType: SoundType): void {
 
 export function playSound(soundType: SoundType): void {
   const url = soundUrls[soundType];
-  
+
   const audio = new Audio();
-  
+
   audio.addEventListener('error', () => {
-    console.log(`MP3 not found for ${soundType}, using fallback tone`);
     playFallbackTone(soundType);
   });
-  
+
   audio.addEventListener('canplaythrough', () => {
-    audio.play().catch(() => {
-      playFallbackTone(soundType);
-    });
+    const playPromise = audio.play();
+    if (playPromise) {
+      playPromise.catch(() => {
+        playFallbackTone(soundType);
+      });
+    }
   }, { once: true });
-  
+
   audio.preload = 'auto';
   audio.src = url;
   audio.load();

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 import { useSocket } from './SocketContext';
-import { useSound } from './SoundContext';
+import { playSound as playSoundEffect } from '../utils/soundPlayer';
 import { fetchWithFailover } from '../services/api';
 
 export interface AppNotification {
@@ -34,7 +34,6 @@ const NotificationContext = createContext<NotificationContextType | null>(null);
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const { user, token, isAuthenticated } = useAuth();
   const { onNewNotification } = useSocket();
-  const { playSound } = useSound();
 
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -87,11 +86,11 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         setUnreadCount(prev => prev + 1);
       }
       if (notification.type === 'chat_message') {
-        playSound('message');
+        playSoundEffect('message');
       }
     });
     return unsub;
-  }, [onNewNotification, playSound]);
+  }, [onNewNotification]);
 
   const markAsRead = useCallback(async (id: string) => {
     if (!token) return;
