@@ -61,23 +61,23 @@ export default function Settings() {
       // Handle push notification subscription with timeout
       if (settings.notifications_enabled && pushSupported && !isSubscribed) {
         const subscribePromise = subscribe();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Subscribe timeout')), 5000)
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Push subscribe timed out — check browser permissions')), 20000)
         );
         try {
           await Promise.race([subscribePromise, timeoutPromise]);
         } catch (e) {
-          console.warn('Push subscription skipped:', e);
+          console.warn('[Push] Subscribe failed:', e);
         }
       } else if (!settings.notifications_enabled && isSubscribed) {
         const unsubscribePromise = unsubscribe();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Unsubscribe timeout')), 5000)
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Unsubscribe timeout')), 10000)
         );
         try {
           await Promise.race([unsubscribePromise, timeoutPromise]);
         } catch (e) {
-          console.warn('Push unsubscribe skipped:', e);
+          console.warn('[Push] Unsubscribe failed:', e);
         }
       }
 

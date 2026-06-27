@@ -41,6 +41,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   useEffect(() => {
     setPermission(Notification.permission);
@@ -48,9 +49,62 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
-      navigator.serviceWorker.ready.then(reg => setRegistration(reg)).catch(() => {});
+      navigator.serviceWorker.ready.then(reg => {
+        setRegistration(reg);
+        reg.pushManager.getSubscription().then(sub => {
+          setIsSubscribed(!!sub);
+        }).catch(() => {});
+      }).catch(err => {
+        console.warn('[Notifications] Service worker ready failed:', err);
+      });
     }
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      fetchWithFailover('/api/users/me', {
+        headers: { Authorization: `Bearer ${token}` },
+      }).then(res => {
+        if (res.ok) return res.json();
+      }).then(data => {
+        if (data?.user?.notifications_enabled !== undefined) {
+          setNotificationsEnabled(data.user.notifications_enabled);
+        }
+      }).catch(() => {});
+    }
+  }, [isAuthenticated, token]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !token || !registration || !notificationsEnabled || isSubscribed) return;
+    fetchWithFailover('/api/push/vapid-key').then(res => {
+      if (!res.ok) throw new Error('Failed to get VAPID key');
+      return res.json();
+    }).then(({ publicKey }) => {
+      if (!publicKey) return;
+      return registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey) as any,
+      });
+    }).then(sub => {
+      if (!sub) return;
+      const subJSON = sub.toJSON();
+      return fetchWithFailover('/api/push/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          endpoint: subJSON.endpoint,
+          keys: subJSON.keys,
+        }),
+      });
+    }).then(() => {
+      setIsSubscribed(true);
+    }).catch((err) => {
+      console.warn('[Notifications] Auto-subscribe failed:', err);
+    });
+  }, [isAuthenticated, token, registration, notificationsEnabled]);
 
   const refreshNotifications = useCallback(async () => {
     if (!isAuthenticated || !token) return;
