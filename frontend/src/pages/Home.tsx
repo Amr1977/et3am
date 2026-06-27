@@ -199,6 +199,7 @@ export default function Home() {
   const [locationError, setLocationError] = useState<string | null>(null);
   const [mapCenter, setMapCenter] = useState<[number, number]>([20, 0]);
   const [mapZoom, setMapZoom] = useState(2);
+  const [mapFilter, setMapFilter] = useState<'all' | 'donations' | 'requests'>('all');
   const mapRef = useRef<L.Map | null>(null);
 
   const center = useMemo(() =>
@@ -211,27 +212,17 @@ export default function Home() {
       setLocationError('Geolocation not supported');
       return;
     }
-    const checkPermission = async () => {
-      try {
-        const perm = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
-        if (perm.state !== 'granted') return;
-      } catch {
-        // Permissions API not supported, continue to prompt
-      }
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
-          setMapCenter([position.coords.latitude, position.coords.longitude]);
-          setMapZoom(12);
-        },
-        (err) => {
-          console.error('Geolocation error:', err);
-          setLocationError(err.message);
-        },
-        { timeout: 10000, maximumAge: 300000, enableHighAccuracy: false }
-      );
-    };
-    checkPermission();
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
+        setMapCenter([position.coords.latitude, position.coords.longitude]);
+        setMapZoom(12);
+      },
+      (err) => {
+        console.warn('Geolocation error (user may have denied):', err.message);
+      },
+      { timeout: 10000, maximumAge: 300000, enableHighAccuracy: false }
+    );
   }, []);
 
   useEffect(() => {
@@ -457,7 +448,7 @@ export default function Home() {
                 disableClusteringAtZoom={15}
                 iconCreateFunction={createClusterIcon}
               >
-                {donations.filter(d => d.latitude && d.longitude).slice(0, 50).map(d => (
+                {(mapFilter === 'all' || mapFilter === 'donations') && donations.filter(d => d.latitude && d.longitude).slice(0, 50).map(d => (
                   <Marker
                     key={d.id}
                     position={[d.latitude!, d.longitude!]}
@@ -472,12 +463,12 @@ export default function Home() {
                         onClick={() => navigate(`/donations/${d.id}`)}
                         style={{ color: '#22c55e', cursor: 'pointer', fontWeight: 600, marginTop: 6 }}
                       >
-                        {t('donations.view_details') || 'View Details'} →
+                        {t('donations.view_details')} →
                       </div>
                     </Popup>
                   </Marker>
                 ))}
-                {requests.filter(r => r.latitude && r.longitude).map(r => (
+                {(mapFilter === 'all' || mapFilter === 'requests') && requests.filter(r => r.latitude && r.longitude).map(r => (
                   <Marker
                     key={`req-${r.id}`}
                     position={[r.latitude!, r.longitude!]}
@@ -486,13 +477,13 @@ export default function Home() {
                     <Popup>
                       <strong>{r.title}</strong>
                       <br />
-                      {t('requests.member_count') || 'Family size'}: {r.member_count}
+                      {t('requests.member_count')}: {r.member_count}
                       <br />
                       <div
                         onClick={() => navigate(`/requests/${r.id}`)}
                         style={{ color: '#6366f1', cursor: 'pointer', fontWeight: 600, marginTop: 6 }}
                       >
-                        {t('donations.view_details') || 'View Details'} →
+                        {t('donations.view_details')} →
                       </div>
                     </Popup>
                   </Marker>
@@ -524,6 +515,38 @@ export default function Home() {
               <div className="hero-map-badge">
                 <span>🎁</span>
                 <span>{donations.length} {t('nav.donations')}</span>
+              </div>
+              <div className="hero-map-filter" style={{
+                position: 'absolute',
+                top: '10px',
+                left: '10px',
+                zIndex: 1000,
+                display: 'flex',
+                gap: '6px',
+                background: 'rgba(255,255,255,0.95)',
+                padding: '6px',
+                borderRadius: '8px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+              }}>
+                {(['all', 'donations', 'requests'] as const).map(f => (
+                  <button
+                    key={f}
+                    onClick={(e) => { e.stopPropagation(); setMapFilter(f); }}
+                    style={{
+                      padding: '6px 12px',
+                      border: 'none',
+                      borderRadius: '6px',
+                      background: mapFilter === f ? '#22c55e' : 'transparent',
+                      color: mapFilter === f ? '#fff' : '#374151',
+                      cursor: 'pointer',
+                      fontWeight: mapFilter === f ? 600 : 400,
+                      fontSize: '13px',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    {f === 'all' ? t('common.all') : f === 'donations' ? t('nav.donations') : t('nav.requests')}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
@@ -607,65 +630,18 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="requests-section">
-        <div className="section-header">
-          <span className="section-tag">{t('nav.requests') || 'Requests'}</span>
-          <h2 className="section-title">{t('home.open_requests') || 'Open Donation Requests'}</h2>
-          <p className="section-desc">
-            {t('home.open_requests_desc') || 'Browse requests from people in need'}
-          </p>
-        </div>
-        <div className="donations-grid">
-          {requests.slice(0, 6).map(r => (
-            <div
-              key={r.id}
-              className="donation-card"
-              onClick={() => navigate(`/requests/${r.id}`)}
-              style={{ cursor: 'pointer' }}
-            >
-              <div className="donation-card-header">
-                <span className="status-badge" style={{ background: requestStatusColors[r.status] || '#6b7280' }}>
-                  {r.status}
-                </span>
-              </div>
-              <h3 className="donation-title">{r.title}</h3>
-              {r.description && (
-                <p className="donation-description">
-                  {r.description.length > 100 ? r.description.substring(0, 100) + '...' : r.description}
-                </p>
-              )}
-              <div className="donation-meta">
-                <span>👥 {r.member_count} {t('requests.members') || 'members'}</span>
-                <span>✅ {r.meals_fulfilled}/{r.member_count} {t('requests.fulfilled') || 'fulfilled'}</span>
-              </div>
-              {r.meals_fulfilled < r.member_count && (
-                <div style={{ marginTop: 8 }}>
-                  <div style={{ height: 6, background: '#e5e7eb', borderRadius: 3, overflow: 'hidden' }}>
-                    <div style={{
-                      height: '100%',
-                      width: `${Math.round((r.meals_fulfilled / r.member_count) * 100)}%`,
-                      background: '#6366f1',
-                      borderRadius: 3,
-                      transition: 'width 0.3s',
-                    }} />
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-        {requests.length > 6 && (
-          <div className="section-footer">
-            <Link to="/requests" className="btn btn-outline">
-              {t('home.view_all_requests') || 'View All Requests'} →
+      <section className="cta-section">
+        <div className="cta-card" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+          <div className="cta-content" style={{ textAlign: 'center' }}>
+            <h2 className="cta-title" style={{ color: '#fff' }}>{t('nav.requests')}</h2>
+            <p className="cta-desc" style={{ color: 'rgba(255,255,255,0.9)' }}>
+              Browse donation requests from people in need and help fulfill them
+            </p>
+            <Link to="/requests" className="btn btn-primary btn-lg">
+              Browse Requests →
             </Link>
           </div>
-        )}
-        {requests.length === 0 && !loading && (
-          <p className="text-center" style={{ color: '#9ca3af', padding: '2rem 0' }}>
-            {t('home.no_requests') || 'No open requests at the moment'}
-          </p>
-        )}
+        </div>
       </section>
 
       <section className="cta-section">
