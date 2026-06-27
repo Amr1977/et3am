@@ -18,7 +18,7 @@ if (existsSync(envPath)) {
 }
 
 import { pool } from '../database';
-import { emitToUser } from '../config/socket';
+import logger from '../config/logger';
 
 const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || '';
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
@@ -70,6 +70,50 @@ export const pushService = {
   async getAllSubscriptions(): Promise<PushSubscription[]> {
     const result = await pool.query('SELECT * FROM push_subscriptions');
     return result.rows;
+  },
+
+  async sendPushNotification(userId: string, title: string, body?: string, data?: Record<string, any>) {
+    if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+      return;
+    }
+
+    let webpush: any;
+    try {
+      webpush = require('web-push');
+      webpush.setVapidDetails(
+        'mailto:admin@et3am.com',
+        VAPID_PUBLIC_KEY,
+        VAPID_PRIVATE_KEY
+      );
+    } catch {
+      return;
+    }
+
+    const subs = await this.getSubscriptions(userId);
+    if (subs.length === 0) return;
+
+    const payload = JSON.stringify({
+      title,
+      body: body || '',
+      data: data || {},
+      icon: '/defaulticon.png',
+      badge: '/defaulticon.png',
+    });
+
+    for (const sub of subs) {
+      try {
+        await webpush.sendNotification({
+          endpoint: sub.endpoint,
+          keys: { p256dh: sub.p256dh, auth: sub.auth },
+        }, payload);
+      } catch (err: any) {
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          await this.removeSubscription(userId, sub.endpoint);
+        } else {
+          logger.error(`[Push] Send failed for ${userId}:`, err.message);
+        }
+      }
+    }
   },
 
   vapidPublicKey: VAPID_PUBLIC_KEY,

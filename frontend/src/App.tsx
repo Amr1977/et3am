@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import { SoundProvider } from './context/SoundContext';
 import { CrashLoggingProvider } from './context/CrashLoggingContext';
+import { NotificationProvider } from './context/NotificationContext';
 import { useRTL } from './hooks/useRTL';
 import { logError } from './utils/logger';
 import Navbar from './components/Navbar';
@@ -31,6 +32,7 @@ const RequestDetails = React.lazy(() => import('./pages/RequestDetails'));
 const MyRequests = React.lazy(() => import('./pages/MyRequests'));
 const MyFulfillments = React.lazy(() => import('./pages/MyFulfillments'));
 const Downloads = React.lazy(() => import('./pages/Downloads'));
+const NotificationsPage = React.lazy(() => import('./pages/NotificationsPage'));
 
 function LoadingSpinner() {
   return (
@@ -101,6 +103,7 @@ function AppContent() {
             <Route path="/profile/:userId" element={<UserProfile />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/downloads" element={<Downloads />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
           </Routes>
         </Suspense>
       </main>
@@ -118,7 +121,9 @@ export default function App() {
         <SocketProvider>
           <SoundProvider>
             <CrashLoggingProvider>
-              <AppContent />
+              <NotificationProvider>
+                <AppContent />
+              </NotificationProvider>
             </CrashLoggingProvider>
           </SoundProvider>
         </SocketProvider>

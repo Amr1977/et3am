@@ -2,6 +2,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import { Server as HTTPServer } from 'http';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { dbOps } from '../database';
+import { notificationService } from '../services/notifications';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -11,9 +12,10 @@ if (!JWT_SECRET) {
 let io: SocketIOServer | null = null;
 
 export function initSocket(httpServer: HTTPServer): SocketIOServer {
+  const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
   io = new SocketIOServer(httpServer, {
     cors: {
-      origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+      origin: corsOrigin.split(',').map(o => o.trim()).filter(Boolean),
       methods: ['GET', 'POST'],
       credentials: true,
     },
@@ -116,6 +118,14 @@ export function initSocket(httpServer: HTTPServer): SocketIOServer {
           senderId: userId,
           senderName: user?.name,
         });
+
+        notificationService.create(
+          receiverId,
+          'chat_message',
+          `New message from ${user?.name || 'Someone'}`,
+          message.length > 120 ? message.substring(0, 120) + '...' : message,
+          { donation_id: donationId, type: 'chat' }
+        ).catch(() => {});
       } catch (error) {
         console.error('[Socket] Send message error:', error);
         socket.emit('error', { message: 'Failed to send message' });
@@ -198,6 +208,14 @@ export function initSocket(httpServer: HTTPServer): SocketIOServer {
           senderId: userId,
           senderName: user?.name,
         });
+
+        notificationService.create(
+          receiverId,
+          'chat_message',
+          `New message from ${user?.name || 'Someone'}`,
+          message.length > 120 ? message.substring(0, 120) + '...' : message,
+          { request_id: requestId, type: 'request_chat' }
+        ).catch(() => {});
       } catch (error) {
         console.error('[Socket] Send request message error:', error);
         socket.emit('error', { message: 'Failed to send message' });

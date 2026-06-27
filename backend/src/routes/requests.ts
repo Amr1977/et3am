@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { dbOps } from '../database';
 import { authenticate, optionalAuth, AuthRequest } from '../middleware/auth';
 import { emitRequestEvent, emitToUser } from '../config/socket';
+import { notificationService } from '../services/notifications';
 import logger from '../config/logger';
 
 const router = Router();
@@ -234,6 +235,14 @@ router.post('/:id/fulfill', authenticate, async (req: AuthRequest, res: Response
       meals_count,
       donorName: donor?.name,
     });
+
+    notificationService.create(
+      request.requester_id,
+      'fulfillment',
+      'Request fulfilled',
+      `${donor?.name || 'Someone'} fulfilled "${request.title}" with ${meals_count} meals`,
+      { request_id: req.params.id, type: 'fulfillment' }
+    ).catch(() => {});
 
     const finalStatus = newFulfilled >= request.member_count ? 'fulfilled' : 'partially_fulfilled';
     if (finalStatus === 'fulfilled') {

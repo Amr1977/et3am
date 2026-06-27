@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useSound } from '../context/SoundContext';
+import { useNotifications } from '../context/NotificationContext';
 import { useRTL } from '../hooks/useRTL';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import gitInfo from '../git-info.json';
@@ -19,10 +20,13 @@ export default function Navbar() {
   const { t } = useTranslation();
   const { user, logout, updateLanguage, isAuthenticated } = useAuth();
   const { soundEnabled, setSoundEnabled } = useSound();
+  const { unreadCount, notifications: notifs, markAsRead, markAllAsRead } = useNotifications();
   const { isRTL } = useRTL();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<number | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
@@ -42,7 +46,19 @@ export default function Navbar() {
 
   useEffect(() => {
     setMobileMenuOpen(false);
+    setNotifOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (!notifOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setNotifOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [notifOpen]);
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
@@ -227,6 +243,55 @@ export default function Navbar() {
             <span className="brand-version">v{gitInfo.version}</span>
           </div>
         </Link>
+
+        {isAuthenticated && (
+          <div className="notif-bell-wrapper" ref={notifRef}>
+            <button
+              className="notif-bell"
+              onClick={() => setNotifOpen(prev => !prev)}
+              aria-label="Notifications"
+            >
+              🔔
+              {unreadCount > 0 && (
+                <span className="notif-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
+              )}
+            </button>
+            {notifOpen && (
+              <div className="notif-dropdown">
+                <div className="notif-dropdown-header">
+                  <span className="notif-dropdown-title">Notifications</span>
+                  {unreadCount > 0 && (
+                    <button className="notif-mark-all" onClick={markAllAsRead}>Mark all read</button>
+                  )}
+                </div>
+                <div className="notif-dropdown-list">
+                  {notifs.slice(0, 5).length === 0 ? (
+                    <div className="notif-dropdown-empty">No notifications</div>
+                  ) : (
+                    notifs.slice(0, 5).map(n => (
+                      <div
+                        key={n.id}
+                        className={`notif-item ${n.is_read ? '' : 'unread'}`}
+                        onClick={() => { markAsRead(n.id); setNotifOpen(false); }}
+                      >
+                        <div className="notif-item-title">{n.title}</div>
+                        {n.body && <div className="notif-item-body">{n.body}</div>}
+                        <div className="notif-item-time">
+                          {new Date(n.created_at).toLocaleDateString()}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+                {notifs.length > 0 && (
+                  <Link to="/notifications" className="notif-view-all" onClick={() => setNotifOpen(false)}>
+                    View all notifications
+                  </Link>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {mobileMenuOpen
           ? createPortal(

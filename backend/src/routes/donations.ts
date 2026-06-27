@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { dbOps } from '../database';
 import { authenticate, optionalAuth, AuthRequest } from '../middleware/auth';
 import { emitDonationEvent, emitToUser } from '../config/socket';
+import { notificationService } from '../services/notifications';
 import { createDonationLimiter } from '../middleware/rateLimit';
 import logger from '../config/logger';
 import { notifyReservation } from '../services/telegram';
@@ -291,6 +292,13 @@ router.post('/', createDonationLimiter, authenticate, async (req: AuthRequest, r
         donorId: req.userId,
         createdAt: new Date().toISOString()
       });
+      notificationService.create(
+        admin.id,
+        'admin',
+        'New Donation Added',
+        `${donation.title} - ${donation.quantity} meals`,
+        { donation_id: donation.id, type: 'admin' }
+      ).catch(() => {});
     }
 
     res.status(201).json({ messageKey: 'donation.created', donation });
@@ -391,6 +399,13 @@ router.post('/:id/reserve', authenticate, async (req: AuthRequest, res: Response
         title: donation.title,
         reserverName: user?.name,
       });
+      notificationService.create(
+        donation.donor_id,
+        'reservation',
+        'Your donation has been reserved',
+        `${user?.name || 'Someone'} reserved "${donation.title}"`,
+        { donation_id: req.params.id, type: 'reservation' }
+      ).catch(() => {});
     }
     
     // Send Telegram notification to reserver
@@ -476,6 +491,13 @@ router.post('/:id/cancel-reservation', authenticate, async (req: AuthRequest, re
         donationId: req.params.id,
         title: donation.title,
       });
+      notificationService.create(
+        donation.reserved_by,
+        'cancellation',
+        'Reservation cancelled',
+        `"${donation.title}" reservation has been cancelled`,
+        { donation_id: req.params.id, type: 'cancellation' }
+      ).catch(() => {});
     }
 
     res.json({ messageKey: 'donation.reservation_cancelled', donation: updated });
@@ -520,6 +542,13 @@ router.post('/:id/mark-received', authenticate, async (req: AuthRequest, res: Re
         donationId: req.params.id,
         title: donation.title,
       });
+      notificationService.create(
+        donation.donor_id,
+        'meal_received',
+        'Meal picked up',
+        `"${donation.title}" has been picked up by the receiver`,
+        { donation_id: req.params.id, type: 'meal_received' }
+      ).catch(() => {});
     }
 
     const admins = await dbOps.users.findAdmins();
@@ -529,6 +558,13 @@ router.post('/:id/mark-received', authenticate, async (req: AuthRequest, res: Re
         title: donation.title,
         pickedUpAt: new Date().toISOString()
       });
+      notificationService.create(
+        admin.id,
+        'admin',
+        'Meal picked up',
+        `"${donation.title}" was picked up`,
+        { donation_id: req.params.id, type: 'admin' }
+      ).catch(() => {});
     }
 
     res.json({ messageKey: 'donation.received', donation: updated });
@@ -580,6 +616,13 @@ router.post('/:id/complete', authenticate, async (req: AuthRequest, res: Respons
         donationId: req.params.id,
         title: donation.title,
       });
+      notificationService.create(
+        donation.reserved_by,
+        'completed',
+        'Donation completed',
+        `"${donation.title}" has been marked as delivered`,
+        { donation_id: req.params.id, type: 'completed' }
+      ).catch(() => {});
     }
 
     const admins = await dbOps.users.findAdmins();
@@ -589,6 +632,13 @@ router.post('/:id/complete', authenticate, async (req: AuthRequest, res: Respons
         title: donation.title,
         completedAt: new Date().toISOString()
       });
+      notificationService.create(
+        admin.id,
+        'admin',
+        'Donation completed',
+        `"${donation.title}" marked as delivered`,
+        { donation_id: req.params.id, type: 'admin' }
+      ).catch(() => {});
     }
     
     res.json({ messageKey: 'donation.completed', donation: updated });

@@ -9,6 +9,7 @@ import { sanitizeString, sanitizeEmail, validateJWTStructure, validateTokenInteg
 import logger from '../config/logger';
 import { admin, firebaseInitialized, serviceAccount } from '../firebase-admin';
 import { emitToUser } from '../config/socket';
+import { notificationService } from '../services/notifications';
 
 const router = Router();
 
@@ -67,6 +68,13 @@ router.post('/register', async (req: AuthRequest, res: Response) => {
         role: userRole,
         createdAt: new Date().toISOString()
       });
+      notificationService.create(
+        admin.id,
+        'admin',
+        'New user registered',
+        `${sanitizedName} (${sanitizedEmail}) signed up as ${userRole}`,
+        { user_id: id, type: 'admin' }
+      ).catch(() => {});
     }
 
     const token = generateToken(id, user.role);

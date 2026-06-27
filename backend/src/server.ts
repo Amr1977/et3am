@@ -25,6 +25,7 @@ import requestRoutes from './routes/requests';
 import telegramRoutes from './routes/telegram';
 import { setupBotCommands, bot } from './services/telegram';
 import publicRoutes from './routes/public';
+import notificationRoutes from './routes/notifications';
 import { 
   helmetConfig, 
   cookieParserMiddleware, 
@@ -126,6 +127,7 @@ app.use('/api/push', pushRoutes);
 app.use('/api/crash', crashRoutes);
 app.use('/api/telegram', telegramRoutes);
 app.use('/api/requests', apiLimiter, requestRoutes);
+app.use('/api/notifications', apiLimiter, notificationRoutes);
 
 // Public API (for community/development)
 app.use('/api/public', publicRoutes);
