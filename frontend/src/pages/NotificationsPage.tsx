@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../context/NotificationContext';
 
 const typeIcons: Record<string, string> = {
@@ -14,6 +15,7 @@ const typeIcons: Record<string, string> = {
 
 export default function NotificationsPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const {
     notifications,
     loading,
@@ -29,6 +31,21 @@ export default function NotificationsPage() {
 
   const handleClick = (n: typeof notifications[0]) => {
     if (!n.is_read) markAsRead(n.id);
+    if (n.type === 'chat_message' && n.data?.donation_id) {
+      navigate(`/donations/${n.data.donation_id}`);
+    } else if (n.type === 'request_message' && n.data?.request_id) {
+      navigate(`/requests/${n.data.request_id}`);
+    } else if (n.type === 'reservation' && n.data?.donation_id) {
+      navigate(`/donations/${n.data.donation_id}`);
+    } else if (n.type === 'cancellation' && n.data?.donation_id) {
+      navigate(`/donations/${n.data.donation_id}`);
+    } else if (n.type === 'meal_received' && n.data?.donation_id) {
+      navigate(`/donations/${n.data.donation_id}`);
+    } else if (n.type === 'completed' && n.data?.donation_id) {
+      navigate(`/donations/${n.data.donation_id}`);
+    } else if (n.type === 'fulfillment' && n.data?.request_id) {
+      navigate(`/requests/${n.data.request_id}`);
+    }
   };
 
   if (loading && notifications.length === 0) {

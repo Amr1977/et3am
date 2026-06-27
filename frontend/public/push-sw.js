@@ -11,12 +11,12 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
-  
+
   const title = data.title || 'Et3am Notification';
   const options = {
     body: data.body || 'You have a new notification',
-    icon: '/defaulticon.png',
-    badge: '/defaulticon.png',
+    icon: '/images/defaulticon.png',
+    badge: '/images/defaulticon.png',
     data: data.url || '/',
     vibrate: [100, 50, 100],
     tag: data.tag || 'et3am-notification',
@@ -28,9 +28,9 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  
+
   const urlToOpen = event.notification.data || '/';
-  
+
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
       .then((clientList) => {

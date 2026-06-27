@@ -272,7 +272,25 @@ export default function Navbar() {
                       <div
                         key={n.id}
                         className={`notif-item ${n.is_read ? '' : 'unread'}`}
-                        onClick={() => { markAsRead(n.id); setNotifOpen(false); }}
+                        onClick={() => {
+                          markAsRead(n.id);
+                          setNotifOpen(false);
+                          if (n.type === 'chat_message' && n.data?.donation_id) {
+                            navigate(`/donations/${n.data.donation_id}`);
+                          } else if (n.type === 'request_message' && n.data?.request_id) {
+                            navigate(`/requests/${n.data.request_id}`);
+                          } else if (n.type === 'reservation' && n.data?.donation_id) {
+                            navigate(`/donations/${n.data.donation_id}`);
+                          } else if (n.type === 'cancellation' && n.data?.donation_id) {
+                            navigate(`/donations/${n.data.donation_id}`);
+                          } else if (n.type === 'meal_received' && n.data?.donation_id) {
+                            navigate(`/donations/${n.data.donation_id}`);
+                          } else if (n.type === 'completed' && n.data?.donation_id) {
+                            navigate(`/donations/${n.data.donation_id}`);
+                          } else if (n.type === 'fulfillment' && n.data?.request_id) {
+                            navigate(`/requests/${n.data.request_id}`);
+                          }
+                        }}
                       >
                         <div className="notif-item-title">{n.title}</div>
                         {n.body && <div className="notif-item-body">{n.body}</div>}

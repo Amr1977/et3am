@@ -92,12 +92,21 @@ export const pushService = {
     const subs = await this.getSubscriptions(userId);
     if (subs.length === 0) return;
 
+    let url = '/';
+    if (data) {
+      if (data.donation_id) {
+        url = `/donations/${data.donation_id}`;
+      } else if (data.request_id) {
+        url = `/requests/${data.request_id}`;
+      }
+    }
+
     const payload = JSON.stringify({
       title,
       body: body || '',
-      data: data || {},
-      icon: '/defaulticon.png',
-      badge: '/defaulticon.png',
+      data: url,
+      icon: '/images/defaulticon.png',
+      badge: '/images/defaulticon.png',
     });
 
     for (const sub of subs) {
