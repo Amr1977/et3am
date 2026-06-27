@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 import { useSocket } from './SocketContext';
+import { useSound } from './SoundContext';
 import { fetchWithFailover } from '../services/api';
 
 export interface AppNotification {
@@ -32,7 +33,8 @@ const NotificationContext = createContext<NotificationContextType | null>(null);
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const { user, token, isAuthenticated } = useAuth();
-  const { onNewMessage, onChatNotification } = useSocket();
+  const { onNewNotification } = useSocket();
+  const { playSound } = useSound();
 
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -79,18 +81,17 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   }, [isAuthenticated, refreshNotifications]);
 
   useEffect(() => {
-    const unsub = onNewMessage(() => {
-      refreshNotifications();
+    const unsub = onNewNotification((notification: AppNotification) => {
+      setNotifications(prev => [notification, ...prev]);
+      if (!notification.is_read) {
+        setUnreadCount(prev => prev + 1);
+      }
+      if (notification.type === 'chat_message') {
+        playSound('message');
+      }
     });
     return unsub;
-  }, [onNewMessage, refreshNotifications]);
-
-  useEffect(() => {
-    const unsub = onChatNotification(() => {
-      refreshNotifications();
-    });
-    return unsub;
-  }, [onChatNotification, refreshNotifications]);
+  }, [onNewNotification, playSound]);
 
   const markAsRead = useCallback(async (id: string) => {
     if (!token) return;

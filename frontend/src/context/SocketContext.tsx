@@ -11,6 +11,7 @@ interface SocketContextType {
   sendMessage: (donationId: string, message: string) => void;
   onNewMessage: (callback: (message: any) => void) => () => void;
   onChatNotification: (callback: (data: any) => void) => () => void;
+  onNewNotification: (callback: (notification: any) => void) => () => void;
   onAdminNotification: (callback: (data: any) => void) => () => void;
   joinRequestRoom: (requestId: string) => void;
   leaveRequestRoom: (requestId: string) => void;
@@ -145,6 +146,10 @@ export function SocketProvider({ children }: SocketProviderProps) {
     return on('chat_notification', callback);
   }, []);
 
+  const onNewNotification = useCallback((callback: (notification: any) => void) => {
+    return on('new_notification', callback);
+  }, []);
+
   const onAdminNotification = useCallback((callback: (data: any) => void) => {
     const unsub1 = on('new_user_registered', callback);
     const unsub2 = on('new_donation_added', callback);
@@ -167,6 +172,7 @@ export function SocketProvider({ children }: SocketProviderProps) {
       sendMessage,
       onNewMessage,
       onChatNotification,
+      onNewNotification,
       onAdminNotification,
       joinRequestRoom,
       leaveRequestRoom,
