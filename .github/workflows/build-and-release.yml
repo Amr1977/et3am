@@ -36,6 +36,10 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Add Android platform
+        working-directory: frontend
+        run: npx cap add android
+
       - name: Sync web assets to Android
         working-directory: frontend
         run: npx cap sync android

@@ -49,7 +49,7 @@ function createRequestIcon(status: string): L.DivIcon {
       justify-content: center;
       font-size: 18px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    ">🙏</div>`,
+    ">📦</div>`,
     className: '',
     iconSize: [36, 36],
     iconAnchor: [18, 36],

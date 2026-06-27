@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { fetchWithFailover, getServerUrl, getInitialTileUrl } from '../services/api';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
@@ -43,10 +43,28 @@ interface Donation {
   quantity: number;
 }
 
+interface DonationRequest {
+  id: string;
+  title: string;
+  description: string | null;
+  member_count: number;
+  meals_fulfilled: number;
+  address: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  status: string;
+}
+
 const statusColors: Record<string, string> = {
   available: '#22c55e',
   reserved: '#f59e0b',
   completed: '#3b82f6',
+};
+
+const requestStatusColors: Record<string, string> = {
+  open: '#22c55e',
+  partially_fulfilled: '#f59e0b',
+  fulfilled: '#3b82f6',
 };
 
 const foodIcons: Record<string, string> = {
@@ -69,6 +87,32 @@ function getFoodIcon(type: string): string {
     if (key.includes(k)) return v;
   }
   return foodIcons['other'];
+}
+
+function createRequestMarkerIcon(status: string) {
+  const color = requestStatusColors[status] || '#6b7280';
+  return L.divIcon({
+    className: 'custom-marker-container',
+    html: `
+      <div style="
+        background: ${color};
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 3px solid white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        user-select: none;
+        cursor: pointer;
+      ">📦</div>
+    `,
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
+    popupAnchor: [0, -18],
+  });
 }
 
 function createMarkerIcon(color: string, foodType: string) {
@@ -141,8 +185,10 @@ export default function Home() {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
   const { playSound } = useSound();
+  const navigate = useNavigate();
   const [stats, setStats] = useState<Stats | null>(null);
   const [donations, setDonations] = useState<Donation[]>([]);
+  const [requests, setRequests] = useState<DonationRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [tileUrl, setTileUrl] = useState<string>(getInitialTileUrl());
   const [statsChanged, setStatsChanged] = useState(false);
@@ -165,18 +211,27 @@ export default function Home() {
       setLocationError('Geolocation not supported');
       return;
     }
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
-        setMapCenter([position.coords.latitude, position.coords.longitude]);
-        setMapZoom(12);
-      },
-      (err) => {
-        console.error('Geolocation error:', err);
-        setLocationError(err.message);
-      },
-      { timeout: 10000, maximumAge: 300000, enableHighAccuracy: false }
-    );
+    const checkPermission = async () => {
+      try {
+        const perm = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
+        if (perm.state !== 'granted') return;
+      } catch {
+        // Permissions API not supported, continue to prompt
+      }
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
+          setMapCenter([position.coords.latitude, position.coords.longitude]);
+          setMapZoom(12);
+        },
+        (err) => {
+          console.error('Geolocation error:', err);
+          setLocationError(err.message);
+        },
+        { timeout: 10000, maximumAge: 300000, enableHighAccuracy: false }
+      );
+    };
+    checkPermission();
   }, []);
 
   useEffect(() => {
@@ -228,6 +283,22 @@ export default function Home() {
       .finally(() => setLoading(false));
   };
 
+  const fetchRequests = () => {
+    fetchWithFailover('/api/requests?status=open&limit=12')
+      .then(res => {
+        if (!res.ok) throw new Error('Failed');
+        return res.json();
+      })
+      .then(data => {
+        if (data.requests) {
+          setRequests(data.requests.filter((r: DonationRequest) => r.status === 'open'));
+        }
+      })
+      .catch(err => {
+        console.error('Requests fetch error:', err);
+      });
+  };
+
   const fetchDonations = () => {
     fetchWithFailover('/api/public/donations?limit=50&status=available')
       .then(res => {
@@ -252,6 +323,7 @@ export default function Home() {
   useEffect(() => {
     fetchStats();
     fetchDonations();
+    fetchRequests();
 
     const statsInterval = setInterval(fetchStats, 30000);
     return () => clearInterval(statsInterval);
@@ -395,6 +467,33 @@ export default function Home() {
                       <strong>{d.title}</strong>
                       <br />
                       {d.food_type} - {d.quantity}
+                      <br />
+                      <div
+                        onClick={() => navigate(`/donations/${d.id}`)}
+                        style={{ color: '#22c55e', cursor: 'pointer', fontWeight: 600, marginTop: 6 }}
+                      >
+                        {t('donations.view_details') || 'View Details'} →
+                      </div>
+                    </Popup>
+                  </Marker>
+                ))}
+                {requests.filter(r => r.latitude && r.longitude).map(r => (
+                  <Marker
+                    key={`req-${r.id}`}
+                    position={[r.latitude!, r.longitude!]}
+                    icon={createRequestMarkerIcon(r.status)}
+                  >
+                    <Popup>
+                      <strong>{r.title}</strong>
+                      <br />
+                      {t('requests.member_count') || 'Family size'}: {r.member_count}
+                      <br />
+                      <div
+                        onClick={() => navigate(`/requests/${r.id}`)}
+                        style={{ color: '#6366f1', cursor: 'pointer', fontWeight: 600, marginTop: 6 }}
+                      >
+                        {t('donations.view_details') || 'View Details'} →
+                      </div>
                     </Popup>
                   </Marker>
                 ))}
@@ -506,6 +605,67 @@ export default function Home() {
             <div className="stat-label">{t('home.total_active')}</div>
           </div>
         </div>
+      </section>
+
+      <section className="requests-section">
+        <div className="section-header">
+          <span className="section-tag">{t('nav.requests') || 'Requests'}</span>
+          <h2 className="section-title">{t('home.open_requests') || 'Open Donation Requests'}</h2>
+          <p className="section-desc">
+            {t('home.open_requests_desc') || 'Browse requests from people in need'}
+          </p>
+        </div>
+        <div className="donations-grid">
+          {requests.slice(0, 6).map(r => (
+            <div
+              key={r.id}
+              className="donation-card"
+              onClick={() => navigate(`/requests/${r.id}`)}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="donation-card-header">
+                <span className="status-badge" style={{ background: requestStatusColors[r.status] || '#6b7280' }}>
+                  {r.status}
+                </span>
+              </div>
+              <h3 className="donation-title">{r.title}</h3>
+              {r.description && (
+                <p className="donation-description">
+                  {r.description.length > 100 ? r.description.substring(0, 100) + '...' : r.description}
+                </p>
+              )}
+              <div className="donation-meta">
+                <span>👥 {r.member_count} {t('requests.members') || 'members'}</span>
+                <span>✅ {r.meals_fulfilled}/{r.member_count} {t('requests.fulfilled') || 'fulfilled'}</span>
+              </div>
+              {r.meals_fulfilled < r.member_count && (
+                <div style={{ marginTop: 8 }}>
+                  <div style={{ height: 6, background: '#e5e7eb', borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{
+                      height: '100%',
+                      width: `${Math.round((r.meals_fulfilled / r.member_count) * 100)}%`,
+                      background: '#6366f1',
+                      borderRadius: 3,
+                      transition: 'width 0.3s',
+                    }} />
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        {requests.length > 6 && (
+          <div className="section-footer">
+            <Link to="/requests" className="btn btn-outline">
+              {t('home.view_all_requests') || 'View All Requests'} →
+            </Link>
+          </div>
+        )}
+        {requests.length === 0 && !loading && (
+          <p className="text-center" style={{ color: '#9ca3af', padding: '2rem 0' }}>
+            {t('home.no_requests') || 'No open requests at the moment'}
+          </p>
+        )}
       </section>
 
       <section className="cta-section">
