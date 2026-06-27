@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-interface PushSubscription {
+interface PushSubscriptionObj {
   endpoint: string;
   keys: {
     p256dh: string;
@@ -15,6 +15,19 @@ interface PushNotificationContextType {
   subscribe: () => Promise<void>;
   unsubscribe: () => Promise<void>;
   requestPermission: () => Promise<NotificationPermission>;
+}
+
+const API_URL = import.meta.env.VITE_API_URL || '';
+
+async function fetchVapidPublicKey(): Promise<string> {
+  try {
+    const res = await fetch(`${API_URL}/api/push/vapid-key`);
+    if (!res.ok) throw new Error('Failed to fetch VAPID key');
+    const data = await res.json();
+    return data.publicKey || '';
+  } catch {
+    return '';
+  }
 }
 
 export function usePushNotifications() {
@@ -38,7 +51,7 @@ export function usePushNotifications() {
       const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.getSubscription();
       setIsSubscribed(!!subscription);
-      
+
       if ('Notification' in window) {
         setPermission(Notification.permission);
       }
@@ -53,7 +66,7 @@ export function usePushNotifications() {
     if (!('Notification' in window)) {
       throw new Error('Notifications not supported');
     }
-    
+
     const result = await Notification.requestPermission();
     setPermission(result);
     return result;
@@ -69,15 +82,20 @@ export function usePushNotifications() {
       throw new Error('Permission denied');
     }
 
+    const publicKey = await fetchVapidPublicKey();
+    if (!publicKey) {
+      throw new Error('VAPID public key not available');
+    }
+
     try {
       const registration = await navigator.serviceWorker.ready;
-      
+
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VITE_VAPID_PUBLIC_KEY) as any
+        applicationServerKey: urlBase64ToUint8Array(publicKey) as any
       });
 
-      const subObj: PushSubscription = {
+      const subObj: PushSubscriptionObj = {
         endpoint: subscription.endpoint,
         keys: {
           p256dh: btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(subscription.getKey('p256dh')!)))),
@@ -85,9 +103,8 @@ export function usePushNotifications() {
         }
       };
 
-      // Send subscription to backend
       const token = localStorage.getItem('token');
-      await fetch(`${import.meta.env.VITE_API_URL}/api/push/subscribe`, {
+      await fetch(`${API_URL}/api/push/subscribe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -107,13 +124,12 @@ export function usePushNotifications() {
     try {
       const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.getSubscription();
-      
+
       if (subscription) {
         await subscription.unsubscribe();
-        
-        // Notify backend to remove subscription
+
         const token = localStorage.getItem('token');
-        await fetch(`${import.meta.env.VITE_API_URL}/api/push/unsubscribe`, {
+        await fetch(`${API_URL}/api/push/unsubscribe`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -121,7 +137,7 @@ export function usePushNotifications() {
           },
           body: JSON.stringify({ endpoint: subscription.endpoint })
         });
-        
+
         setIsSubscribed(false);
       }
     } catch (err) {
@@ -155,5 +171,3 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   }
   return outputArray;
 }
-
-const VITE_VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
