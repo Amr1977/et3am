@@ -330,8 +330,8 @@ export default function Home() {
   }, []);
 
   const formatNumber = (num: number) => {
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}k+`;
-    return `${num}+`;
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}k`;
+    return `${num}`;
   };
 
   return (
@@ -584,7 +584,7 @@ export default function Home() {
             {loading ? (
               <div className="stat-number">...</div>
             ) : (
-              <div className={`stat-number ${statsChanged ? 'stat-pulse' : ''}`}>{formatNumber((stats?.totalDonors || 0) + (stats?.totalReceivers || 0))}</div>
+              <div className={`stat-number ${statsChanged ? 'stat-pulse' : ''}`}>{formatNumber(stats?.totalUsers || 0)}</div>
             )}
             <div className="stat-label">{t('home.total_members')}</div>
           </div>
