@@ -53,7 +53,7 @@ export default function Chat() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { user, token, isAuthenticated } = useAuth();
-  const { joinDonationRoom, leaveDonationRoom, sendMessage, joinRequestRoom, leaveRequestRoom, sendRequestMessage, onNewMessage, onChatNotification } = useSocket();
+  const { joinDonationRoom, leaveDonationRoom, sendMessage, joinRequestRoom, leaveRequestRoom, sendRequestMessage, onNewMessage, onChatNotification, isConnected } = useSocket();
   const { playSound } = useSound();
   
   const [messages, setMessages] = useState<Message[]>([]);
@@ -143,7 +143,7 @@ export default function Chat() {
       unsubMessage();
       unsubNotification();
     };
-  }, [donationId, requestId, isRequestChat, isAuthenticated, token]);
+  }, [donationId, requestId, isRequestChat, isAuthenticated, token, isConnected]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

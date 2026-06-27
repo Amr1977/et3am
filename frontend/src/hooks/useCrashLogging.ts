@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react';
+import { fetchWithFailover } from '../services/api';
 
 interface CrashReport {
   severity: 'info' | 'warning' | 'error' | 'critical';
@@ -32,7 +33,7 @@ function generateSessionId(): string {
 
 async function submitCrash(crash: CrashWithContext): Promise<string | null> {
   try {
-    const response = await fetch('/api/crash/crash', {
+    const response = await fetchWithFailover('/api/crash/crash', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(crash),

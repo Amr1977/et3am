@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useAuth } from './AuthContext';
 import { useRTL } from '../hooks/useRTL';
 import { playSound as playSoundEffect, preloadSounds } from '../utils/soundPlayer';
+import { fetchWithFailover } from '../services/api';
 
 type SoundType = 'new_meal' | 'reserved' | 'delivered' | 'message' | 'cancelled';
 
@@ -48,7 +49,7 @@ export function SoundProvider({ children }: SoundProviderProps) {
   useEffect(() => {
     if (!isAuthenticated || !token) return;
 
-    fetch(`/api/users/me`, {
+    fetchWithFailover(`/api/users/me`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => {
@@ -102,7 +103,7 @@ export function SoundProvider({ children }: SoundProviderProps) {
     
     if (isAuthenticated && token) {
       try {
-        await fetch('/api/users/me', {
+        await fetchWithFailover('/api/users/me', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { fetchWithFailover } from '../services/api';
 
 interface PushSubscriptionObj {
   endpoint: string;
@@ -17,11 +18,9 @@ interface PushNotificationContextType {
   requestPermission: () => Promise<NotificationPermission>;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || '';
-
 async function fetchVapidPublicKey(): Promise<string> {
   try {
-    const res = await fetch(`${API_URL}/api/push/vapid-key`);
+    const res = await fetchWithFailover('/api/push/vapid-key');
     if (!res.ok) throw new Error('Failed to fetch VAPID key');
     const data = await res.json();
     return data.publicKey || '';
@@ -104,7 +103,7 @@ export function usePushNotifications() {
       };
 
       const token = localStorage.getItem('token');
-      await fetch(`${API_URL}/api/push/subscribe`, {
+      await fetchWithFailover('/api/push/subscribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -129,7 +128,7 @@ export function usePushNotifications() {
         await subscription.unsubscribe();
 
         const token = localStorage.getItem('token');
-        await fetch(`${API_URL}/api/push/unsubscribe`, {
+        await fetchWithFailover('/api/push/unsubscribe', {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
