@@ -351,6 +351,9 @@ export default function Home() {
             <Link to="/donations" className="btn btn-outline btn-lg">
               {t('home.learn_more')}
             </Link>
+            <Link to="/sadaqat" className="btn btn-gold btn-lg">
+              {t('home.give_sadaqah')}
+            </Link>
           </div>
           
           {launchInfo.days > 0 && (
@@ -663,6 +666,9 @@ export default function Home() {
               </Link>
               <Link to="/donations" className="btn btn-outline btn-lg">
                 {t('home.learn_more')}
+              </Link>
+              <Link to="/sadaqat" className="btn btn-gold btn-lg">
+                {t('home.give_sadaqah')}
               </Link>
             </div>
           </div>

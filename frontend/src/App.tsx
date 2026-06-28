@@ -34,6 +34,7 @@ const MyFulfillments = React.lazy(() => import('./pages/MyFulfillments'));
 const Downloads = React.lazy(() => import('./pages/Downloads'));
 const NotificationsPage = React.lazy(() => import('./pages/NotificationsPage'));
 const TestimonialsPage = React.lazy(() => import('./pages/TestimonialsPage'));
+const SadaqatPage = React.lazy(() => import('./pages/SadaqatPage'));
 
 function LoadingSpinner() {
   return (
@@ -106,6 +107,7 @@ function AppContent() {
             <Route path="/downloads" element={<Downloads />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/testimonials" element={<TestimonialsPage />} />
+            <Route path="/sadaqat" element={<SadaqatPage />} />
           </Routes>
         </Suspense>
       </main>

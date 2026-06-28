@@ -21,7 +21,8 @@
     "account": "Account",
     "requests": "Food Requests",
     "support": "Support",
-    "testimonials": "Testimonials"
+    "testimonials": "Testimonials",
+    "sadaqat": "Sadaqah"
   },
   "home": {
     "hero_title": "إطعام",
@@ -43,6 +44,7 @@
     "pickup": "Pickup",
     "arrow": "→",
     "sadaqah_jariyah": "Sadaqah Jariyah",
+    "give_sadaqah": "Give Sadaqah",
     "stats_title": "Our Impact",
     "meals_given": "Meals Given",
     "total_donors": "Food Donors",
@@ -333,6 +335,33 @@
     "add_yours": "Add Your Testimonial",
     "submitted": "Testimonial submitted for review!",
     "none": "No testimonials yet"
+  },
+  "sadaqat": {
+    "title": "Give Sadaqah - Earn Rewards",
+    "hero_desc": "Every act of charity is a sadaqah. Give whatever you can, however you can — your reward is with Allah.",
+    "benefits_title": "Why Give Sadaqah?",
+    "benefit_1_title": "Purifies Your Wealth",
+    "benefit_1_desc": "Sadaqah purifies your wealth and blesses what remains, just as water purifies the earth.",
+    "benefit_2_title": "Continuous Rewards",
+    "benefit_2_desc": "Even a small sadaqah can become sadaqah jariyah — ongoing charity that benefits you long after.",
+    "benefit_3_title": "Protection from Calamity",
+    "benefit_3_desc": "The Prophet ﷺ said: 'Give charity without delay, for it stands in the way of calamity.'",
+    "benefit_4_title": "Multiplied Blessings",
+    "benefit_4_desc": "Allah multiplies the reward of charity seven hundred times or more.",
+    "form_title": "Record Your Sadaqah",
+    "form_desc": "Let us know what type of sadaqah you gave so we can include you in our prayers.",
+    "type_label": "Type of Sadaqah",
+    "type_money": "Money",
+    "type_food": "Food",
+    "type_clothes": "Clothes",
+    "type_other": "Other",
+    "amount_label": "Amount / Description",
+    "amount_placeholder": "e.g. 100 EGP, or 2 bags of rice",
+    "message_label": "Message (optional)",
+    "message_placeholder": "Any notes or duas you'd like to share...",
+    "submit_btn": "Record My Sadaqah",
+    "success_title": "Sadaqah Recorded!",
+    "success_desc": "May Allah accept your charity and multiply your reward. Ameen!"
   },
   "review": {
     "add_review": "Add Review",

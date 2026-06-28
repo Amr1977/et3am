@@ -104,6 +104,7 @@ export default function Navbar() {
     { label: t('nav.donations'), path: '/donations', icon: '🎁' },
     { label: t('nav.requests'), path: '/requests', icon: '🙏' },
     { label: t('nav.downloads'), path: '/downloads', icon: '⬇️' },
+    { label: t('nav.sadaqat'), path: '/sadaqat', icon: '🤲' },
     { label: t('nav.dashboard'), path: '/dashboard', icon: '📊', requiresAuth: true },
     { label: t('my_donations.title'), path: '/my-donations', icon: '🤝', requiresAuth: true },
     { label: t('my_reservations.title'), path: '/my-reservations', icon: '📋', requiresAuth: true },

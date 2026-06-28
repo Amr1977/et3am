@@ -1941,6 +1941,19 @@ html[dir="rtl"] .version-badge {
   color: white;
 }
 
+.btn-gold {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  border: none;
+}
+
+.btn-gold:hover {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+}
+
 .btn-lg {
   padding: 0.85rem 2rem;
   font-size: 1rem;
@@ -3311,6 +3324,176 @@ html[dir="rtl"] .step-flow-number {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Sadaqat Page */
+.sadaqat-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+.sadaqat-hero {
+  text-align: center;
+  padding: 3rem 0;
+}
+
+.sadaqat-hero-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.sadaqat-hero-title {
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+.sadaqat-hero-ayah {
+  font-size: clamp(1.1rem, 3vw, 1.4rem);
+  line-height: 1.9;
+  color: var(--primary);
+  direction: rtl;
+  max-width: 700px;
+  margin: 0 auto 0.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.05), rgba(34, 197, 94, 0.1));
+  border-radius: var(--radius-lg);
+}
+
+.sadaqat-hear-ref {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+  direction: rtl;
+  margin-bottom: 1.5rem;
+}
+
+.sadaqat-hero-desc {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+.sadaqat-benefits {
+  padding: 3rem 0;
+  text-align: center;
+}
+
+.sadaqat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.sadaqat-benefit-card {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: 2rem 1.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  text-align: center;
+  transition: transform 0.2s;
+}
+
+.sadaqat-benefit-card:hover {
+  transform: translateY(-3px);
+}
+
+.benefit-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.sadaqat-benefit-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.sadaqat-benefit-card p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.sadaqat-payment {
+  padding: 3rem 0;
+}
+
+.sadaqat-form-section {
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.sadaqat-form {
+  text-align: left;
+  margin-top: 1.5rem;
+}
+
+.sadaqat-form .form-group {
+  margin-bottom: 1.25rem;
+}
+
+.sadaqat-form select,
+.sadaqat-form input,
+.sadaqat-form textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.sadaqat-form select:focus,
+.sadaqat-form input:focus,
+.sadaqat-form textarea:focus {
+  outline: none;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+}
+
+.sadaqat-form label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.sadaqat-success {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(34, 197, 94, 0.15));
+  border-radius: var(--radius-lg);
+  padding: 3rem 2rem;
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.sadaqat-success-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.sadaqat-success h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.sadaqat-success p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
 }
 
 /* Testimonials Page */
