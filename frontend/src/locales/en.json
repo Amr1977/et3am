@@ -20,7 +20,8 @@
     "downloads": "Downloads",
     "account": "Account",
     "requests": "Food Requests",
-    "support": "Support"
+    "support": "Support",
+    "testimonials": "Testimonials"
   },
   "home": {
     "hero_title": "إطعام",
@@ -321,6 +322,17 @@
       "medium": "Medium",
       "high": "High"
     }
+  },
+  "testimonials": {
+    "tag": "Testimonials",
+    "title": "What People Say",
+    "desc": "Hear from our community members",
+    "content": "Your Experience",
+    "rating": "Rating",
+    "placeholder": "Share your experience with ET3AM...",
+    "add_yours": "Add Your Testimonial",
+    "submitted": "Testimonial submitted for review!",
+    "none": "No testimonials yet"
   },
   "review": {
     "add_review": "Add Review",

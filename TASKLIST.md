@@ -7,6 +7,13 @@
 ## In Progress
 - [ ] (All tasks completed!)
 
+## Currently Working On (as of 2026-06-28)
+
+| Task | Status | Commit |
+|------|--------|--------|
+| ET3AM-012: Testimonial feature | ✅ Done | cd08c3e |
+| Version bump to 1.22.0 | ✅ Done | cd08c3e |
+
 ## Completed (Tested)
 - [x] ET3AM-001: Donation report/flag feature
 - [x] ET3AM-002: Admin real-time notifications
@@ -36,6 +43,7 @@
 
 | Commit | Description |
 |--------|-------------|
+| cd08c3e | feat: add testimonial feature with CRUD, public endpoint, and frontend carousel |
 | 40f27c5 | fix: chat endless loading - fix 3 root causes |
 
 ## Trello Board
