@@ -770,6 +770,86 @@ export const dbOps = {
       return parseInt(rows[0].count);
     },
   },
+  testimonials: {
+    async create(userId: string, name: string, role: string, content: string, rating: number): Promise<any> {
+      const { rows } = await pool.query(
+        `INSERT INTO testimonials (user_id, name, role, content, rating)
+         VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+        [userId, name, role, content, rating]
+      );
+      return rows[0];
+    },
+    async getApproved(limit = 20): Promise<any[]> {
+      const { rows } = await pool.query(
+        `SELECT t.*, u.avatar_url
+         FROM testimonials t
+         LEFT JOIN users u ON t.user_id = u.id
+         WHERE t.is_approved = TRUE
+         ORDER BY t.is_featured DESC, t.created_at DESC
+         LIMIT $1`,
+        [limit]
+      );
+      return rows;
+    },
+    async findById(id: string): Promise<any | null> {
+      const { rows } = await pool.query('SELECT * FROM testimonials WHERE id = $1', [id]);
+      return rows[0] || null;
+    },
+    async findAll(filters?: { is_approved?: boolean; is_featured?: boolean }, page = 1, limit = 50): Promise<{ testimonials: any[]; total: number }> {
+      let where = 'WHERE 1=1';
+      const params: any[] = [];
+      let idx = 1;
+
+      if (filters?.is_approved !== undefined) {
+        where += ` AND t.is_approved = $${idx++}`;
+        params.push(filters.is_approved);
+      }
+      if (filters?.is_featured !== undefined) {
+        where += ` AND t.is_featured = $${idx++}`;
+        params.push(filters.is_featured);
+      }
+
+      const countResult = await pool.query(`SELECT COUNT(*) as total FROM testimonials t ${where}`, params);
+      const total = parseInt(countResult.rows[0].total);
+
+      params.push(limit);
+      params.push((page - 1) * limit);
+
+      const { rows } = await pool.query(
+        `SELECT t.*, u.name as user_name, u.email as user_email, u.avatar_url
+         FROM testimonials t
+         LEFT JOIN users u ON t.user_id = u.id
+         ${where} ORDER BY t.created_at DESC
+         LIMIT $${idx++} OFFSET $${idx}`,
+        params
+      );
+      return { testimonials: rows, total };
+    },
+    async update(id: string, updates: Partial<{ name: string; content: string; rating: number; is_approved: boolean; is_featured: boolean }>): Promise<any | null> {
+      const fields: string[] = [];
+      const values: any[] = [];
+      let idx = 1;
+
+      if (updates.name !== undefined) { fields.push(`name = $${idx++}`); values.push(updates.name); }
+      if (updates.content !== undefined) { fields.push(`content = $${idx++}`); values.push(updates.content); }
+      if (updates.rating !== undefined) { fields.push(`rating = $${idx++}`); values.push(updates.rating); }
+      if (updates.is_approved !== undefined) { fields.push(`is_approved = $${idx++}`); values.push(updates.is_approved); }
+      if (updates.is_featured !== undefined) { fields.push(`is_featured = $${idx++}`); values.push(updates.is_featured); }
+
+      fields.push('updated_at = NOW()');
+      values.push(id);
+
+      const { rows } = await pool.query(
+        `UPDATE testimonials SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`,
+        values
+      );
+      return rows[0] || null;
+    },
+    async delete(id: string): Promise<boolean> {
+      const result = await pool.query('DELETE FROM testimonials WHERE id = $1', [id]);
+      return (result.rowCount ?? 0) > 0;
+    },
+  },
 };
 
 export async function runMigrations(): Promise<void> {

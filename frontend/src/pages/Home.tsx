@@ -12,6 +12,7 @@ import MapCenterUpdater from '../components/MapCenterUpdater';
 import MapFullscreenCenterHandler from '../components/MapFullscreenCenterHandler';
 import HeroMapResizeHandler from '../components/HeroMapResizeHandler';
 import MapHeroInteractionHandler from '../components/MapHeroInteractionHandler';
+import TestimonialsSection from '../components/TestimonialsSection';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -629,6 +630,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <TestimonialsSection />
 
       <section className="cta-section">
         <div className="cta-card" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
