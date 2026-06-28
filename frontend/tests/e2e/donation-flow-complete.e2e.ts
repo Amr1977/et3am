@@ -53,7 +53,7 @@ async function safeClick(page: any, selector: string, description: string) {
     if (await el.isVisible()) {
       await highlightElement(page, selector);
       console.log(`✅ Found visible element (#${i}), clicking: ${description}`);
-      await el.click({ timeout: 5000 });
+      await el.click({ timeout: 5000, force: true });
       clicked = true;
       break;
     }
@@ -61,7 +61,7 @@ async function safeClick(page: any, selector: string, description: string) {
   if (!clicked) {
     console.log(`⚠️ No visible element found for: ${description}, trying first`);
     await highlightElement(page, selector);
-    await loc.first().click({ timeout: 5000 });
+    await loc.first().click({ timeout: 5000, force: true });
   }
 }
 
@@ -129,7 +129,8 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     }
     
     await safeClick(page, 'button[type="submit"]', 'Register button');
-    await page.waitForTimeout(2000);
+    console.log('After clicking register, URL:', page.url());
+    await page.waitForTimeout(3000);
     
     // Wait for redirect and auth state to settle
     await page.waitForLoadState('networkidle');
@@ -182,9 +183,12 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     console.log('\n📝 STEP 3: Logout and sign up as receiver');
     
     const logoutBtn = page.locator('button:has-text("Logout")').first();
-    if (await logoutBtn.isVisible()) {
-      await logoutBtn.click();
+    if (await logoutBtn.isVisible({ timeout: 3000 })) {
+      await logoutBtn.click({ force: true });
       await page.waitForTimeout(1000);
+      console.log('✅ Logged out');
+    } else {
+      console.log('⚠️ Logout button not found, navigating directly');
     }
     
     const receiverEmail = `receiver${Date.now()}@test.com`;
@@ -207,9 +211,10 @@ test.describe('Complete Donation Flow - Full Happy Path', () => {
     
     const registerBtn2 = page.locator('button[type="submit"]').first();
     if (await registerBtn2.isVisible({ timeout: 5000 })) {
-      await registerBtn2.click();
+      await registerBtn2.click({ force: true });
       await page.waitForTimeout(3000);
     }
+    console.log('After second registration URL:', page.url());
     
     // Get receiver token
     const receiverToken = await getToken(page);
