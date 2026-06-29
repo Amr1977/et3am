@@ -12,7 +12,10 @@
 | Task | Status | Commit |
 |------|--------|--------|
 | ET3AM-012: Testimonial feature | ✅ Done | cd08c3e |
+| ET3AM-013: Sadaqat page | ✅ Done | 7e08534 |
 | Version bump to 1.22.0 | ✅ Done | cd08c3e |
+| Fix CI (E2E force click + Android glob) | ✅ Done | 657840c |
+| Fix release permissions | ✅ Done | c398d71 |
 
 ## Completed (Tested)
 - [x] ET3AM-001: Donation report/flag feature
@@ -43,6 +46,9 @@
 
 | Commit | Description |
 |--------|-------------|
+| c398d71 | fix: add contents:write permission to release job in build-and-release |
+| 657840c | fix: E2E click interception and Android APK unsigned path |
+| 7e08534 | feat: add sadaqat page with payment info, form, home button, and side menu |
 | cd08c3e | feat: add testimonial feature with CRUD, public endpoint, and frontend carousel |
 | 40f27c5 | fix: chat endless loading - fix 3 root causes |
 

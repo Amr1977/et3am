@@ -110,7 +110,7 @@ export default function Navbar() {
     { label: t('my_reservations.title'), path: '/my-reservations', icon: '📋', requiresAuth: true },
     { label: t('requests.my_requests'), path: '/my-requests', icon: '📝', requiresAuth: true },
     { label: t('requests.my_fulfillments'), path: '/my-fulfillments', icon: '✅', requiresAuth: true },
-    { label: t('nav.testimonials') || 'Testimonials', path: '/testimonials', icon: '⭐', requiresAuth: true },
+    { label: t('nav.testimonials') || 'Testimonials', path: '/testimonials', icon: '⭐' },
     { label: t('support.title'), path: '/support', icon: '💬', requiresAuth: true },
     { label: t('nav.profile'), path: '/profile', icon: '👤', requiresAuth: true },
     { label: t('nav.settings'), path: '/settings', icon: '⚙️', requiresAuth: true },

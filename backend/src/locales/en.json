@@ -35,6 +35,12 @@
     "password_too_short": "Password must be at least 6 characters",
     "invalid_language": "Invalid language selection"
   },
+  "testimonial": {
+    "created": "Testimonial submitted for review",
+    "not_found": "Testimonial not found",
+    "updated": "Testimonial updated successfully",
+    "deleted": "Testimonial deleted successfully"
+  },
   "general": {
     "server_error": "Internal server error",
     "not_found": "Resource not found",
