@@ -24,6 +24,25 @@ const baseFormat = winston.format.combine(
   winston.format.json(),
 );
 
+function safeStringify(obj: Record<string, unknown>, space?: number): string {
+  const seen = new WeakSet();
+  try {
+    return JSON.stringify(
+      obj,
+      (key: string, value: unknown) => {
+        if (typeof value === 'object' && value !== null) {
+          if (seen.has(value)) return '[Circular]';
+          seen.add(value);
+        }
+        return value;
+      },
+      space,
+    );
+  } catch {
+    return '[Unstringifiable]';
+  }
+}
+
 const transports: winston.transport[] = [
   new winston.transports.Console({
     level: process.env.LOG_LEVEL || 'debug',
@@ -32,7 +51,7 @@ const transports: winston.transport[] = [
       winston.format.errors({ stack: true }),
       winston.format.colorize({ all: true }),
       winston.format.printf(({ timestamp, level, message, ...meta }) => {
-        const metaStr = Object.keys(meta).length ? `\n${JSON.stringify(meta, null, 2)}` : '';
+        const metaStr = Object.keys(meta).length ? `\n${safeStringify(meta, 2)}` : '';
         return `${timestamp} [${level}]: ${message}${metaStr}`;
       }),
     ),
