@@ -249,6 +249,10 @@ export default function Admin() {
     if (tabId === 'testimonials') fetchTestimonials();
   };
 
+  useEffect(() => {
+    if (activeTab === 'testimonials') fetchTestimonials();
+  }, [testimonialFilter]);
+
   const fetchTestimonials = async () => {
     setTestimonialsLoading(true);
     try {
@@ -859,17 +863,23 @@ export default function Admin() {
 
         {activeTab === 'testimonials' && (
           <div className="admin-testimonials">
-            <div className="admin-table-header">
-              <div className="filter-group">
+            <div className="admin-section-header">
+              <h2>Testimonials</h2>
+              <div className="admin-filters">
                 <select
+                  className="admin-select"
                   value={testimonialFilter}
-                  onChange={(e) => { setTestimonialFilter(e.target.value); }}
+                  onChange={(e) => {
+                    setTestimonialFilter(e.target.value);
+                  }}
                 >
-                  <option value="all">All</option>
-                  <option value="true">Approved</option>
-                  <option value="false">Pending</option>
+                  <option value="all">All Testimonials</option>
+                  <option value="true">Approved Only</option>
+                  <option value="false">Pending Review</option>
                 </select>
-                <button className="btn btn-sm btn-outline" onClick={fetchTestimonials}>Refresh</button>
+                <button className="btn btn-sm btn-outline" onClick={fetchTestimonials}>
+                  ⟳ Refresh
+                </button>
               </div>
             </div>
             {testimonialsLoading ? (
@@ -882,43 +892,72 @@ export default function Admin() {
                   <thead>
                     <tr>
                       <th>User</th>
-                      <th>Content</th>
                       <th>Rating</th>
+                      <th>Content</th>
                       <th>Status</th>
                       <th>Featured</th>
-                      <th>Created</th>
+                      <th>Date</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {testimonials.map(t => (
                       <tr key={t.id}>
-                        <td>{t.name}</td>
-                        <td style={{ maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.content}</td>
-                        <td>{'★'.repeat(t.rating)}{'☆'.repeat(5 - t.rating)}</td>
+                        <td><strong>{t.name}</strong></td>
+                        <td><span style={{ color: '#f59e0b', whiteSpace: 'nowrap' }}>{'★'.repeat(t.rating)}{'☆'.repeat(5 - t.rating)}</span></td>
+                        <td style={{ maxWidth: 280 }}>{t.content}</td>
                         <td>
-                          <span className={`status-badge ${t.is_approved ? 'approved' : 'pending'}`}>
+                          <span className={`status-badge ${t.is_approved ? 'approved' : 'pending'}`}
+                            style={{
+                              background: t.is_approved ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)',
+                              color: t.is_approved ? '#16a34a' : '#d97706',
+                              padding: '3px 10px',
+                              borderRadius: '12px',
+                              fontSize: '0.8rem',
+                              fontWeight: 600,
+                            }}
+                          >
                             {t.is_approved ? 'Approved' : 'Pending'}
                           </span>
                         </td>
-                        <td>{t.is_featured ? '⭐' : '-'}</td>
-                        <td>{new Date(t.created_at).toLocaleDateString()}</td>
+                        <td style={{ textAlign: 'center' }}>{t.is_featured ? '⭐' : '—'}</td>
+                        <td style={{ whiteSpace: 'nowrap', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                          {new Date(t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </td>
                         <td>
-                          <div className="action-buttons">
+                          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                             <button
                               onClick={() => handleTestimonialToggleApprove(t.id, t.is_approved)}
-                              className={`btn btn-sm ${t.is_approved ? 'btn-warning' : 'btn-success'}`}
+                              className="btn btn-sm"
+                              style={{
+                                background: t.is_approved ? 'rgba(245,158,11,0.1)' : 'rgba(34,197,94,0.1)',
+                                color: t.is_approved ? '#d97706' : '#16a34a',
+                                border: `1px solid ${t.is_approved ? 'rgba(245,158,11,0.3)' : 'rgba(34,197,94,0.3)'}`,
+                              }}
                             >
-                              {t.is_approved ? 'Unapprove' : 'Approve'}
+                              {t.is_approved ? '↩ Unapprove' : '✓ Approve'}
                             </button>
                             <button
                               onClick={() => handleTestimonialToggleFeature(t.id, t.is_featured)}
-                              className={`btn btn-sm ${t.is_featured ? 'btn-warning' : 'btn-info'}`}
+                              className="btn btn-sm"
+                              style={{
+                                background: t.is_featured ? 'rgba(245,158,11,0.1)' : 'rgba(99,102,241,0.1)',
+                                color: t.is_featured ? '#d97706' : '#6366f1',
+                                border: `1px solid ${t.is_featured ? 'rgba(245,158,11,0.3)' : 'rgba(99,102,241,0.3)'}`,
+                              }}
                             >
-                              {t.is_featured ? 'Unfeature' : 'Feature'}
+                              {t.is_featured ? '☆ Unfeature' : '★ Feature'}
                             </button>
-                            <button onClick={() => handleTestimonialDelete(t.id)} className="btn btn-sm btn-danger">
-                              Delete
+                            <button
+                              onClick={() => handleTestimonialDelete(t.id)}
+                              className="btn btn-sm"
+                              style={{
+                                background: 'rgba(239,68,68,0.1)',
+                                color: '#ef4444',
+                                border: '1px solid rgba(239,68,68,0.3)',
+                              }}
+                            >
+                              ✕
                             </button>
                           </div>
                         </td>
