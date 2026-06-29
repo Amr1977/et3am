@@ -1418,6 +1418,10 @@ html[dir="rtl"] .version-badge {
   background: var(--bg);
 }
 
+.admin-page .page-container {
+  max-width: 1200px;
+}
+
 .admin-header-modern {
   display: flex;
   justify-content: space-between;
@@ -1437,6 +1441,18 @@ html[dir="rtl"] .version-badge {
 .admin-title-section p {
   color: var(--text-muted);
   font-size: 0.95rem;
+}
+
+/* Admin table - horizontal scroll on mobile */
+.admin-table {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.admin-table table {
+  min-width: 600px;
+  width: 100%;
 }
 
 .admin-actions {
@@ -1871,6 +1887,143 @@ html[dir="rtl"] .version-badge {
   .stat-badge {
     margin-left: 0;
     margin-top: 0.5rem;
+  }
+
+  /* Tabs */
+  .admin-tabs-container {
+    gap: 0.75rem;
+  }
+
+  .admin-tab-group {
+    gap: 0.25rem;
+  }
+
+  .admin-tabs-modern {
+    gap: 0.375rem;
+  }
+
+  .tab-modern {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .tab-icon {
+    font-size: 0.95rem;
+  }
+
+  .tab-group-label {
+    font-size: 0.65rem;
+  }
+
+  /* Section headers */
+  .admin-section-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-filters {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .admin-select,
+  .admin-search,
+  .admin-filters button,
+  .admin-filters input,
+  .admin-filters select {
+    width: 100%;
+  }
+
+  /* Crash section */
+  .crash-stats-bar {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+  }
+
+  .crash-filters {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .crash-filters select {
+    width: 100%;
+  }
+
+  .crash-meta {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  /* Donation cards */
+  .donation-meta {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .donation-address {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+  .admin-title-section h1 {
+    font-size: 1.35rem;
+  }
+
+  .admin-page {
+    padding: 0 0.5rem;
+  }
+
+  .stat-card-modern {
+    padding: 1rem;
+  }
+
+  .stat-card-modern .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .chart-card-modern {
+    padding: 1rem;
+  }
+
+  .chart-container {
+    height: 200px;
+  }
+
+  .chart-container.doughnut {
+    height: 230px;
+  }
+
+  .metric-card-modern {
+    padding: 1rem;
+  }
+
+  .metric-card-modern .metric-value {
+    font-size: 1.1rem;
+  }
+
+  .donation-card-modern {
+    padding: 0.75rem;
+  }
+
+  .donation-title {
+    font-size: 0.9rem;
+  }
+
+  .crash-card {
+    padding: 0.75rem;
+  }
+
+  .crash-stats-bar {
+    padding: 0.75rem;
+  }
+
+  .admin-crashes {
+    padding: 0.5rem;
   }
 }
 
