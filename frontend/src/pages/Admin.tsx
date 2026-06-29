@@ -57,6 +57,18 @@ interface Report {
   created_at: string;
 }
 
+interface Testimonial {
+  id: string;
+  user_id: string;
+  name: string;
+  role: string;
+  content: string;
+  rating: number;
+  is_approved: boolean;
+  is_featured: boolean;
+  created_at: string;
+}
+
 interface CrashLog {
   id: string;
   crash_type: string;
@@ -113,6 +125,9 @@ export default function Admin() {
   const [ticketsLoading, setTicketsLoading] = useState(false);
   const [reports, setReports] = useState<Report[]>([]);
   const [reportsLoading, setReportsLoading] = useState(false);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [testimonialsLoading, setTestimonialsLoading] = useState(false);
+  const [testimonialFilter, setTestimonialFilter] = useState<string>('all');
   const [crashLogs, setCrashLogs] = useState<CrashLog[]>([]);
   const [crashLogsLoading, setCrashLogsLoading] = useState(false);
   const [crashStats, setCrashStats] = useState({ frontend: 0, backend: 0, total: 0, unresolved: 0 });
@@ -230,6 +245,71 @@ export default function Admin() {
     if (tabId === 'crashes') {
       fetchCrashLogs();
       fetchCrashStats();
+    }
+    if (tabId === 'testimonials') fetchTestimonials();
+  };
+
+  const fetchTestimonials = async () => {
+    setTestimonialsLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (testimonialFilter !== 'all') params.set('is_approved', testimonialFilter);
+      const res = await fetchWithFailover(`/api/testimonials/all?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTestimonials(data.testimonials || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch testimonials:', err);
+    } finally {
+      setTestimonialsLoading(false);
+    }
+  };
+
+  const handleTestimonialToggleApprove = async (id: string, is_approved: boolean) => {
+    try {
+      const res = await fetchWithFailover(`/api/testimonials/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ is_approved: !is_approved }),
+      });
+      if (res.ok) {
+        setTestimonials(prev => prev.map(t => t.id === id ? { ...t, is_approved: !is_approved } : t));
+      }
+    } catch (err) {
+      console.error('Failed to update testimonial:', err);
+    }
+  };
+
+  const handleTestimonialToggleFeature = async (id: string, is_featured: boolean) => {
+    try {
+      const res = await fetchWithFailover(`/api/testimonials/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ is_featured: !is_featured }),
+      });
+      if (res.ok) {
+        setTestimonials(prev => prev.map(t => t.id === id ? { ...t, is_featured: !is_featured } : t));
+      }
+    } catch (err) {
+      console.error('Failed to toggle featured:', err);
+    }
+  };
+
+  const handleTestimonialDelete = async (id: string) => {
+    if (!confirm('Delete this testimonial?')) return;
+    try {
+      const res = await fetchWithFailover(`/api/testimonials/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setTestimonials(prev => prev.filter(t => t.id !== id));
+      }
+    } catch (err) {
+      console.error('Failed to delete testimonial:', err);
     }
   };
 
@@ -397,6 +477,7 @@ export default function Admin() {
     { id: 'donations', label: t('admin.tabs.donations'), icon: '🎁', parent: 'manage' },
     { id: 'tickets', label: t('admin.tabs.tickets'), icon: '🎫', parent: 'support' },
     { id: 'reports', label: t('admin.tabs.reports') || 'Reports', icon: '🚩', parent: 'support' },
+    { id: 'testimonials', label: t('admin.tabs.testimonials') || 'Testimonials', icon: '⭐', parent: 'manage' },
     { id: 'crashes', label: 'Crashes', icon: '💥', parent: 'support' },
   ];
 
@@ -766,6 +847,80 @@ export default function Admin() {
                           {r.status === 'pending' && (
                             <button onClick={() => handleReportResolve(r.id)} className="btn btn-sm btn-success">Resolve</button>
                           )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'testimonials' && (
+          <div className="admin-testimonials">
+            <div className="admin-table-header">
+              <div className="filter-group">
+                <select
+                  value={testimonialFilter}
+                  onChange={(e) => { setTestimonialFilter(e.target.value); }}
+                >
+                  <option value="all">All</option>
+                  <option value="true">Approved</option>
+                  <option value="false">Pending</option>
+                </select>
+                <button className="btn btn-sm btn-outline" onClick={fetchTestimonials}>Refresh</button>
+              </div>
+            </div>
+            {testimonialsLoading ? (
+              <div className="loading-spinner"></div>
+            ) : testimonials.length === 0 ? (
+              <p className="empty-state">No testimonials found</p>
+            ) : (
+              <div className="admin-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Content</th>
+                      <th>Rating</th>
+                      <th>Status</th>
+                      <th>Featured</th>
+                      <th>Created</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {testimonials.map(t => (
+                      <tr key={t.id}>
+                        <td>{t.name}</td>
+                        <td style={{ maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.content}</td>
+                        <td>{'★'.repeat(t.rating)}{'☆'.repeat(5 - t.rating)}</td>
+                        <td>
+                          <span className={`status-badge ${t.is_approved ? 'approved' : 'pending'}`}>
+                            {t.is_approved ? 'Approved' : 'Pending'}
+                          </span>
+                        </td>
+                        <td>{t.is_featured ? '⭐' : '-'}</td>
+                        <td>{new Date(t.created_at).toLocaleDateString()}</td>
+                        <td>
+                          <div className="action-buttons">
+                            <button
+                              onClick={() => handleTestimonialToggleApprove(t.id, t.is_approved)}
+                              className={`btn btn-sm ${t.is_approved ? 'btn-warning' : 'btn-success'}`}
+                            >
+                              {t.is_approved ? 'Unapprove' : 'Approve'}
+                            </button>
+                            <button
+                              onClick={() => handleTestimonialToggleFeature(t.id, t.is_featured)}
+                              className={`btn btn-sm ${t.is_featured ? 'btn-warning' : 'btn-info'}`}
+                            >
+                              {t.is_featured ? 'Unfeature' : 'Feature'}
+                            </button>
+                            <button onClick={() => handleTestimonialDelete(t.id)} className="btn btn-sm btn-danger">
+                              Delete
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
