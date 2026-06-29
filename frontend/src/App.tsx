@@ -10,6 +10,7 @@ import { logError } from './utils/logger';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import LocationPrompt from './components/LocationPrompt';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const Home = React.lazy(() => import('./pages/Home'));
 const Login = React.lazy(() => import('./pages/Login'));
@@ -82,33 +83,39 @@ function AppContent() {
       <Navbar />
       <main className="main-content">
         <Suspense fallback={<LoadingSpinner />}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/donations" element={<Donations />} />
-            <Route path="/donations/:id" element={<MealDetails />} />
-            <Route path="/my-donations" element={<MyDonations />} />
-            <Route path="/my-reservations" element={<MyReservations />} />
-            <Route path="/chat/:donationId" element={<Chat />} />
-            <Route path="/chat/request/:requestId" element={<Chat />} />
-            <Route path="/requests" element={<Requests />} />
-            <Route path="/requests/:id" element={<RequestDetails />} />
-            <Route path="/my-requests" element={<MyRequests />} />
-            <Route path="/my-fulfillments" element={<MyFulfillments />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/profile/:userId" element={<UserProfile />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/downloads" element={<Downloads />} />
-            <Route path="/notifications" element={<NotificationsPage />} />
-            <Route path="/testimonials" element={<TestimonialsPage />} />
-            <Route path="/sadaqat" element={<SadaqatPage />} />
-          </Routes>
+          <ErrorBoundary>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/donations" element={<Donations />} />
+              <Route path="/donations/:id" element={<MealDetails />} />
+              <Route path="/my-donations" element={<MyDonations />} />
+              <Route path="/my-reservations" element={<MyReservations />} />
+              <Route path="/chat/:donationId" element={<Chat />} />
+              <Route path="/chat/request/:requestId" element={<Chat />} />
+              <Route path="/requests" element={<Requests />} />
+              <Route path="/requests/:id" element={<RequestDetails />} />
+              <Route path="/my-requests" element={<MyRequests />} />
+              <Route path="/my-fulfillments" element={<MyFulfillments />} />
+              <Route path="/support" element={<Support />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/profile/:userId" element={<UserProfile />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/downloads" element={<Downloads />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/testimonials" element={<TestimonialsPage />} />
+              <Route path="/sadaqat" element={<SadaqatPage />} />
+              <Route path="*" element={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '40vh', flexDirection: 'column' }}>
+                <h2>Page Not Found</h2>
+                <p style={{ color: 'var(--text-secondary)' }}>The page you're looking for doesn't exist.</p>
+              </div>} />
+            </Routes>
+          </ErrorBoundary>
         </Suspense>
       </main>
       <Footer />

@@ -259,7 +259,7 @@ export default function DonationsMap({ donations, userLocation, t, onReserve, is
         attributionControl={false}
       >
         <BoundsTracker onBoundsChange={onBoundsChange} />
-        {center && <MapCenterUpdater center={center} />}
+        {center && <MapCenterUpdater center={center} zoom={userLocation ? 13 : 11} />}
         {!mapFullscreen && <MapInteractionHandler onInteraction={handleInteraction} />}
         <TileLayer url={tileUrl} />
 

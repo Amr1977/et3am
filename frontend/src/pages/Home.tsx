@@ -196,10 +196,18 @@ export default function Home() {
   const prevStatsRef = useRef<Stats | null>(null);
   const [launchInfo, setLaunchInfo] = useState(getLaunchProgress());
   const [mapFullscreen, setMapFullscreen] = useState(false);
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(() => {
+    try { const c = localStorage.getItem('userLocation'); return c ? JSON.parse(c) : null; } catch { return null; }
+  });
   const [locationError, setLocationError] = useState<string | null>(null);
-  const [mapCenter, setMapCenter] = useState<[number, number]>([20, 0]);
-  const [mapZoom, setMapZoom] = useState(2);
+  const [mapCenter, setMapCenter] = useState<[number, number]>(() => {
+    try { const c = localStorage.getItem('userLocation'); if (c) { const p = JSON.parse(c); return [p.lat, p.lng]; } } catch { /* */ }
+    return [20, 0];
+  });
+  const [mapZoom, setMapZoom] = useState(() => {
+    const s = localStorage.getItem('mapZoom');
+    return s ? parseInt(s, 10) : 12;
+  });
   const [mapFilter, setMapFilter] = useState<'all' | 'donations' | 'requests'>('all');
   const mapRef = useRef<L.Map | null>(null);
 
@@ -215,9 +223,12 @@ export default function Home() {
     }
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
-        setMapCenter([position.coords.latitude, position.coords.longitude]);
+        const loc = { lat: position.coords.latitude, lng: position.coords.longitude };
+        setUserLocation(loc);
+        setMapCenter([loc.lat, loc.lng]);
         setMapZoom(12);
+        localStorage.setItem('userLocation', JSON.stringify(loc));
+        localStorage.setItem('mapZoom', '12');
       },
       (err) => {
         console.warn('Geolocation error (user may have denied):', err.message);
@@ -419,7 +430,7 @@ export default function Home() {
                 url={tileUrl}
               />
               {center && (
-                <MapCenterUpdater center={center} />
+                <MapCenterUpdater center={center} zoom={mapZoom} />
               )}
               <HeroMapResizeHandler key={mapFullscreen ? 'a' : 'b'} />
               <MapFullscreenCenterHandler isFullscreen={mapFullscreen} center={center} />

@@ -1,16 +1,17 @@
 import { useEffect, useRef } from 'react';
 import { useMap } from 'react-leaflet';
 
-export default function MapCenterUpdater({ center }: { center: [number, number] }) {
+export default function MapCenterUpdater({ center, zoom }: { center: [number, number]; zoom?: number }) {
   const map = useMap();
-  const prevCenterRef = useRef<[number, number] | null>(null);
+  const prevRef = useRef<{ center: [number, number]; zoom?: number } | null>(null);
 
   useEffect(() => {
-    const prev = prevCenterRef.current;
-    if (!prev || prev[0] !== center[0] || prev[1] !== center[1]) {
-      prevCenterRef.current = center;
-      map.flyTo(center, map.getZoom(), { duration: 1.5 });
+    const prev = prevRef.current;
+    const centerChanged = !prev || prev.center[0] !== center[0] || prev.center[1] !== center[1];
+    if (centerChanged || (zoom !== undefined && prev?.zoom !== zoom)) {
+      prevRef.current = { center, zoom };
+      map.flyTo(center, zoom ?? map.getZoom(), { duration: 1.5 });
     }
-  }, [map, center]);
+  }, [map, center, zoom]);
   return null;
 }
