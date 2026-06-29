@@ -137,7 +137,6 @@ export default function TestimonialsPage() {
               <p className="testimonial-content">"{tst.content}"</p>
               <div className="testimonial-author">
                 <strong>{tst.name}</strong>
-                <span>{tst.role === 'donor' ? t('home.donor') : t('home.receiver')}</span>
               </div>
             </div>
           ))
