@@ -2,19 +2,34 @@ import * as admin from 'firebase-admin';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const serviceAccountPath = path.join(__dirname, '..', 'firebase-service-account.json');
 let serviceAccount: admin.ServiceAccount | null = null;
 
-if (fs.existsSync(serviceAccountPath)) {
+// Try GOOGLE_APPLICATION_CREDENTIALS first (for production)
+const googleCredsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+if (googleCredsPath && fs.existsSync(googleCredsPath)) {
   try {
-    const serviceAccountFile = fs.readFileSync(serviceAccountPath, 'utf8');
+    const serviceAccountFile = fs.readFileSync(googleCredsPath, 'utf8');
     serviceAccount = JSON.parse(serviceAccountFile);
-    console.log('Service account loaded successfully');
+    console.log('Service account loaded from GOOGLE_APPLICATION_CREDENTIALS');
   } catch (err) {
-    console.error('Failed to parse service account JSON:', err);
+    console.error('Failed to parse GOOGLE_APPLICATION_CREDENTIALS JSON:', err);
   }
-} else {
-  console.error('Service account file not found at:', serviceAccountPath);
+}
+
+// Fallback to local firebase-service-account.json (for development)
+if (!serviceAccount) {
+  const serviceAccountPath = path.join(__dirname, '..', 'firebase-service-account.json');
+  if (fs.existsSync(serviceAccountPath)) {
+    try {
+      const serviceAccountFile = fs.readFileSync(serviceAccountPath, 'utf8');
+      serviceAccount = JSON.parse(serviceAccountFile);
+      console.log('Service account loaded from local file');
+    } catch (err) {
+      console.error('Failed to parse local service account JSON:', err);
+    }
+  } else {
+    console.error('Service account file not found at:', serviceAccountPath);
+  }
 }
 
 const projectId = serviceAccount?.projectId || 'foodshare777';
