@@ -131,8 +131,8 @@ jobs:
             Automatic Android APK build from commit ${{ github.sha }}
             
             **Download:**
-            - [Debug APK](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/et3am-android.apk)
-            - [Release APK](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/et3am-android-release.apk)
+            - [Debug APK](https://github.com/${{ github.repository }}/releases/download/v${{ github.run_number }}-${{ github.sha }}/et3am-android.apk)
+            - [Release APK](https://github.com/${{ github.repository }}/releases/download/v${{ github.run_number }}-${{ github.sha }}/et3am-android-release.apk)
             
             **Install:**
             ```bash
