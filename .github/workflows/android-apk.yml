@@ -44,6 +44,7 @@ jobs:
         with:
           api-level: 34
           ndk-version: r26c
+          cmdline-tools-version: 'latest'
           emulator: false
 
       - name: Install frontend dependencies
