@@ -101,18 +101,24 @@ jobs:
         working-directory: ./frontend/android
         run: ./gradlew assembleRelease --no-daemon
 
+      - name: Rename Android APK for release
+        working-directory: ./frontend/android
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/et3am-android.apk
+          cp app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/et3am-android-release.apk
+
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: et3am-debug-apk
-          path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
+          path: frontend/android/app/build/outputs/apk/debug/et3am-android.apk
           retention-days: 30
 
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
           name: et3am-release-apk
-          path: frontend/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          path: frontend/android/app/build/outputs/apk/release/et3am-android-release.apk
           retention-days: 30
 
       - name: Create Release
@@ -125,19 +131,19 @@ jobs:
             Automatic Android APK build from commit ${{ github.sha }}
             
             **Download:**
-            - [Debug APK](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            - [Release APK](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            - [Debug APK](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/et3am-android.apk)
+            - [Release APK](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/et3am-android-release.apk)
             
             **Install:**
             ```bash
-            adb install app-debug.apk
+            adb install et3am-android.apk
             # or
-            adb install app-release-unsigned.apk
+            adb install et3am-android-release.apk
             ```
           draft: false
           prerelease: false
           files: |
-            frontend/android/app/build/outputs/apk/debug/app-debug.apk
-            frontend/android/app/build/outputs/apk/release/app-release-unsigned.apk
+            frontend/android/app/build/outputs/apk/debug/et3am-android.apk
+            frontend/android/app/build/outputs/apk/release/et3am-android-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
