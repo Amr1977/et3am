@@ -647,6 +647,58 @@ export default function Home() {
 
       <TestimonialsSection />
 
+      <section className="downloads-section">
+        <div className="section-header">
+          <span className="section-tag">{t('nav.downloads')}</span>
+          <h2 className="section-title">{t('home.download_apps') || 'Download Our Apps'}</h2>
+          <p className="section-desc">
+            Get the ET3AM app on your preferred platform
+          </p>
+        </div>
+
+        <div className="downloads-grid">
+          <Link to="/downloads" className="download-card android">
+            <div className="download-icon">📱</div>
+            <div className="download-info">
+              <h3>{t('nav.downloads')}</h3>
+              <p>{t('home.android_app') || 'Android App'}</p>
+              <span className="download-meta">APK &nbsp;·&nbsp; Latest</span>
+            </div>
+            <span className="download-arrow">→</span>
+          </Link>
+
+          <Link to="/downloads" className="download-card windows">
+            <div className="download-icon">🪟</div>
+            <div className="download-info">
+              <h3>{t('home.windows') || 'Windows'}</h3>
+              <p>{t('home.electron_app') || 'Electron App'}</p>
+              <span className="download-meta">EXE &nbsp;·&nbsp; Latest</span>
+            </div>
+            <span className="download-arrow">→</span>
+          </Link>
+
+          <Link to="/downloads" className="download-card macos">
+            <div className="download-icon">🍎</div>
+            <div className="download-info">
+              <h3>{t('home.macos') || 'macOS'}</h3>
+              <p>{t('home.electron_app') || 'Electron App'}</p>
+              <span className="download-meta">DMG &nbsp;·&nbsp; Latest</span>
+            </div>
+            <span className="download-arrow">→</span>
+          </Link>
+
+          <Link to="/downloads" className="download-card linux">
+            <div className="download-icon">🐧</div>
+            <div className="download-info">
+              <h3>{t('home.linux') || 'Linux'}</h3>
+              <p>{t('home.electron_app') || 'Electron App'}</p>
+              <span className="download-meta">AppImage &nbsp;·&nbsp; Latest</span>
+            </div>
+            <span className="download-arrow">→</span>
+          </Link>
+        </div>
+      </section>
+
       <section className="cta-section">
         <div className="cta-card" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
           <div className="cta-content" style={{ textAlign: 'center' }}>

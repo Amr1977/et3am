@@ -76,7 +76,13 @@
     "opensource_collab_desc": "Join our developer community and grow together",
     "opensource_view_repo": "View Repository",
     "opensource_star": "Star on GitHub",
-    "opensource_license": "Licensed under MIT - Free for everyone to use and contribute"
+    "opensource_license": "Licensed under MIT - Free for everyone to use and contribute",
+    "download_apps": "Download Our Apps",
+    "android_app": "Android App",
+    "windows": "Windows",
+    "macos": "macOS",
+    "linux": "Linux",
+    "electron_app": "Electron App"
   },
   "hadith": {
     "feed_believer": "Whoever feeds a believer until they are satiated, Allah will admit them through a gate of Paradise.",

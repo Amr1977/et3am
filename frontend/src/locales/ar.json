@@ -76,7 +76,13 @@
     "opensource_collab_desc": "انضم إلى مجتمع المطورين",
     "opensource_view_repo": "عرض المستودع",
     "opensource_star": "قيّم على GitHub",
-    "opensource_license": "مرخص بموجب MIT - مجاني للجميع للمساهمة والاستخدام"
+    "opensource_license": "مرخص بموجب MIT - مجاني للجميع للمساهمة والاستخدام",
+    "download_apps": "حمل تطبيقاتنا",
+    "android_app": "تطبيق أندرويد",
+    "windows": "ويندوز",
+    "macos": "ماك أو إس",
+    "linux": "لينكس",
+    "electron_app": "تطبيق إلكترون"
   },
   "hadith": {
     "feed_believer": "من أشبع مؤمناً حتى يَشْبَعَهAllah سيُدخله من باب من أبواب الجنة",
